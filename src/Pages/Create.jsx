@@ -66,8 +66,8 @@ export default function Create() {
   const [preview, setPreview] = useState();
   const [nftDetails, setNftDetails] = useState({
     category: categories[0],
-    name: "Test",
-    description: "Test Description",
+    name: "",
+    description: "",
     royalties: "",
     collectionId: 0,
     properties: [

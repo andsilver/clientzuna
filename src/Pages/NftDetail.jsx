@@ -196,8 +196,24 @@ const NFTDetailComponent = () => {
         if (nft.minted) {
           await contracts.market.methods
             .buy(user.pubKey, nft.currentAsk.typedData)
+            .estimateGas({ from: user.pubKey })
+          await contracts.market.methods
+            .buy(user.pubKey, nft.currentAsk.typedData)
             .send({ from: user.pubKey });
         } else {
+          await contracts.media.methods
+            .lazyBuyMint(
+              nft.tokenId,
+              {
+                tokenId: nft.tokenId,
+                royaltyFee: nft.royaltyFee,
+                collectionId: nft.collectionId || 0,
+                tokenUri: nft.tokenUri,
+                signature: nft.signature,
+              },
+              nft.currentAsk.typedData
+            )
+            .estimateGas({ from: user.pubKey })
           await contracts.media.methods
             .lazyBuyMint(
               nft.tokenId,

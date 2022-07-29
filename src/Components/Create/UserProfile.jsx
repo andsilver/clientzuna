@@ -110,11 +110,17 @@ export default function UserProfile({ user, mode }) {
             </Tooltip>
           </Typography>
           {user.twitter && (
-            <Typography fontWeight={600}>
-              <Link href={`https://twitter.com/${user.twitter}`}>
-                @{user.twitter}
-              </Link>
-            </Typography>
+            <a
+              href={`https://twitter.com/${user.twitter}`}
+              style={{
+                color: "white",
+                fontWeight: 600,
+                fontSize: 12,
+                textDecoration: "none",
+              }}
+            >
+              @{user.twitter}
+            </a>
           )}
           {user.bio && (
             <Typography mt={1} variant="subtitle2">
@@ -122,18 +128,21 @@ export default function UserProfile({ user, mode }) {
             </Typography>
           )}
           {user.instagram && (
-            <Link
+            <a
               href={`https://instagram.com/${user.instagram}`}
-              sx={{
+              style={{
+                color: "white",
+                fontWeight: 600,
                 display: "flex",
                 alignItems: "center",
-                mt: 2,
+                marginTop: 12,
                 fontSize: 13,
+                textDecoration: "none",
               }}
             >
               <LanguageRoundedIcon color="primary" fontSize="small" />
               <span>{`https://instagram.com/${user.instagram}`}</span>
-            </Link>
+            </a>
           )}
         </Box>
         <Divider />

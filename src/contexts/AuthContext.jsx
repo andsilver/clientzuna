@@ -31,7 +31,7 @@ const providerOptions = {
   },
 };
 const web3Modal = new Web3Modal({
-  network: "rinkeby", // optional
+  network: config.network || "rinkeby", // optional
   cacheProvider: true, // optional
   providerOptions, // required
 });
@@ -92,6 +92,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setAddress(null);
+    web3Modal.clearCachedProvider();
     localStorage.removeItem("token");
   };
 
@@ -115,10 +116,10 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const handleSignMessage = async (nonce) => {
-      const web3 = new Web3(Web3.givenProvider);
+      const instance = new Web3(Web3.givenProvider);
 
       try {
-        const signature = await web3.eth.personal.sign(
+        const signature = await instance.eth.personal.sign(
           `${config.authSignMessage}: ${nonce}`,
           address,
           ""
