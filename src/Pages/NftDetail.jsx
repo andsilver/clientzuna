@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 
 import { useSnackbar } from "../contexts/Snackbar";
 import {
@@ -70,6 +70,7 @@ const NFTDetailComponent = () => {
   const [bids, setBids] = useState([]);
   const [offerType, setOfferType] = useState("");
   const confirm = useConfirm();
+  const history = useHistory();
 
   const isMine = useMemo(() => {
     if (!nft || !user) {
@@ -196,7 +197,7 @@ const NFTDetailComponent = () => {
         if (nft.minted) {
           await contracts.market.methods
             .buy(user.pubKey, nft.currentAsk.typedData)
-            .estimateGas({ from: user.pubKey })
+            .estimateGas({ from: user.pubKey });
           await contracts.market.methods
             .buy(user.pubKey, nft.currentAsk.typedData)
             .send({ from: user.pubKey });
@@ -213,7 +214,7 @@ const NFTDetailComponent = () => {
               },
               nft.currentAsk.typedData
             )
-            .estimateGas({ from: user.pubKey })
+            .estimateGas({ from: user.pubKey });
           await contracts.media.methods
             .lazyBuyMint(
               nft.tokenId,
@@ -259,6 +260,58 @@ const NFTDetailComponent = () => {
     });
     await removeBid(bid.id);
     await fetchNFT();
+  };
+
+  const onBurn = async () => {
+    await confirm({
+      title: "Are you sure to burn your NFT?",
+      text: "The action cannot be reverted",
+    });
+    if (wrongNetwork) {
+      showWrongNetworkWarning();
+      return;
+    }
+    setLoading(true);
+
+    try {
+      await contracts.media.methods
+        .burn(nft.tokenId)
+        .send({ from: user.pubKey });
+      history.push("/");
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
+  const onTransfer = async (address) => {
+    if (!Web3.utils.isAddress(address)) {
+      return showSnackbar({
+        severity: "error",
+        message: "Invalid wallet address",
+      });
+    }
+
+    await confirm({
+      title: "Are you sure to transfer your bid?",
+      text: "The action cannot be reverted",
+    });
+
+    if (wrongNetwork) {
+      showWrongNetworkWarning();
+      return;
+    }
+    setLoading(true);
+
+    try {
+      await contracts.media.methods
+        .transferFrom(user.pubKey, address, nft.tokenId)
+        .send({ from: user.pubKey });
+      fetchNFT();
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
   };
 
   const onAcceptBid = async (bid) => {
@@ -353,6 +406,8 @@ const NFTDetailComponent = () => {
               isMine={isMine}
               onUpdate={updateSale}
               onRemoveSale={removeSale}
+              onTransfer={onTransfer}
+              onBurn={onBurn}
             />
             <NFTHistory
               nft={nft}

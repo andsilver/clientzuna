@@ -26,12 +26,10 @@ const providerOptions = {
       rpc: {
         [config.chainId]: config.chainRPC,
       },
-      network: config.network,
     },
   },
 };
 const web3Modal = new Web3Modal({
-  network: config.network || "rinkeby", // optional
   cacheProvider: true, // optional
   providerOptions, // required
 });

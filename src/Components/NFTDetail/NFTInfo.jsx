@@ -26,6 +26,7 @@ import NFTSale from "./NFTSale";
 import { currencyAddressToSymbol } from "../../helper/utils";
 import { useConfirm } from "../../contexts/Confirm";
 import CollectionLink from "../CollectionLink";
+import NFTTransferDialog from "./NFTTransferDialog";
 
 const NFTRoyaltyContainer = styled("div")`
   font-size: 12px;
@@ -71,11 +72,19 @@ const LinkMenu = styled(Menu)({
   },
 });
 
-export default function NFTInfo({ nft, isMine, onUpdate, onRemoveSale }) {
+export default function NFTInfo({
+  nft,
+  isMine,
+  onUpdate,
+  onRemoveSale,
+  onBurn,
+  onTransfer,
+}) {
   const { coins } = useCoinGecko();
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorActionEl, setAnchorActionEl] = useState(null);
   const [showSale, setShowSale] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
   const confirm = useConfirm();
 
   const open = Boolean(anchorEl);
@@ -206,9 +215,23 @@ export default function NFTInfo({ nft, isMine, onUpdate, onRemoveSale }) {
             >
               Set Price
             </MenuItem>
-            <MenuItem>Transfer Token</MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleActionClose();
+                setShowTransfer(true);
+              }}
+            >
+              Transfer Token
+            </MenuItem>
             <Divider />
-            <MenuItem>Burn Token</MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleActionClose();
+                onBurn();
+              }}
+            >
+              Burn Token
+            </MenuItem>
           </LinkMenu>
         </>
       )}
@@ -268,6 +291,14 @@ export default function NFTInfo({ nft, isMine, onUpdate, onRemoveSale }) {
         nft={nft}
         onClose={() => setShowSale(false)}
         onUpdate={onUpdate}
+      />
+      <NFTTransferDialog
+        open={showTransfer}
+        onClose={() => setShowTransfer(false)}
+        onSubmit={(address) => {
+          setShowTransfer(false);
+          onTransfer(address);
+        }}
       />
     </>
   ) : (

@@ -168,7 +168,10 @@ const NavBar = () => {
                     startIcon={<i className="fas fa-wallet" />}
                     variant="outlined"
                     color="secondary"
-                    onClick={connect}
+                    onClick={() => {
+                      toggleDrawer(false);
+                      connect();
+                    }}
                   >
                     Wallet Connect
                   </ConnectButton>
