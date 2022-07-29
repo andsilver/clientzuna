@@ -23,6 +23,7 @@ const providerOptions = {
   walletconnect: {
     package: WalletConnectProvider, // required
     options: {
+      infuraId: "2277777c3280436f956e6a3bc011bf6f",
       rpc: {
         [config.chainId]: config.chainRPC,
       },
