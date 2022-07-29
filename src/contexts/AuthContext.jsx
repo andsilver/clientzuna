@@ -84,6 +84,7 @@ export const AuthProvider = ({ children }) => {
       setChainId(chain);
       setWeb3(web3);
     } catch (err) {
+      web3Modal.clearCachedProvider();
       console.error(err);
     }
   };
@@ -125,6 +126,7 @@ export const AuthProvider = ({ children }) => {
         );
         return signature;
       } catch (err) {
+        web3Modal.clearCachedProvider();
         throw new Error("You need to sign the message to be able to log in.");
       }
     };
