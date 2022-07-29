@@ -24,7 +24,7 @@ export default function Explorer() {
         collectionId: query.get("collectionId") || "",
         offset: init ? 0 : nfts.length,
       });
-      setAllLoaded(res.length < 20);
+      setAllLoaded(res.length < 24);
       setNfts(init ? res : [...nfts, ...res]);
     } catch (err) {
       console.error(err);
@@ -49,7 +49,7 @@ export default function Explorer() {
         nfts={nfts}
         allLoaded={allLoaded}
         loading={loading}
-        loadMore={fetchNFTs}
+        loadMore={() => fetchNFTs(false)}
         maxCount={4}
       />
     </Container>

@@ -119,13 +119,54 @@ export const AuthProvider = ({ children }) => {
       const instance = new Web3(Web3.givenProvider);
 
       try {
-        const signature = await instance.eth.personal.sign(
-          `${config.authSignMessage}: ${nonce}`,
-          address,
-          ""
+        const params = {
+          domain: {
+            name: "Zunaverse",
+            version: "1",
+          },
+          message: {
+            nonce,
+          },
+          primaryType: "Message",
+          types: {
+            Message: [
+              {
+                name: "nonce",
+                type: "uint256",
+              },
+            ],
+            EIP712Domain: [
+              { name: "name", type: "string" },
+              { name: "version", type: "string" },
+            ],
+          },
+        };
+        const signature = await new Promise((resolve, reject) =>
+          instance.currentProvider.sendAsync(
+            {
+              method: "eth_signTypedData_v4",
+              params: [address, JSON.stringify(params)],
+              from: address,
+            },
+            (err, result) => {
+              if (err) {
+                reject(err);
+              }
+              if (result.error) {
+                reject(result.error);
+              }
+              resolve(result.result);
+            }
+          )
         );
+        // const signature = await instance.eth.personal.sign(
+        //   `${config.authSignMessage}: ${nonce}`,
+        //   address,
+        //   ""
+        // );
         return signature;
       } catch (err) {
+        console.error(err);
         web3Modal.clearCachedProvider();
         throw new Error("You need to sign the message to be able to log in.");
       }
