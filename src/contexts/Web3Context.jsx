@@ -1,11 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import Web3 from "web3";
 import { ethers } from "ethers";
 
@@ -29,7 +23,7 @@ export const Web3Context = createContext({
 });
 
 export const Web3Provider = ({ children }) => {
-  const { chainId, web3, user } = useAuthContext();
+  const { chainId, provider, user } = useAuthContext();
   const [serviceFee, setServiceFee] = useState(0);
   const { showSnackbar } = useSnackbar();
 
@@ -41,10 +35,10 @@ export const Web3Provider = ({ children }) => {
       return true;
     }
     return false;
-  },[chainId])
+  }, [chainId]);
 
   const contracts = useMemo(() => {
-    const instance = wrongNetwork || !web3 ? getWeb3() : web3;
+    const instance = wrongNetwork || !provider ? getWeb3() : new Web3(provider);
 
     const media = new instance.eth.Contract(
       mediaABI,
@@ -60,7 +54,7 @@ export const Web3Provider = ({ children }) => {
       media,
       market,
     };
-  }, [web3, wrongNetwork]);
+  }, [provider, wrongNetwork]);
 
   const getErc20Balance = async (currency, userAddress) => {
     const erc20 = getErc20Contract(currency);
@@ -77,11 +71,11 @@ export const Web3Provider = ({ children }) => {
   };
 
   const signEIP712 = async (types, data, contract) => {
-    if (!web3 || !chainId || !user || wrongNetwork) {
+    if (!provider || !chainId || !user || wrongNetwork) {
       return;
     }
-    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
-    const signer = provider.getSigner();
+    const p = new ethers.providers.Web3Provider(provider);
+    const signer = p.getSigner();
     const domain = {
       ...(contract === "market" ? config.sign.market : config.sign.zuna),
     };
@@ -96,7 +90,7 @@ export const Web3Provider = ({ children }) => {
   };
 
   const getErc20Contract = (address) => {
-    const instance = wrongNetwork || !web3 ? getWeb3() : web3;
+    const instance = wrongNetwork || !provider ? getWeb3() : new Web3(provider);
 
     return new instance.eth.Contract(
       erc20ABI,
@@ -111,7 +105,7 @@ export const Web3Provider = ({ children }) => {
   return (
     <Web3Context.Provider
       value={{
-        web3,
+        provider,
         contracts,
         wrongNetwork,
         getErc20Contract,

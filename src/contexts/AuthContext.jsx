@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from "web3";
+import { ethers } from "ethers";
 
 import { config } from "../config";
 import { getAuthToken, getMe, getNonce } from "../api/api";
@@ -14,7 +15,7 @@ export const AuthContext = createContext({
   disconnect: () => null,
   chainId: null,
   isAdmin: false,
-  web3: null,
+  provider: null,
   user: null,
   balance: 0,
 });
@@ -40,8 +41,8 @@ export const AuthProvider = ({ children }) => {
   const [address, setAddress] = useState("");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [web3, setWeb3] = useState(null);
   const [balance, setBalance] = useState(0);
+  const [provider, setProvider] = useState(null);
 
   const subscribeProvider = (provider) => {
     provider.on("disconnect", (error) => {
@@ -82,7 +83,7 @@ export const AuthProvider = ({ children }) => {
       const chain = await web3.eth.getChainId();
       setAddress(accounts[0]);
       setChainId(chain);
-      setWeb3(web3);
+      setProvider(provider);
     } catch (err) {
       web3Modal.clearCachedProvider();
       console.error(err);
@@ -112,59 +113,31 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     getBalance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, web3]);
+  }, [user, provider]);
 
   useEffect(() => {
     const handleSignMessage = async (nonce) => {
-      const instance = new Web3(Web3.givenProvider);
-
       try {
-        const params = {
-          domain: {
-            name: "Zunaverse",
-            version: "1",
-          },
-          message: {
-            nonce,
-          },
-          primaryType: "Message",
-          types: {
+        const p = new ethers.providers.Web3Provider(provider);
+        const signer = p.getSigner();
+        const domain = {
+          name: "Zunaverse",
+          version: "1",
+        };
+        return await signer._signTypedData(
+          domain,
+          {
             Message: [
               {
                 name: "nonce",
                 type: "uint256",
               },
             ],
-            EIP712Domain: [
-              { name: "name", type: "string" },
-              { name: "version", type: "string" },
-            ],
           },
-        };
-        const signature = await new Promise((resolve, reject) =>
-          instance.currentProvider.sendAsync(
-            {
-              method: "eth_signTypedData_v4",
-              params: [address, JSON.stringify(params)],
-              from: address,
-            },
-            (err, result) => {
-              if (err) {
-                reject(err);
-              }
-              if (result.error) {
-                reject(result.error);
-              }
-              resolve(result.result);
-            }
-          )
+          {
+            nonce,
+          }
         );
-        // const signature = await instance.eth.personal.sign(
-        //   `${config.authSignMessage}: ${nonce}`,
-        //   address,
-        //   ""
-        // );
-        return signature;
       } catch (err) {
         console.error(err);
         web3Modal.clearCachedProvider();
@@ -172,7 +145,7 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    if (!address) {
+    if (!address || !provider) {
       setUser(null);
       return;
     }
@@ -198,7 +171,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address]);
+  }, [address, provider]);
 
   useEffect(() => {
     if (web3Modal.cachedProvider) {
@@ -215,7 +188,7 @@ export const AuthProvider = ({ children }) => {
         connect: login,
         disconnect: logout,
         chainId,
-        web3,
+        provider,
         user,
         balance,
         fetchUser,
