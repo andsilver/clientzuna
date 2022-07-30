@@ -103,6 +103,8 @@ export const removeNFTSale = (tokenId) => api.delete(`/nft/${tokenId}/sale`);
 
 export const placeBid = (id, bid) => api.post(`/nft/${id}/bids`, bid);
 
+export const burnNFT = (id) => api.delete(`/nft/${id}`);
+
 export const removeBid = (id) => api.delete(`/bids/${id}`);
 
 export const reportUser = (data) => api.post(`/reports`, data);

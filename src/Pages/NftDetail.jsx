@@ -3,6 +3,7 @@ import { useHistory, useParams } from "react-router-dom";
 
 import { useSnackbar } from "../contexts/Snackbar";
 import {
+  burnNFT,
   getNft,
   getNftActivities,
   getNftBids,
@@ -274,9 +275,14 @@ const NFTDetailComponent = () => {
     setLoading(true);
 
     try {
-      await contracts.media.methods
-        .burn(nft.tokenId)
-        .send({ from: user.pubKey });
+      if (nft.minted) {
+        await contracts.media.methods
+          .burn(nft.tokenId)
+          .send({ from: user.pubKey });
+      } else {
+        await burnNFT(nft.id);
+      }
+
       history.push("/");
     } catch (err) {
       console.error(err);
