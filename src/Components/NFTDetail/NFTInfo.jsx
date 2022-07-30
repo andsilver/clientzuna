@@ -215,14 +215,16 @@ export default function NFTInfo({
             >
               Set Price
             </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleActionClose();
-                setShowTransfer(true);
-              }}
-            >
-              Transfer Token
-            </MenuItem>
+            {nft.minted && (
+              <MenuItem
+                onClick={() => {
+                  handleActionClose();
+                  setShowTransfer(true);
+                }}
+              >
+                Transfer Token
+              </MenuItem>
+            )}
             <Divider />
             <MenuItem
               onClick={() => {
