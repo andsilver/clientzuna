@@ -62,6 +62,7 @@ const NFTDetailComponent = () => {
     contracts,
     getErc20Contract,
     getErc20Balance,
+    approveMarket,
   } = useWeb3();
   const [nft, setNft] = useState();
   const { id } = useParams();
@@ -134,6 +135,7 @@ const NFTDetailComponent = () => {
           .setApprovalForAll(config.marketContractAddress, true)
           .send({ from: user.pubKey });
       }
+      await approveMarket();
     }
 
     try {
@@ -187,6 +189,8 @@ const NFTDetailComponent = () => {
       const allowance = await erc20.methods
         .allowance(user.pubKey, config.marketContractAddress)
         .call();
+
+      await approveMarket();
 
       if (allowance < amount) {
         await erc20.methods
@@ -309,6 +313,8 @@ const NFTDetailComponent = () => {
     }
     setLoading(true);
 
+    await approveMarket();
+
     try {
       await contracts.media.methods
         .transferFrom(user.pubKey, address, nft.tokenId)
@@ -342,6 +348,8 @@ const NFTDetailComponent = () => {
         message: "Sorry, the bidder doest not have enough balance at this time",
       });
     }
+
+    await approveMarket();
 
     setLoading(true);
 

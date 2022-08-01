@@ -12,6 +12,7 @@ import { config } from "../config";
 import { useAuthContext } from "./AuthContext";
 import { useSnackbar } from "./Snackbar";
 import { getWeb3 } from "../helper/utils";
+import { useConfirm } from "./Confirm";
 
 export const Web3Context = createContext({
   wrongNetwork: false,
@@ -20,12 +21,14 @@ export const Web3Context = createContext({
   signEIP712: async (types, data, contract) => undefined,
   getErc20Balance: (currency, address) => {},
   serviceFee: 0,
+  approveMarket: async () => {},
 });
 
 export const Web3Provider = ({ children }) => {
   const { chainId, provider, user } = useAuthContext();
   const [serviceFee, setServiceFee] = useState(0);
   const { showSnackbar } = useSnackbar();
+  const confirm = useConfirm();
 
   const wrongNetwork = useMemo(() => {
     if (!chainId) {
@@ -55,6 +58,35 @@ export const Web3Provider = ({ children }) => {
       market,
     };
   }, [provider, wrongNetwork]);
+
+  const approveMarket = async () => {
+    const wbnb = getErc20Contract(config.currencies.WBNB.address);
+    const allowance = await wbnb.methods
+      .allowance(user.pubKey, config.contractAddress)
+      .call();
+    const balance = await wbnb.methods.balanceOf(user.pubKey).call();
+
+    const amount = +Web3.utils.fromWei(allowance);
+    const bAmount = +Web3.utils.fromWei(balance);
+
+    if (amount > 100 && bAmount > 0) {
+      return;
+    }
+    await confirm({
+      title: "APPROVE MARKETPLACE",
+      text: "One-time Approval for further transactions",
+      cancelText: "",
+      okText: "Approve",
+    });
+    await wbnb.methods
+      .approve(
+        config.contractAddress,
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      )
+      .send({
+        from: user.pubKey,
+      });
+  };
 
   const getErc20Balance = async (currency, userAddress) => {
     const erc20 = getErc20Contract(currency);
@@ -113,6 +145,7 @@ export const Web3Provider = ({ children }) => {
         showWrongNetworkWarning,
         getErc20Balance,
         serviceFee,
+        approveMarket,
       }}
     >
       {children}

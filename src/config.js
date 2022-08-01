@@ -48,4 +48,5 @@ export const config = {
     "Metaverses",
     "ZunaNauts",
   ],
+  contractAddress: "0xffbbb68c266A9338e24eFB268dE19AbAe84c5700",
 };
