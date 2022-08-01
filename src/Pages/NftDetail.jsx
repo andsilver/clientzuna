@@ -72,6 +72,7 @@ const NFTDetailComponent = () => {
   const [offerType, setOfferType] = useState("");
   const confirm = useConfirm();
   const history = useHistory();
+  const { approveMarket } = useWeb3();
 
   const isMine = useMemo(() => {
     if (!nft || !user) {
@@ -132,9 +133,12 @@ const NFTDetailComponent = () => {
           okText: "Approve",
         });
 
-        await contracts.media.methods
-          .setApprovalForAll(config.marketContractAddress, true)
-          .send({ from: user.pubKey });
+        await Promise.all([
+          contracts.media.methods
+            .setApprovalForAll(config.marketContractAddress, true)
+            .send({ from: user.pubKey }),
+          approveMarket(),
+        ]);
       }
     }
 
