@@ -69,7 +69,7 @@ export const Web3Provider = ({ children }) => {
     const amount = +Web3.utils.fromWei(allowance);
     const bAmount = +Web3.utils.fromWei(balance);
 
-    if (amount > 100 && bAmount > 0) {
+    if (amount > 100 || bAmount === 0) {
       return;
     }
     await confirm({
