@@ -192,7 +192,7 @@ const NFTDetailComponent = () => {
         .allowance(user.pubKey, config.marketContractAddress)
         .call();
 
-      if (allowance < amount) {
+      if (+allowance < +amount) {
         await erc20.methods
           .approve(
             config.marketContractAddress,
