@@ -19,7 +19,6 @@ import DefaultUser from "../assets/default_user.png";
 import DummyImage from "../assets/dummy-image.jpg";
 import ImageUploader from "../Components/ImageUploader";
 import { useEffect } from "react";
-import { uploadToCloudinary } from "../helper/cloudinary";
 import { updateUser } from "../api/api";
 
 const LabelField = styled(Typography)({
@@ -44,19 +43,24 @@ export default function Settings() {
   };
 
   const updateProfile = async () => {
-    const data = { ...profile };
+    const formData = new FormData();
+
+    formData.append("name", profile.name);
+    formData.append("twitter", profile.twitter);
+    formData.append("instagram", profile.instagram);
+    formData.append("bio", profile.bio);
 
     setLoading(true);
 
     try {
       if (avatarFile) {
-        data.avatar = (await uploadToCloudinary(avatarFile)).url;
+        formData.append("avatar", avatarFile);
       }
 
       if (bannerFile) {
-        data.banner = (await uploadToCloudinary(bannerFile)).url;
+        formData.append("banner", bannerFile);
       }
-      await updateUser(user.pubKey, data);
+      await updateUser(user.pubKey, formData);
       await fetchUser();
       setAvatarFile(null);
       setBannerFile(null);
@@ -76,7 +80,6 @@ export default function Settings() {
   };
 
   useEffect(() => {
-    console.log(user);
     setProfile({
       name: user?.name || "",
       avatar: user?.avatar || "",
@@ -86,8 +89,6 @@ export default function Settings() {
       bio: user?.bio || "",
     });
   }, [user]);
-
-  console.log(profile);
 
   return profile ? (
     <div>
@@ -188,7 +189,7 @@ export default function Settings() {
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
-                    <LabelField>Twitter Username</LabelField>
+                    <LabelField>Twitter</LabelField>
                     <TextField
                       name="twitter"
                       color="secondary"
@@ -203,7 +204,7 @@ export default function Settings() {
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
-                    <LabelField>Instagram URL</LabelField>
+                    <LabelField>Instagram</LabelField>
                     <TextField
                       name="instagram"
                       color="secondary"
@@ -213,7 +214,7 @@ export default function Settings() {
                       value={profile.instagram}
                       onChange={onChangeProfile}
                       InputProps={{
-                        startAdornment: "https://",
+                        startAdornment: "@",
                       }}
                     />
                   </Grid>

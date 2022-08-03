@@ -402,7 +402,7 @@ const NFTDetailComponent = () => {
               }}
             >
               <img
-                src={nft.image}
+                src={nft.thumbnail}
                 alt=""
                 width="100%"
                 height="auto"

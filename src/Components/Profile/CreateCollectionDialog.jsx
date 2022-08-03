@@ -9,7 +9,6 @@ import {
 import { useState } from "react";
 import { createCollection, updateCollection } from "../../api/api";
 import { useSnackbar } from "../../contexts/Snackbar";
-import { uploadToCloudinary } from "../../helper/cloudinary";
 import { StyledDialog, StyledDialogTitle } from "../common/DialogElements";
 import OverlayLoading from "../common/OverlayLoading";
 import ImageUploader from "../ImageUploader";
@@ -59,20 +58,26 @@ export default function CreateCollectionDialog({
     setLoading(true);
 
     try {
-      const data = { ...collection };
+      const formData = new FormData();
+
+      Object.entries(collection).forEach(([key, value]) => {
+        if (value && !["banner", "image"].includes(key)) {
+          formData.append(key, value);
+        }
+      });
 
       if (imageFile) {
-        data.image = (await uploadToCloudinary(imageFile)).url;
+        formData.append("image", imageFile);
       }
 
       if (bannerFile) {
-        data.banner = (await uploadToCloudinary(bannerFile)).url;
+        formData.append("banner", bannerFile);
       }
 
       if (editing) {
-        await updateCollection(collectionData.id, data);
+        await updateCollection(collectionData.id, formData);
       } else {
-        await createCollection(data);
+        await createCollection(formData);
       }
 
       showSnackbar({

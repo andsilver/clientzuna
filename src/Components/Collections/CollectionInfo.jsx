@@ -1,3 +1,5 @@
+import InstagramIcon from "@mui/icons-material/Instagram";
+import TwitterIcon from "@mui/icons-material/Twitter";
 import { Box, Button, Grid, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import { memo } from "react";
@@ -47,12 +49,7 @@ export default memo(({ collection, onEdit, isOwner }) => {
           </Button>
         )}
       </Grid>
-      <Grid
-        container
-        spacing={3}
-        justifyContent="space-between"
-        alignItems="end"
-      >
+      <Grid container spacing={3} justifyContent="space-between">
         <Grid item xs={12} md={6}>
           <Typography mt={2} variant="h5" fontWeight="bold" color="primary">
             {collection.name}
@@ -116,6 +113,30 @@ export default memo(({ collection, onEdit, isOwner }) => {
               </Grid>
             </Grid>
           </CollectionInfoBox>
+          <Grid container spacing={1} justifyContent="flex-end" pr={2}>
+            {collection.instagram && (
+              <Grid item mt={2}>
+                <a
+                  href={`https://instagram.com/${collection.instagram}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <InstagramIcon color="primary" />
+                </a>
+              </Grid>
+            )}
+            {collection.twitter && (
+              <Grid item mt={2}>
+                <a
+                  href={`https://twitter.com/${collection.twitter}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <TwitterIcon color="primary" />
+                </a>
+              </Grid>
+            )}
+          </Grid>
         </Grid>
       </Grid>
     </div>

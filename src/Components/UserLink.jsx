@@ -11,7 +11,7 @@ export default memo(
       <Link to={`/users/${user.pubKey}`}>
         <Grid container alignItems="center">
           <img
-            src={user.avatar || DefaultUserImg}
+            src={user.thumbnail || user.avatar || DefaultUserImg}
             alt="img"
             width={size}
             height={size}

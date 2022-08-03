@@ -8,9 +8,10 @@ import {
   Link as LinkE,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
 import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import TwitterIcon from "@mui/icons-material/Twitter";
 import { styled } from "@mui/system";
 
 import Link from "../Link";
@@ -109,42 +110,37 @@ export default function UserProfile({ user, mode }) {
               </LinkE>
             </Tooltip>
           </Typography>
-          {user.twitter && (
-            <a
-              href={`https://twitter.com/${user.twitter}`}
-              style={{
-                color: "white",
-                fontWeight: 600,
-                fontSize: 12,
-                textDecoration: "none",
-              }}
-            >
-              @{user.twitter}
-            </a>
-          )}
           {user.bio && (
             <Typography mt={1} variant="subtitle2">
               {user.bio}
             </Typography>
           )}
-          {user.instagram && (
-            <a
-              href={`https://instagram.com/${user.instagram}`}
-              style={{
-                color: "white",
-                fontWeight: 600,
-                display: "flex",
-                alignItems: "center",
-                marginTop: 12,
-                fontSize: 13,
-                textDecoration: "none",
-              }}
-            >
-              <LanguageRoundedIcon color="primary" fontSize="small" />
-              <span>{`https://instagram.com/${user.instagram}`}</span>
-            </a>
-          )}
+          <Grid container spacing={1}>
+            {user.instagram && (
+              <Grid item mt={2}>
+                <a
+                  href={`https://instagram.com/${user.instagram}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <InstagramIcon color="primary" />
+                </a>
+              </Grid>
+            )}
+            {user.twitter && (
+              <Grid item mt={2}>
+                <a
+                  href={`https://twitter.com/${user.twitter}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <TwitterIcon color="primary" />
+                </a>
+              </Grid>
+            )}
+          </Grid>
         </Box>
+
         <Divider />
         <Grid container alignItems="center" justifyContent="space-between">
           <Grid item>

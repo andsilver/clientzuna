@@ -18,10 +18,6 @@ export const config = {
   chainRPC: "https://rinkeby.infura.io/v3/2277777c3280436f956e6a3bc011bf6f",
   apiUrl: "http://localhost:3001/api",
   authSignMessage: "Zunaverse",
-  cloudinary: {
-    url: "https://api.cloudinary.com/v1_1/myfancy/image/upload",
-    upload_preset: "hl7913oa",
-  },
   sign: {
     zuna: {
       name: "Zunaverse",
@@ -48,5 +44,4 @@ export const config = {
     "Metaverses",
     "ZunaNauts",
   ],
-  contractAddress: "0xffbbb68c266A9338e24eFB268dE19AbAe84c5700",
 };

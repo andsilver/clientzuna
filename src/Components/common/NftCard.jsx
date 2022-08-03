@@ -66,7 +66,7 @@ export default function NftCard({ nft }) {
       <Link to={`/items/${nft.id}`}>
         <CardActionArea>
           <CardMedia
-            image={nft.image}
+            image={nft.thumbnail}
             title={nft.name}
             component="img"
             height={240}
