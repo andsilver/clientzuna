@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { filterNfts } from "../api/api";
 import NftList from "../Components/common/NftList";
-import OverlayLoading from "../Components/common/OverlayLoading";
 import ExplorerFilter from "../Components/Explorer/Filter";
 import useQuery from "../hooks/useQuery";
 
@@ -40,7 +39,6 @@ export default function Explorer() {
 
   return (
     <Container maxWidth="xl" sx={{ pb: 4 }}>
-      <OverlayLoading show={loading} />
       <Typography variant="h3" fontWeight="bold" color="primary" mb={3} mt={3}>
         Explore Exclusive Digital Assets
       </Typography>

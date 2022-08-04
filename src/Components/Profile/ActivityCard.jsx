@@ -7,7 +7,6 @@ import {
 } from "../../helper/utils";
 import Link from "../Link";
 import DefaultUser from "../../assets/default_user.png";
-import { config } from "../../config";
 
 export default memo(({ activity }) => {
   const { image, link, name, timeStr, detail } = useMemo(() => {
@@ -15,7 +14,7 @@ export default memo(({ activity }) => {
 
     if (activity.nft) {
       return {
-        image: activity.nft.image.replace("ipfs://", config.pinataGateWay),
+        image: activity.nft.thumbnail,
         link: `/items/${activity.nft.id}`,
         name: activity.nft.name,
         timeStr,
@@ -26,7 +25,10 @@ export default memo(({ activity }) => {
     }
     if (activity.receiver) {
       return {
-        image: activity.receiver.avatar || DefaultUser,
+        image:
+          activity.receiver.thumbnail ||
+          activity.receiver.avatar ||
+          DefaultUser,
         link: `/users/${activity.receiver.pubKey}`,
         name:
           activity.receiver.name ||

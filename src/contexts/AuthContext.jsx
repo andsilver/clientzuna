@@ -169,6 +169,7 @@ export const AuthProvider = ({ children }) => {
         console.error(err);
         setUser(null);
         setLoading(false);
+        web3Modal.clearCachedProvider();
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, provider]);
