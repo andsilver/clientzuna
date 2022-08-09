@@ -1,5 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { HelmetProvider } from "react-helmet-async";
+
 import "./index.scss";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
@@ -12,19 +14,21 @@ import { ConfirmProvider } from "./contexts/Confirm";
 
 ReactDOM.render(
   <React.StrictMode>
-    <ColorModeProvider>
-      <SnackbarProvider>
-        <ConfirmProvider>
-          <CoinGeckoProvider>
-            <AuthProvider>
-              <Web3Provider>
-                <App />
-              </Web3Provider>
-            </AuthProvider>
-          </CoinGeckoProvider>
-        </ConfirmProvider>
-      </SnackbarProvider>
-    </ColorModeProvider>
+    <HelmetProvider>
+      <ColorModeProvider>
+        <SnackbarProvider>
+          <ConfirmProvider>
+            <CoinGeckoProvider>
+              <AuthProvider>
+                <Web3Provider>
+                  <App />
+                </Web3Provider>
+              </AuthProvider>
+            </CoinGeckoProvider>
+          </ConfirmProvider>
+        </SnackbarProvider>
+      </ColorModeProvider>
+    </HelmetProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

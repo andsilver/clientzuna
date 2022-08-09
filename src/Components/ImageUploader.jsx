@@ -19,7 +19,10 @@ export default function ImageUploader({
 
   const { getRootProps, getInputProps, open } = useDropzone({
     onDrop,
-    accept: "image/*",
+    accept: {
+      "image/jpeg": [],
+      "image/png": [],
+    },
     noClick: true,
   });
 

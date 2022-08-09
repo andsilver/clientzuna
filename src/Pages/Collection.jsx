@@ -111,7 +111,10 @@ export default function Collection() {
             <Box my={4}>
               {currentTab === "items" && (
                 <div>
-                  <ExplorerFilter showCollection={false} />
+                  <ExplorerFilter
+                    showCollection={false}
+                    properties={collection.properties}
+                  />
                   <CollectionItems collection={collection} />
                 </div>
               )}

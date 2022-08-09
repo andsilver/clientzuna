@@ -94,7 +94,7 @@ export default function Notifications({ user }) {
                 <Link to={`/items/${n.nft.id}`}>
                   <div
                     style={{
-                      backgroundImage: `url(${n.nft.image})`,
+                      backgroundImage: `url(${n.nft.thumbnail})`,
                       width: 36,
                       height: 36,
                       borderRadius: "50%",

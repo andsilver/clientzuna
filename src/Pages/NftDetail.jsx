@@ -31,6 +31,7 @@ import Web3 from "web3";
 import OfferDialog from "../Components/common/OfferDialog";
 import { config } from "../config";
 import { useConfirm } from "../contexts/Confirm";
+import Meta from "../Components/common/Meta";
 
 const types = {
   Offer: [
@@ -391,6 +392,14 @@ const NFTDetailComponent = () => {
   return (
     <Container maxWidth="lg">
       <OverlayLoading show={loading} />
+      {nft && (
+        <Meta
+          title={nft.name}
+          description={nft.description}
+          url={`${window.location.origin}/items/${nft.id}`}
+          image={nft.thumbnail}
+        />
+      )}
       {nft && (
         <Grid py={4} container spacing={4}>
           <Grid item xs={12} md={6}>

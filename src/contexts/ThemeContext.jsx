@@ -61,7 +61,7 @@ const getDesignTokens = (mode) => ({
     fontFamily: "Urbanist, sans-serif",
     fontWeightLight: 400,
     fontWeight: 600,
-    fontSize: 12,
+    fontSize: 13,
   },
   components: {
     MuiButton: {

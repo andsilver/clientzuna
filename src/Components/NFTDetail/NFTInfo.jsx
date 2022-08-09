@@ -12,8 +12,8 @@ import {
 import { styled } from "@mui/system";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
-import TelegramIcon from "@mui/icons-material/Telegram";
-import EmailIcon from "@mui/icons-material/Email";
+// import TelegramIcon from "@mui/icons-material/Telegram";
+// import EmailIcon from "@mui/icons-material/Email";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LaunchIcon from "@mui/icons-material/Launch";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -151,20 +151,23 @@ export default function NFTInfo({
           </Typography>
           <div>
             <ShareLink
-              href={`https://www.facebook.com/sharer/sharer.php?u=http://zunaverse.live/items/${nft.id}&caption=${nft.name}&description=${nft.description}`}
+              href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.origin}/items/${nft.id}`}
               target="_blank"
             >
               <FacebookIcon />
             </ShareLink>
-            <ShareLink target="_blank">
+            <ShareLink
+              href={`https://twitter.com/intent/tweet?url=${window.location.origin}/items/${nft.id}`}
+              target="_blank"
+            >
               <TwitterIcon />
             </ShareLink>
-            <ShareLink target="_blank">
+            {/* <ShareLink target="_blank">
               <TelegramIcon />
             </ShareLink>
             <ShareLink target="_blank">
               <EmailIcon />
-            </ShareLink>
+            </ShareLink> */}
           </div>
         </Grid>
       </Grid>

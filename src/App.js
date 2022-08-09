@@ -10,6 +10,7 @@ import Footer from "./Components/Footer/Footer";
 // import NAVItemsList from "./Pages/NFTItemsList";
 // import CreateNFTCollection from "./Pages/CreateNFTCollection";
 import Loading from "./Components/Loading";
+import Meta from "./Components/common/Meta";
 
 const Create = lazy(() => import("./Pages/Create"));
 const NftDetail = lazy(() => import("./Pages/NftDetail"));
@@ -28,6 +29,12 @@ function App() {
     <div style={{ background: background.default }}>
       <Router>
         <NavBar />
+        <Meta
+          title="Discover Out Of This World NFT's on Binance Smart Chain"
+          description="Zunaverse is an NFT marketplace built on Binance Smart Chain, where you can Create, Buy and Sell with faster transactions and lower fees."
+          image="https://res.cloudinary.com/zunaverse-media/image/upload/v1659707919/home/zunaverse_jzqaus.png"
+          url={window.location.origin}
+        />
         <div style={{ background, minHeight: "calc(100vh)" }}>
           <Suspense fallback={<Loading />}>
             <Switch>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { filterNfts } from "../../api/api";
+import { config } from "../../config";
 import useLoading from "../../hooks/useLoading";
 import useQuery from "../../hooks/useQuery";
 import NftList from "../common/NftList";
@@ -16,12 +17,13 @@ export default function CollectionItems({ collection }) {
       category: query.get("category") || "",
       search: query.get("search") || "",
       saleType: query.get("saleType") || "",
+      properties: query.get("properties") || "",
     };
     const res = await sendRequest(() => filterNfts(filter));
 
     if (res) {
       setItems(init ? res : [...items, ...res]);
-      setAllLoaded(res.length < 20);
+      setAllLoaded(res.length < config.defaultPageSize);
     }
   };
 
