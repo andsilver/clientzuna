@@ -4,6 +4,7 @@ import { useState } from "react";
 import { filterNfts } from "../api/api";
 import NftList from "../Components/common/NftList";
 import ExplorerFilter from "../Components/Explorer/Filter";
+import { config } from "../config";
 import useQuery from "../hooks/useQuery";
 
 export default function Explorer() {
@@ -23,7 +24,7 @@ export default function Explorer() {
         collectionId: query.get("collectionId") || "",
         offset: init ? 0 : nfts.length,
       });
-      setAllLoaded(res.length < 24);
+      setAllLoaded(res.length < config.defaultPageSize);
       setNfts(init ? res : [...nfts, ...res]);
     } catch (err) {
       console.error(err);

@@ -5,7 +5,9 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 
 import { getHomeData } from "../../api/api";
+import useLoading from "../../hooks/useLoading";
 import CollectionCard from "../Collections/CollectionCard";
+import SectionLoading from "../SectionLoading";
 import UserLink from "../UserLink";
 import HomeItemsInfo from "./HomeItemsInfo";
 import ProfileCard from "./ProfileCard";
@@ -46,46 +48,67 @@ const Title = styled(({ ...props }) => (
 
 export default function HomeItems() {
   const [data, setData] = useState();
+  const { loading, sendRequest } = useLoading();
 
   const fetchHomeData = async () => {
-    const homeData = await getHomeData();
-    setData(homeData);
+    const homeData = await sendRequest(() => getHomeData());
+
+    if (homeData) {
+      setData(homeData);
+    }
   };
 
   useEffect(() => {
     fetchHomeData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <Container maxWidth="xl">
       <Title>Featured Users</Title>
-      <Carousel responsive={responsive}>
-        {(data?.featuredUsers || []).map((u) => (
-          <ProfileCard key={u.id} user={u} />
-        ))}
-      </Carousel>
+      {loading ? (
+        <SectionLoading />
+      ) : (
+        <Carousel responsive={responsive}>
+          {(data?.featuredUsers || []).map((u) => (
+            <ProfileCard key={u.id} user={u} />
+          ))}
+        </Carousel>
+      )}
       <Title>Collections</Title>
-      <Carousel responsive={responsive}>
-        {(data?.collections || []).map((u) => (
-          <CollectionCard key={u.id} collection={u} />
-        ))}
-      </Carousel>
+      {loading ? (
+        <SectionLoading />
+      ) : (
+        <Carousel responsive={responsive}>
+          {(data?.collections || []).map((u) => (
+            <CollectionCard key={u.id} collection={u} />
+          ))}
+        </Carousel>
+      )}
       <Title>Top Sellers</Title>
-      <Grid mb={7} container spacing={2}>
-        {(data?.sellers || []).map((s) => (
-          <Grid item xs={6} md={3} lg={2} key={s.id}>
-            <UserLink user={s} />
-          </Grid>
-        ))}
-      </Grid>
+      {loading ? (
+        <SectionLoading />
+      ) : (
+        <Grid mb={7} container spacing={2}>
+          {(data?.sellers || []).map((s) => (
+            <Grid item xs={6} md={3} lg={2} key={s.id}>
+              <UserLink user={s} />
+            </Grid>
+          ))}
+        </Grid>
+      )}
       <Title>Top Buyers</Title>
-      <Grid mb={8} container spacing={2}>
-        {(data?.buyers || []).map((s) => (
-          <Grid item xs={6} md={3} lg={2} key={s.id}>
-            <UserLink user={s} />
-          </Grid>
-        ))}
-      </Grid>
+      {loading ? (
+        <SectionLoading />
+      ) : (
+        <Grid mb={8} container spacing={2}>
+          {(data?.buyers || []).map((s) => (
+            <Grid item xs={6} md={3} lg={2} key={s.id}>
+              <UserLink user={s} />
+            </Grid>
+          ))}
+        </Grid>
+      )}
       <Title>Get Started Creating & Selling Your NFTs</Title>
       <HomeItemsInfo />
     </Container>
