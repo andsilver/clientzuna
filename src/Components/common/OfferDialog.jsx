@@ -62,7 +62,7 @@ export default function OfferDialog({
   open,
 }) {
   const [amount, setAmount] = useState("");
-  const [currency] = useState(
+  const [currency, setCurrency] = useState(
     buying ? nft.currentAsk.currency : config.currencies.WBNB.address
   );
   const [currencyBalance, setCurrencyBalance] = useState(0);
@@ -152,6 +152,7 @@ export default function OfferDialog({
                 <Grid item xs={6}>
                   <Select
                     value={currency}
+                    onChange={(e) => setCurrency(e.target.value)}
                     size="small"
                     fullWidth
                     color="secondary"
