@@ -59,7 +59,6 @@ export default function OfferDialog({
   buying = false,
   onClose,
   onSubmit,
-  open,
 }) {
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState(
@@ -85,7 +84,7 @@ export default function OfferDialog({
   }, [currency, user]);
 
   return nft ? (
-    <OfferDialogContainer onClose={onClose} open={open}>
+    <OfferDialogContainer onClose={onClose} open>
       <OfferDialogTitle onClose={onClose}>
         <Typography color="primary" fontWeight="bold">
           {buying ? "CHECKOUT" : "PLACE A BID"}

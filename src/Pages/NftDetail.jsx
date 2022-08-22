@@ -466,13 +466,14 @@ const NFTDetailComponent = () => {
                       PLACE A BID
                     </Button>
                   )}
-                  <OfferDialog
-                    open={!!offerType}
-                    buying={offerType === "buy"}
-                    nft={nft}
-                    onClose={() => setOfferType("")}
-                    onSubmit={handleOffer}
-                  />
+                  {!!offerType && (
+                    <OfferDialog
+                      buying={offerType === "buy"}
+                      nft={nft}
+                      onClose={() => setOfferType("")}
+                      onSubmit={handleOffer}
+                    />
+                  )}
                 </>
               )}
             </Box>
