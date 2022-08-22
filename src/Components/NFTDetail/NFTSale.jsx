@@ -57,6 +57,13 @@ export default function NFTSale({ nft, open, onClose, onUpdate }) {
     onUpdate({ onSale, price, instantSale });
   };
 
+  const handleCurrencyChange = (e) => {
+    setPrice((p) => ({
+      ...p,
+      currency: e.target.value,
+    }));
+  };
+
   return (
     <SaleDialog
       onClose={onClose}
@@ -129,8 +136,10 @@ export default function NFTSale({ nft, open, onClose, onUpdate }) {
                 size="small"
                 fullWidth
                 color="secondary"
+                onChange={handleCurrencyChange}
               >
                 <MenuItem value={config.currencies.WBNB.address}>WBNB</MenuItem>
+                <MenuItem value={config.currencies.ZUNA.address}>ZUNA</MenuItem>
               </Select>
             </Grid>
           </Grid>

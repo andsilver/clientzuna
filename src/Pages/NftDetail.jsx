@@ -26,7 +26,7 @@ import NFTInfo from "../Components/NFTDetail/NFTInfo";
 import NFTHistory from "../Components/NFTDetail/NFTHistory";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useWeb3 } from "../contexts/Web3Context";
-import { sameAddress } from "../helper/utils";
+import { getCurrencyDecimals, sameAddress, toWei } from "../helper/utils";
 import Web3 from "web3";
 import OfferDialog from "../Components/common/OfferDialog";
 import { config } from "../config";
@@ -119,8 +119,6 @@ const NFTDetailComponent = () => {
       return;
     }
 
-    setLoading(true);
-
     if (data.instantSale || data.onSale) {
       const marketplaceApproved = await contracts.media.methods
         .isApprovedForAll(user.pubKey, config.marketContractAddress)
@@ -134,21 +132,22 @@ const NFTDetailComponent = () => {
           okText: "Approve",
         });
 
-        await Promise.all([
-          contracts.media.methods
-            .setApprovalForAll(config.marketContractAddress, true)
-            .send({ from: user.pubKey }),
-          approveMarket(),
-        ]);
+        await contracts.media.methods
+          .setApprovalForAll(config.marketContractAddress, true)
+          .send({ from: user.pubKey });
       }
+      approveMarket(data.price.currency);
     }
+
+    setLoading(true);
 
     try {
       if (data.instantSale) {
+        const decimals = getCurrencyDecimals(data.price.currency);
         const listing = {
           tokenId: nft.tokenId,
           erc20Address: data.price.currency,
-          amount: Web3.utils.toWei(data.price.amount),
+          amount: toWei(data.price.amount, decimals),
           createdAt: `${Date.now()}`,
         };
 
@@ -183,9 +182,12 @@ const NFTDetailComponent = () => {
     const buying = offerType === "buy";
 
     try {
+      const decimals = getCurrencyDecimals(
+        buying ? nft.currentAsk.currency : data.currency
+      );
       const amount = buying
         ? nft.currentAsk.typedData.amount
-        : Web3.utils.toWei(data.amount);
+        : toWei(data.amount, decimals);
       const erc20 = getErc20Contract(
         buying ? nft.currentAsk.currency : data.currency
       );

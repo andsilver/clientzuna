@@ -19,7 +19,12 @@ export default function CollectionItems({ collection }) {
       saleType: query.get("saleType") || "",
       properties: query.get("properties") || "",
     };
-    const res = await sendRequest(() => filterNfts(filter));
+    const res = await sendRequest(() =>
+      filterNfts({
+        ...filter,
+        offset: init ? 0 : items.length,
+      })
+    );
 
     if (res) {
       setItems(init ? res : [...items, ...res]);

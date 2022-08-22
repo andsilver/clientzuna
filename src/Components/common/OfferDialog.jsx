@@ -62,7 +62,9 @@ export default function OfferDialog({
   open,
 }) {
   const [amount, setAmount] = useState("");
-  const [currency] = useState(config.currencies.WBNB.address);
+  const [currency] = useState(
+    buying ? nft.currentAsk.currency : config.currencies.WBNB.address
+  );
   const [currencyBalance, setCurrencyBalance] = useState(0);
   const { getErc20Balance } = useWeb3();
   const { user, balance } = useAuthContext();

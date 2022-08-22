@@ -3,7 +3,6 @@ import TwitterIcon from "@mui/icons-material/Twitter";
 import { Box, Button, Grid, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import { memo } from "react";
-import { config } from "../../config";
 
 import UserLink from "../UserLink";
 
@@ -74,7 +73,8 @@ export default memo(({ collection, onEdit, isOwner }) => {
               </Grid>
               <Grid item>
                 <Typography color="primary" fontWeight="bold">
-                  {collection.floorPrice} W{config.nativeCurrency}
+                  {collection.floorPrice}{" "}
+                  {collection.floorPriceCurrency?.toUpperCase() || ""}
                 </Typography>
               </Grid>
             </Grid>
@@ -91,7 +91,7 @@ export default memo(({ collection, onEdit, isOwner }) => {
               </Grid>
               <Grid item>
                 <Typography color="primary" fontWeight="bold">
-                  {collection.totalVolume} W{config.nativeCurrency}
+                  ${collection.totalVolume}
                 </Typography>
               </Grid>
             </Grid>

@@ -8,10 +8,9 @@ import marketABI from "../contracts/abis/Market.json";
 import erc20ABI from "../contracts/abis/erc20.json";
 
 import { config } from "../config";
-// import WrongNetwork from "../Components/WrongNetwork";
 import { useAuthContext } from "./AuthContext";
 import { useSnackbar } from "./Snackbar";
-import { getWeb3 } from "../helper/utils";
+import { fromWei, getCurrencyDecimals, getWeb3 } from "../helper/utils";
 
 export const Web3Context = createContext({
   wrongNetwork: false,
@@ -57,20 +56,23 @@ export const Web3Provider = ({ children }) => {
     };
   }, [provider, wrongNetwork]);
 
-  const approveMarket = async () => {
-    const wbnb = getErc20Contract(config.currencies.WBNB.address);
-    const allowance = await wbnb.methods
+  const approveMarket = async (erc20Address) => {
+    const erc20 = getErc20Contract(erc20Address);
+    const allowance = await erc20.methods
       .allowance(user.pubKey, config.marketContractAddress)
       .call();
-    const balance = await wbnb.methods.balanceOf(user.pubKey).call();
+    const balance = await erc20.methods.balanceOf(user.pubKey).call();
 
-    const amount = +Web3.utils.fromWei(allowance);
-    const bAmount = +Web3.utils.fromWei(balance);
+    console.log(allowance, balance);
+
+    const decimals = getCurrencyDecimals(erc20Address);
+    const amount = +fromWei(allowance, decimals);
+    const bAmount = +fromWei(balance, decimals);
 
     if (amount > 100 || bAmount === 0) {
       return;
     }
-    await wbnb.methods
+    await erc20.methods
       .approve(
         config.marketContractAddress,
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
@@ -81,9 +83,10 @@ export const Web3Provider = ({ children }) => {
   };
 
   const getErc20Balance = async (currency, userAddress) => {
+    const decimals = getCurrencyDecimals(currency);
     const erc20 = getErc20Contract(currency);
     const balance = await erc20.methods.balanceOf(userAddress).call();
-    return Web3.utils.fromWei(balance);
+    return fromWei(balance, decimals);
   };
 
   const getServiceFee = async () => {

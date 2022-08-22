@@ -1,4 +1,5 @@
 import Web3 from "web3";
+
 import { config } from "../config";
 
 export const sameAddress = (addr1, addr2) =>
@@ -58,6 +59,26 @@ export const currencyList = () =>
     label: key,
   }));
 
+export const getCurrencyDecimals = (currencyAddressOrSymbol) => {
+  const symbol = Web3.utils.isAddress(currencyAddressOrSymbol)
+    ? currencyAddressToSymbol(currencyAddressOrSymbol)
+    : currencyAddressOrSymbol;
+  const currency = config.currencies[symbol.toUpperCase()];
+  return currency.decimals;
+};
+
 export const getWeb3 = (rpc) => new Web3(rpc || config.chainRPC);
 
 export const copyText = (text) => navigator.clipboard.writeText(text);
+
+export const fromWei = (value, decimals) => {
+  const bn = Web3.utils.toBN(value);
+  const ten = Web3.utils.toBN(10);
+  return bn.div(ten.pow(Web3.utils.toBN(decimals))).toString();
+};
+
+export const toWei = (value, decimals) => {
+  const bn = Web3.utils.toBN(value);
+  const ten = Web3.utils.toBN(10);
+  return bn.mul(ten.pow(Web3.utils.toBN(decimals))).toString();
+};

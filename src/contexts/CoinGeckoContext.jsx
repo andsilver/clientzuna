@@ -12,11 +12,11 @@ export const CoinGeckoProvider = ({ children }) => {
   const fetchCoinGeckoData = async () => {
     const { currencies } = config;
     const {
-      data: [wbnb],
+      data: [wbnb, zuna],
     } = await axios.get("https://api.coingecko.com/api/v3/coins/markets", {
       params: {
         vs_currency: "usd",
-        ids: `${currencies.WBNB.coinGecko}`,
+        ids: `${currencies.WBNB.coinGecko},${currencies.ZUNA.coinGecko}`,
         sparkline: false,
       },
     });
@@ -24,6 +24,10 @@ export const CoinGeckoProvider = ({ children }) => {
       WBNB: {
         price: wbnb.current_price,
         image: wbnb.image,
+      },
+      ZUNA: {
+        price: zuna.current_price,
+        image: zuna.image,
       },
     });
   };
