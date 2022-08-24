@@ -72,12 +72,22 @@ export const getWeb3 = (rpc) => new Web3(rpc || config.chainRPC);
 export const copyText = (text) => navigator.clipboard.writeText(text);
 
 export const fromWei = (value, decimals) => {
+  if (decimals === 18) {
+    return Web3.utils.fromWei(value);
+  } else if (decimals === 9) {
+    return Web3.utils.fromWei(value, "gwei");
+  }
   const bn = Web3.utils.toBN(value);
   const ten = Web3.utils.toBN(10);
   return bn.div(ten.pow(Web3.utils.toBN(decimals))).toString();
 };
 
 export const toWei = (value, decimals) => {
+  if (decimals === 18) {
+    return Web3.utils.toWei(value);
+  } else if (decimals === 9) {
+    return Web3.utils.toWei(value, "gwei");
+  }
   const bn = Web3.utils.toBN(value);
   const ten = Web3.utils.toBN(10);
   return bn.mul(ten.pow(Web3.utils.toBN(decimals))).toString();
