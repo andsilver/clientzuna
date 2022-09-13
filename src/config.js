@@ -1,10 +1,16 @@
 export const config = {
-  nftContractAddress: "0x42D7CC41CbE5A3492306162053C869cCc785c271",
-  marketContractAddress: "0xF49877BbfEd13BC0C9aaCF07979442543fFC4eF2",
+  nftContractAddress: "0x30e4D42014A735A5F376Cc2C09618292f3bC93c5",
+  marketContractAddress: "0xdBC67a9EEdC690c6367DA224cFf486D7D1Fdf1bB",
   currencies: {
     WBNB: {
       address: "0xFC43E1F3D208dAEd6161Fc820e5C2146E858651f",
       coinGecko: "wbnb",
+      decimals: 18,
+    },
+    ZUNA: {
+      address: "0x9Ab56a8f461D4A3727983b99F88000b3367F8B9c",
+      coinGecko: "zuna",
+      decimals: 9,
     },
   },
   network: "rinkeby",
@@ -22,13 +28,13 @@ export const config = {
     zuna: {
       name: "Zunaverse",
       version: "1",
-      verifyingContract: "0x42D7CC41CbE5A3492306162053C869cCc785c271",
+      verifyingContract: "0x30e4D42014A735A5F376Cc2C09618292f3bC93c5",
       chainId: 4,
     },
     market: {
       name: "ZunaverseMarket",
       version: "1",
-      verifyingContract: "0xF49877BbfEd13BC0C9aaCF07979442543fFC4eF2",
+      verifyingContract: "0xdBC67a9EEdC690c6367DA224cFf486D7D1Fdf1bB",
       chainId: 4,
     },
   },

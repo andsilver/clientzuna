@@ -109,6 +109,9 @@ const NavBar = () => {
               <Grid item display={{ xs: "none", lg: "block" }}>
                 <NavLink to="/explorer">Explore</NavLink>
               </Grid>
+              <Grid item display={{ xs: "none", lg: "block" }}>
+                <NavLink to="/rewards">Rewards</NavLink>
+              </Grid>
               {user ? (
                 <>
                   <Grid item display={{ xs: "none", lg: "block" }}>
@@ -182,6 +185,9 @@ const NavBar = () => {
               </ListItem>
               <ListItem>
                 <ResponsiveNavLink to="/explorer">Explore</ResponsiveNavLink>
+              </ListItem>
+              <ListItem>
+                <ResponsiveNavLink to="/rewards">Rewards</ResponsiveNavLink>
               </ListItem>
               {user && (
                 <>

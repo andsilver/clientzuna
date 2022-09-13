@@ -122,3 +122,11 @@ export const getNotifications = () =>
   api.get("/notifications").then(dataExtractor);
 
 export const readNotifications = () => api.post("/notifications/read");
+
+export const getRewards = (params) =>
+  api.get("/rewards", { params }).then(dataExtractor);
+
+export const getReward = (id) => api.get(`/rewards/${id}`).then(dataExtractor);
+
+export const getUserRewards = (address, params) =>
+  api.get(`/user/${address}/rewards`, { params }).then(dataExtractor);

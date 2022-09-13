@@ -19,6 +19,8 @@ const Profile = lazy(() => import("./Pages/Profile"));
 const Explorer = lazy(() => import("./Pages/Explorer"));
 const Collection = lazy(() => import("./Pages/Collection"));
 const Activity = lazy(() => import("./Pages/Activity"));
+const Rewards = lazy(() => import("./Pages/Rewards"));
+const Reward = lazy(() => import("./Pages/Reward"));
 
 function App() {
   const {
@@ -69,6 +71,12 @@ function App() {
               /> */}
               <Route path="/items/:id" exact>
                 <NftDetail />
+              </Route>
+              <Route path="/rewards" exact>
+                <Rewards />
+              </Route>
+              <Route path="/rewards/:id" exact>
+                <Reward />
               </Route>
             </Switch>
           </Suspense>

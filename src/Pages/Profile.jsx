@@ -14,6 +14,7 @@ import NftsCollected from "../Components/Profile/NftsCollected";
 import NftsCreated from "../Components/Profile/NftsCreated";
 import NftsFavorited from "../Components/Profile/NftsFavorited";
 import NftsOnSale from "../Components/Profile/NftsOnSale";
+import Rewards from "../Components/Profile/Rewards";
 import UserActivities from "../Components/Profile/UserActivities";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useSnackbar } from "../contexts/Snackbar";
@@ -50,6 +51,7 @@ const tabs = [
   { label: "Activity", value: "activity" },
   { label: "Following", value: "following" },
   { label: "Followers", value: "followers" },
+  { label: "Rewards", value: "rewards" },
 ];
 
 export default function Profile() {
@@ -173,6 +175,9 @@ export default function Profile() {
                   )}
                   {currentTab === "followers" && (
                     <Followings userAddress={profileAddress} follower />
+                  )}
+                  {currentTab === "rewards" && (
+                    <Rewards userAddress={profileAddress} />
                   )}
                 </Box>
               </Grid>
