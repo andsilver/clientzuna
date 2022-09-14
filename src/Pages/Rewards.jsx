@@ -32,7 +32,7 @@ export default function Rewards() {
   const history = useHistory();
 
   const [filter, setFilter] = useState({
-    rewardType: "static",
+    rewardType: "",
     start: "",
     end: "",
   });
