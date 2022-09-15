@@ -23,6 +23,7 @@ import useLoading from "../hooks/useLoading";
 import Link from "../Components/Link";
 import SectionLoading from "../Components/SectionLoading";
 import NoData from "../Components/NoData";
+import RewardsFilter from "../Components/Rewards/RewardsFilter";
 
 export default function Rewards() {
   const { loading, sendRequest } = useLoading();
@@ -33,8 +34,8 @@ export default function Rewards() {
 
   const [filter, setFilter] = useState({
     rewardType: "",
-    start: "",
-    end: "",
+    startDate: null,
+    endDate: null,
   });
 
   const fetchRewards = async (init) => {
@@ -42,20 +43,30 @@ export default function Rewards() {
       const res = await sendRequest(() =>
         getRewards({
           ...filter,
-          offset: rewards.length,
+          offset: init ? 0 : rewards.length,
         })
       );
-      setRewards(init ? res : [...rewards, ...res]);
-      setAllLoaded(res.length < config.defaultPageSize);
+
+      if (res) {
+        setRewards(init ? res : [...rewards, ...res]);
+        setAllLoaded(res.length < config.defaultPageSize);
+      }
     } catch (err) {
       console.error(err);
     }
   };
 
+  const updateFilter = (e) => {
+    setFilter({
+      ...filter,
+      ...e,
+    });
+  };
+
   useEffect(() => {
     fetchRewards(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [filter]);
 
   return (
     <>
@@ -69,6 +80,7 @@ export default function Rewards() {
         >
           Rewards Status
         </Typography>
+        <RewardsFilter filter={filter} onUpdate={updateFilter} />
         <Box py={2}>
           {!!rewards.length && (
             <TableContainer component={Paper}>

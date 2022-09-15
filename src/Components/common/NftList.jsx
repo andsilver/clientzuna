@@ -1,7 +1,8 @@
-import { Button, Grid } from "@mui/material";
+import { Grid } from "@mui/material";
 
 import NoData from "../NoData";
 import SectionLoading from "../SectionLoading";
+import LoadMore from "./LoadMore";
 import NftCard from "./NftCard";
 
 export default function NftList({
@@ -22,19 +23,11 @@ export default function NftList({
               </Grid>
             ))}
           </Grid>
-          {!allLoaded && !loading && (
-            <Grid container justifyContent="center" mt={2}>
-              <Button
-                color="secondary"
-                variant="contained"
-                onClick={loadMore}
-                sx={{ minWidth: 200 }}
-                disabled={loading}
-              >
-                Load More
-              </Button>
-            </Grid>
-          )}
+          <LoadMore
+            loading={loading}
+            allLoaded={allLoaded}
+            loadMore={loadMore}
+          />
         </div>
       )}
       {loading ? <SectionLoading /> : !nfts.length && <NoData />}
