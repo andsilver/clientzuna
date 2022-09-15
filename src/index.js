@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import { LocalizationProvider } from "@mui/x-date-pickers";
 
 import "./index.scss";
 import App from "./App";
@@ -15,19 +17,21 @@ import { ConfirmProvider } from "./contexts/Confirm";
 ReactDOM.render(
   <React.StrictMode>
     <HelmetProvider>
-      <ColorModeProvider>
-        <SnackbarProvider>
-          <ConfirmProvider>
-            <CoinGeckoProvider>
-              <AuthProvider>
-                <Web3Provider>
-                  <App />
-                </Web3Provider>
-              </AuthProvider>
-            </CoinGeckoProvider>
-          </ConfirmProvider>
-        </SnackbarProvider>
-      </ColorModeProvider>
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <ColorModeProvider>
+          <SnackbarProvider>
+            <ConfirmProvider>
+              <CoinGeckoProvider>
+                <AuthProvider>
+                  <Web3Provider>
+                    <App />
+                  </Web3Provider>
+                </AuthProvider>
+              </CoinGeckoProvider>
+            </ConfirmProvider>
+          </SnackbarProvider>
+        </ColorModeProvider>
+      </LocalizationProvider>
     </HelmetProvider>
   </React.StrictMode>,
   document.getElementById("root")
