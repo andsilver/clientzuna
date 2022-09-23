@@ -8,20 +8,22 @@ export default function NftsCreated({ userAddress }) {
   const [nfts, setNfts] = useState([]);
   const { loading, sendRequest } = useLoading();
   const [allLoaded, setAllLoaded] = useState(false);
+  const [count, setCount] = useState(0);
 
   const fetchNfts = async (init) => {
-    const res = await sendRequest(() =>
+    const { result, count } = await sendRequest(() =>
       filterNfts({
         offset: init ? 0 : nfts.length,
         creatorAddress: userAddress,
       })
     );
 
-    if (!res) {
+    if (!result) {
       return;
     }
-    setNfts(init ? res : [...nfts, ...res]);
-    setAllLoaded(res.length < config.defaultPageSize);
+    setNfts(init ? result : [...nfts, ...result]);
+    setAllLoaded(result.length < config.defaultPageSize);
+    setCount(count);
   };
 
   useEffect(() => {
@@ -35,6 +37,7 @@ export default function NftsCreated({ userAddress }) {
       loading={loading}
       allLoaded={allLoaded}
       loadMore={() => fetchNfts(false)}
+      count={count}
     />
   );
 }

@@ -1,4 +1,4 @@
-import { Container, Grid, Typography } from "@mui/material";
+import { Box, Container, Grid, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import { useEffect, useState } from "react";
 import Carousel from "react-multi-carousel";
@@ -34,15 +34,13 @@ const responsive = {
 const Title = styled(({ ...props }) => (
   <Typography
     {...props}
-    mb={2}
-    mt={4}
-    variant="h5"
+    mb={4}
+    mt={5}
+    variant="h4"
     color="primary"
     lineHeight={1}
   />
 ))((t) => ({
-  borderLeft: `4px solid ${t.theme.palette.secondary.main}`,
-  paddingLeft: 8,
   fontWeight: "bold",
 }));
 
@@ -92,7 +90,7 @@ export default function HomeItems() {
         <Grid mb={7} container spacing={2}>
           {(data?.sellers || []).map((s) => (
             <Grid item xs={6} md={3} lg={2} key={s.id}>
-              <UserLink user={s} />
+              <UserLink user={s} size={64} />
             </Grid>
           ))}
         </Grid>
@@ -109,8 +107,9 @@ export default function HomeItems() {
           ))}
         </Grid>
       )}
-      <Title>Get Started Creating & Selling Your NFTs</Title>
-      <HomeItemsInfo />
+      <Box sx={{ pt: 3, pb: 6 }}>
+        <HomeItemsInfo />
+      </Box>
     </Container>
   );
 }

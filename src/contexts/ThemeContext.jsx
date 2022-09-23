@@ -53,7 +53,7 @@ const getDesignTokens = (mode) => ({
           },
           background: {
             default: "#14141F",
-            paper: "#0f0f17",
+            paper: "#343444",
           },
         }),
   },

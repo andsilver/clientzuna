@@ -10,6 +10,7 @@ export default function CollectionItems({ collection }) {
   const [items, setItems] = useState([]);
   const [allLoaded, setAllLoaded] = useState(false);
   const query = useQuery();
+  const [count, setCount] = useState(0);
 
   const fetchItems = async (init) => {
     const filter = {
@@ -19,16 +20,17 @@ export default function CollectionItems({ collection }) {
       saleType: query.get("saleType") || "",
       properties: query.get("properties") || "",
     };
-    const res = await sendRequest(() =>
+    const { result, count } = await sendRequest(() =>
       filterNfts({
         ...filter,
         offset: init ? 0 : items.length,
       })
     );
 
-    if (res) {
-      setItems(init ? res : [...items, ...res]);
-      setAllLoaded(res.length < config.defaultPageSize);
+    if (result) {
+      setItems(init ? result : [...items, ...result]);
+      setAllLoaded(result.length < config.defaultPageSize);
+      setCount(count);
     }
   };
 
@@ -47,6 +49,7 @@ export default function CollectionItems({ collection }) {
       allLoaded={allLoaded}
       maxCount={4}
       loadMore={() => fetchItems()}
+      count={count}
     />
   );
 }

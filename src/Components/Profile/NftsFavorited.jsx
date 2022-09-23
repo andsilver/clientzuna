@@ -8,14 +8,16 @@ export default function NftsFavorited({ userAddress }) {
   const [nfts, setNfts] = useState([]);
   const { loading, sendRequest } = useLoading();
   const [allLoaded, setAllLoaded] = useState(false);
+  const [count, setCount] = useState(0);
 
   const fetchNfts = async (init) => {
-    const res = await sendRequest(() =>
+    const { result, count } = await sendRequest(() =>
       getLikedNfts(userAddress, init ? 0 : nfts.length)
     );
-    if (res) {
-      setNfts(init ? res : [...nfts, ...res]);
-      setAllLoaded(res.length < config.defaultPageSize);
+    if (result) {
+      setNfts(init ? result : [...nfts, ...result]);
+      setAllLoaded(result.length < config.defaultPageSize);
+      setCount(count);
     }
   };
 
@@ -30,6 +32,7 @@ export default function NftsFavorited({ userAddress }) {
       loading={loading}
       allLoaded={allLoaded}
       loadMore={() => fetchNfts(false)}
+      count={count}
     />
   );
 }

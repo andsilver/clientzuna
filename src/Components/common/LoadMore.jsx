@@ -5,12 +5,12 @@ export default memo(
   ({ allLoaded, loading, loadMore }) =>
     !allLoaded &&
     !loading && (
-      <Grid container justifyContent="center" mt={2}>
+      <Grid container justifyContent="center" mt={4}>
         <Button
-          color="secondary"
-          variant="contained"
+          color="primary"
+          variant="outlined"
           onClick={loadMore}
-          sx={{ minWidth: 200 }}
+          sx={{ minWidth: 160, height: 48 }}
           disabled={loading}
         >
           Load More

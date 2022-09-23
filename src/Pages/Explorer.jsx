@@ -9,6 +9,7 @@ import useQuery from "../hooks/useQuery";
 
 export default function Explorer() {
   const [nfts, setNfts] = useState([]);
+  const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const query = useQuery();
   const [allLoaded, setAllLoaded] = useState(false);
@@ -17,15 +18,16 @@ export default function Explorer() {
     setLoading(true);
 
     try {
-      const res = await filterNfts({
+      const { result, count } = await filterNfts({
         search: query.get("search") || "",
         category: query.get("category") || "",
         saleType: query.get("saleType") || "",
         collectionId: query.get("collectionId") || "",
         offset: init ? 0 : nfts.length,
       });
-      setAllLoaded(res.length < config.defaultPageSize);
-      setNfts(init ? res : [...nfts, ...res]);
+      setAllLoaded(result.length < config.defaultPageSize);
+      setNfts(init ? result : [...nfts, ...result]);
+      setCount(count);
     } catch (err) {
       console.error(err);
     }
@@ -50,6 +52,7 @@ export default function Explorer() {
         loading={loading}
         loadMore={() => fetchNFTs(false)}
         maxCount={4}
+        count={count}
       />
     </Container>
   );

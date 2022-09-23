@@ -3,6 +3,7 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
+  Grid,
   styled,
   Typography,
 } from "@mui/material";
@@ -12,28 +13,33 @@ import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import Favorite from "@mui/icons-material/Favorite";
 
 import { favoriteNft } from "../../api/api";
-import { currencyAddressToSymbol } from "../../helper/utils";
+import { currencyAddressToSymbol, nFormatter } from "../../helper/utils";
 import Link from "../Link";
 import UserLink from "../UserLink";
 
 const StyledNftCard = styled(Card)({
   width: "100%",
   borderRadius: 10,
+  transition: "transform 0.2s linear",
+  "&:hover": {
+    transform: "translateY(-10px)",
+  },
 });
 
 const LikeButton = styled(Box)((t) => ({
   position: "absolute",
-  right: 0,
-  borderTopLeftRadius: 40,
-  borderBottomLeftRadius: 40,
-  top: -18,
+  borderRadius: 8,
+  top: 26,
+  right: 24,
   color: "white",
-  padding: "6px 10px 6px 14px",
-  backgroundColor: t.theme.palette.secondary.main,
+  padding: "6px 0",
+  backgroundColor: "#222",
   cursor: "pointer",
   fontWeight: "bold",
   lineHeight: 1,
   display: "flex",
+  justifyContent: "center",
+  width: 64,
   alignItems: "center",
 }));
 
@@ -63,17 +69,17 @@ export default function NftCard({ nft }) {
 
   return (
     <StyledNftCard>
-      <Link to={`/items/${nft.id}`}>
-        <CardActionArea>
-          <CardMedia
-            image={nft.thumbnail}
-            title={nft.name}
-            component="img"
-            height={240}
-          />
-        </CardActionArea>
-      </Link>
-      <CardContent style={{ position: "relative" }}>
+      <Box p={2} position="relative">
+        <Link to={`/items/${nft.id}`}>
+          <CardActionArea sx={{ borderRadius: 2, overflow: "hidden" }}>
+            <CardMedia
+              image={nft.thumbnail}
+              title={nft.name}
+              component="img"
+              height={280}
+            />
+          </CardActionArea>
+        </Link>
         <LikeButton onClick={favorite}>
           {favorited ? (
             <Favorite fontSize="small" color="error" />
@@ -82,16 +88,24 @@ export default function NftCard({ nft }) {
           )}
           &nbsp;{favorites}
         </LikeButton>
-        <Typography color="primary" variant="h6" mb={1}>
+      </Box>
+      <CardContent sx={{ position: "relative", pt: 0 }}>
+        <Typography color="primary" variant="h6" mb={1} fontWeight="bold">
           {nft.name}
         </Typography>
-        <UserLink size={32} user={nft.owner} />
-        <Box mt={3}>
-          <Typography color="GrayText">Reserve Price</Typography>
-          <Typography fontWeight="bold" color="primary">
-            {nft.currentAsk ? `${nft.currentAsk.amount} ${symbol}` : "No Price"}
-          </Typography>
-        </Box>
+        <Grid container justifyContent="space-between" alignItems="center">
+          <Grid item>
+            <UserLink rounded={false} user={nft.owner} extraText="Owned By" />
+          </Grid>
+          <Grid item>
+            <Typography color="GrayText">Reserve Price</Typography>
+            <Typography fontWeight="bold" color="primary">
+              {nft.currentAsk
+                ? `${nFormatter(nft.currentAsk.amount)} ${symbol}`
+                : "No Price"}
+            </Typography>
+          </Grid>
+        </Grid>
       </CardContent>
     </StyledNftCard>
   );

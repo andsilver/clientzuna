@@ -17,12 +17,14 @@ const HomeMain = styled(Grid)({
 });
 
 const HomeButton = styled(Button)({
-  padding: "12px 35px",
-  fontSize: 15,
+  padding: "15px 38px",
+  fontSize: 18,
   marginRight: 12,
+  border: "2px solid white",
   "&:hover": {
     color: "#5142FC",
     background: "white",
+    border: "2px solid white",
   },
 });
 
