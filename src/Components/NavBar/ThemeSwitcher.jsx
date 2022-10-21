@@ -8,7 +8,7 @@ const Switcher = styled((props) => (
   width: 42,
   height: 26,
   padding: 0,
-  marginLeft: 24,
+  marginLeft: 12,
   "& .MuiSwitch-switchBase": {
     padding: 0,
     margin: 2,
@@ -36,7 +36,7 @@ const Switcher = styled((props) => (
     boxSizing: "border-box",
     width: 22,
     height: 22,
-    backgroundColor: 
+    backgroundColor:
       theme.palette.mode === "dark" ? "rgb(20, 20, 31)" : "transparent",
     "&:before": {
       content: "''",

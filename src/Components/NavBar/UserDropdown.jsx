@@ -1,53 +1,26 @@
 import {
-  Box,
   Divider,
+  Grid,
+  IconButton,
   ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { useState } from "react";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ListIcon from "@mui/icons-material/List";
 import LogoutIcon from "@mui/icons-material/Logout";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import { useAuthContext } from "../../contexts/AuthContext";
 import { minimizeAddress } from "../../helper/utils";
 import DefaultUserImg from "../../assets/default_user.png";
 import Link from "../Link";
-
-const UserContainer = styled("div")`
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  position: relative;
-  padding: 0 2px 0 3px;
-  height: 40px;
-  border: 2px solid white;
-  border-radius: 30px;
-  cursor: pointer;
-  transition: 0.5s ease;
-  transition-property: color, background-color, border-color, box-shadow;
-  margin-left: 34px;
-
-  &:hover {
-    border-color: ${(t) => t.theme.palette.secondary.main};
-  }
-
-  img {
-    width: 35px !important;
-    height: 35px;
-    border-radius: 50%;
-    margin-right: 4px;
-    object-fit: cover;
-    object-position: center;
-  }
-`;
 
 const UserMenu = styled(Menu)({
   "& .MuiPaper-root": {
@@ -67,27 +40,69 @@ export default function UserDropdown() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const theme = useTheme();
 
   return user ? (
     <div>
-      <UserContainer onClick={handleClick}>
-        <img src={user.avatar || DefaultUserImg} alt="" />
-        <Box marginLeft={1} marginRight={1} minWidth={80}>
-          <Typography color="white" fontWeight="bold" fontSize={13}>
-            {user.name || minimizeAddress(user.pubKey, 7, -4)}
+      <div onClick={handleClick} style={{ marginLeft: 36 }}>
+        <img
+          width={40}
+          height={40}
+          src={user.avatar || DefaultUserImg}
+          alt=""
+          style={{
+            borderRadius: 12,
+            cursor: "pointer",
+            border: "1px solid green",
+          }}
+        />
+      </div>
+
+      <UserMenu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          style: {
+            backgroundColor: theme.palette.mode === "dark" ? "#14141F" : "#fff",
+          },
+        }}
+      >
+        <div
+          style={{
+            minWidth: 280,
+            paddingLeft: 16,
+            paddingRight: 16,
+            paddingBottom: 8,
+          }}
+        >
+          <Typography variant="h6" color="primary">
+            {user.name || "Unnamed"}
           </Typography>
-          <Typography color="white" variant="body2" fontSize={10}>
+          <Typography color="primary" mt={1}>
+            Balance
+          </Typography>
+          <Typography variant="body1" color="secondary" fontWeight="bold">
             {balance} BNB
           </Typography>
-        </Box>
-        <ExpandMoreIcon style={{ color: "white" }} />
-      </UserContainer>
 
-      <UserMenu anchorEl={anchorEl} open={open} onClose={handleClose}>
+          <Typography color="primary" mt={1}>
+            Wallet
+          </Typography>
+          <Grid container alignItems="center" justifyContent="space-between">
+            <Typography color="primary">
+              {minimizeAddress(user.pubKey, 7, -4)}
+            </Typography>
+            <IconButton size="small">
+              <ContentCopyIcon fontSize="small" />
+            </IconButton>
+          </Grid>
+        </div>
+        <Divider sx={{ mb: 1 }} />
         <Link to="/profile">
           <MenuItem onClick={handleClose}>
             <ListItemIcon>
-              <PersonIcon fontSize="small" color="secondary" />
+              <PersonIcon />
             </ListItemIcon>
             <ListItemText>Profile</ListItemText>
           </MenuItem>
@@ -95,7 +110,7 @@ export default function UserDropdown() {
         <Link to="/profile-settings">
           <MenuItem onClick={handleClose}>
             <ListItemIcon>
-              <SettingsIcon fontSize="small" color="secondary" />
+              <SettingsIcon />
             </ListItemIcon>
             <ListItemText>Settings</ListItemText>
           </MenuItem>
@@ -103,12 +118,12 @@ export default function UserDropdown() {
         <Link to="/activity">
           <MenuItem onClick={handleClose}>
             <ListItemIcon>
-              <ListIcon fontSize="small" color="secondary" />
+              <ListIcon />
             </ListItemIcon>
             <ListItemText>Activity</ListItemText>
           </MenuItem>
         </Link>
-        <Divider />
+        <Divider sx={{ my: 1 }} />
         <MenuItem
           onClick={() => {
             handleClose();
@@ -116,7 +131,7 @@ export default function UserDropdown() {
           }}
         >
           <ListItemIcon>
-            <LogoutIcon fontSize="small" color="secondary" />
+            <LogoutIcon />
           </ListItemIcon>
           <ListItemText>Sign Out</ListItemText>
         </MenuItem>

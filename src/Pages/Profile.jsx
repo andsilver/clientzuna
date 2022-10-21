@@ -1,4 +1,4 @@
-import { Box, Container, Grid, Paper, useTheme } from "@mui/material";
+import { Box, Container, Divider, Grid, useTheme } from "@mui/material";
 import { styled } from "@mui/system";
 
 import { useEffect, useState, useMemo } from "react";
@@ -110,44 +110,52 @@ export default function Profile() {
   }, [query]);
 
   return (
-    <>
+    <div style={{ marginTop: -80 }}>
       {loading && <OverlayLoading show={loading} />}
       {profile && (
         <div>
           <UserBanner user={profile} />
           <Container maxWidth="xl">
+            <UserProfile user={profile} mode={mode}>
+              <Divider sx={{ mt: 3 }} />
+              <Box
+                px={3}
+                sx={(t) => ({
+                  borderBottomLeftRadius: 8,
+                  borderBottomRightRadius: 8,
+                  background:
+                    t.palette.mode === "dark" ? "#1F1F2C" : t.palette.grey[100],
+                })}
+              >
+                <StyledTabs
+                  textColor={mode === "light" ? "secondary" : "primary"}
+                  indicatorColor="secondary"
+                  value={currentTab}
+                  onChange={(e, v) => onChangeTab(v)}
+                >
+                  {tabs.map((tab) => (
+                    <StyledTab
+                      disableRipple
+                      icon={
+                        tab.value === "followers" ? (
+                          <FollowTag>{profile.followers}</FollowTag>
+                        ) : tab.value === "following" ? (
+                          <FollowTag>{profile.followings}</FollowTag>
+                        ) : (
+                          <></>
+                        )
+                      }
+                      iconPosition="end"
+                      label={tab.label}
+                      key={tab.value}
+                      value={tab.value}
+                    />
+                  ))}
+                </StyledTabs>
+              </Box>
+            </UserProfile>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={3}>
-                <UserProfile user={profile} mode={mode} />
-              </Grid>
-              <Grid item xs={12} md={9} py={3} mt={3}>
-                <Paper sx={{ px: 3 }}>
-                  <StyledTabs
-                    textColor={mode === "light" ? "secondary" : "primary"}
-                    indicatorColor="secondary"
-                    value={currentTab}
-                    onChange={(e, v) => onChangeTab(v)}
-                  >
-                    {tabs.map((tab) => (
-                      <StyledTab
-                        disableRipple
-                        icon={
-                          tab.value === "followers" ? (
-                            <FollowTag>{profile.followers}</FollowTag>
-                          ) : tab.value === "following" ? (
-                            <FollowTag>{profile.followings}</FollowTag>
-                          ) : (
-                            <></>
-                          )
-                        }
-                        iconPosition="end"
-                        label={tab.label}
-                        key={tab.value}
-                        value={tab.value}
-                      />
-                    ))}
-                  </StyledTabs>
-                </Paper>
+              <Grid item xs={12} py={3} mt={3}>
                 <Box mt={2}>
                   {currentTab === "collections" && (
                     <Collections
@@ -185,6 +193,6 @@ export default function Profile() {
           </Container>
         </div>
       )}
-    </>
+    </div>
   );
 }

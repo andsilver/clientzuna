@@ -1,21 +1,24 @@
-import { Badge, Grid, IconButton, Popover, Typography } from "@mui/material";
+import {
+  Badge,
+  Grid,
+  IconButton,
+  Popover,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { styled } from "@mui/system";
 
 import { getNotifications, readNotifications } from "../../api/api";
 import Link from "../Link";
 import { timeSince } from "../../helper/utils";
 import { config } from "../../config";
 
-const NotificationHeader = styled("div")((t) => ({
-  padding: 15,
-  borderRadius: 15,
-  background: t.theme.palette.mode === "light" ? "#f5f5f5" : "#222234",
-}));
-
 export default function Notifications({ user }) {
   const [notifications, setNotifications] = useState([]);
+  const {
+    palette: { mode },
+  } = useTheme();
 
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -58,7 +61,7 @@ export default function Notifications({ user }) {
 
   return user ? (
     <>
-      <IconButton style={{ marginLeft: 24 }} onClick={handleClick}>
+      <IconButton style={{ marginLeft: 12 }} onClick={handleClick}>
         <Badge badgeContent={notifications.length} color="secondary">
           <NotificationsIcon style={{ color: "white" }} />
         </Badge>
@@ -72,12 +75,23 @@ export default function Notifications({ user }) {
           vertical: "bottom",
           horizontal: "center",
         }}
+        PaperProps={{
+          style: {
+            borderRadius: 8,
+            backgroundColor: mode === "dark" ? "#14141f" : "#fff",
+          },
+        }}
       >
-        <NotificationHeader>
-          <Typography variant="subtitle1" color="primary" fontWeight="bold">
-            Notifications
-          </Typography>
-        </NotificationHeader>
+        <Typography
+          fontSize={18}
+          color="primary"
+          fontWeight="bold"
+          px={2}
+          pb={1}
+          pt={2}
+        >
+          Notifications
+        </Typography>
         {notifications.length ? (
           notifications.map((n) => (
             <Grid

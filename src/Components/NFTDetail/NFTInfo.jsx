@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
 import {
-  Button,
   Divider,
   Grid,
+  IconButton,
   ListItemIcon,
   ListItemText,
   Menu,
@@ -14,9 +14,10 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 // import TelegramIcon from "@mui/icons-material/Telegram";
 // import EmailIcon from "@mui/icons-material/Email";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LaunchIcon from "@mui/icons-material/Launch";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 import EthIcon from "../../assets/eth_ico.svg";
 import { useCoinGecko } from "../../contexts/CoinGeckoContext";
@@ -27,42 +28,13 @@ import { currencyAddressToSymbol } from "../../helper/utils";
 import { useConfirm } from "../../contexts/Confirm";
 import CollectionLink from "../CollectionLink";
 import NFTTransferDialog from "./NFTTransferDialog";
-
-const NFTRoyaltyContainer = styled("div")`
-  font-size: 12px;
-  background: ${(t) => t.theme.palette.error.main};
-  padding: 5px 13px;
-  border-radius: 15px 6px 6px 15px;
-  color: white;
-  text-align: center;
-  font-weight: 700;
-  margin-bottom: 15px;
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  width: 215px;
-  position: relative;
-`;
+import { LikeButton } from "../common/NftCard";
 
 const ShareLink = styled("a")`
-  display: inline-flex;
-  border-radius: 50%;
-  height: 35px;
-  width: 35px;
-  margin-left: 2px;
+  margin-left: 12px;
   justify-content: center;
   align-items: center;
-  font-size: 18px;
-  border-radius: 5px;
-  margin-right: 5px;
-  color: ${(t) => t.theme.palette.primary.main};
   text-decoration: none;
-
-  &:hover {
-    color: ${(t) => t.theme.palette.secondary.main};
-  }
 `;
 
 const LinkMenu = styled(Menu)({
@@ -72,6 +44,18 @@ const LinkMenu = styled(Menu)({
   },
 });
 
+const PanelBox = styled(Grid)(({ theme }) => ({
+  padding: 12,
+  borderRadius: 12,
+  background:
+    theme.palette.mode === "dark" ? theme.palette.background.paper : "#ececec",
+}));
+
+const ItemButton = styled(IconButton)(({ theme }) => ({
+  background:
+    theme.palette.mode === "dark" ? theme.palette.background.paper : "#ececec",
+}));
+
 export default function NFTInfo({
   nft,
   isMine,
@@ -79,15 +63,16 @@ export default function NFTInfo({
   onRemoveSale,
   onBurn,
   onTransfer,
+  onFavorite,
+  favorited,
+  favorites,
 }) {
   const { coins } = useCoinGecko();
-  const [anchorEl, setAnchorEl] = useState(null);
   const [anchorActionEl, setAnchorActionEl] = useState(null);
   const [showSale, setShowSale] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
   const confirm = useConfirm();
 
-  const open = Boolean(anchorEl);
   const openAction = Boolean(anchorActionEl);
 
   const price = useMemo(() => {
@@ -102,19 +87,14 @@ export default function NFTInfo({
     }
     const usdPrice = (+nft.currentAsk.amount * coin.price).toFixed(3);
 
-    return `${nft.currentAsk.amount} ${symbol.toLowerCase()} ($ ${usdPrice})`;
+    return {
+      usdPrice: `$${usdPrice}`,
+      origin: `${nft.currentAsk.amount} ${symbol.toLowerCase()}`,
+    };
   }, [nft, coins]);
 
   const handleActionClick = (event) => {
     setAnchorActionEl(event.currentTarget);
-  };
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
   };
 
   const handleActionClose = () => {
@@ -138,156 +118,175 @@ export default function NFTInfo({
 
   return nft ? (
     <>
-      <Grid container justifyContent="space-between" mt={2}>
+      <Grid container justifyContent="space-between" alignItems="center" mt={1}>
         <Grid item>
-          <NFTRoyaltyContainer>
-            <i className="fa fa-tags" />
-            &nbsp;{nft.royaltyFee / 1000} % of resale royalty
-          </NFTRoyaltyContainer>
+          <LikeButton style={{ position: "unset" }} onClick={onFavorite}>
+            {favorited ? (
+              <FavoriteIcon fontSize="small" color="error" />
+            ) : (
+              <FavoriteBorderIcon fontSize="small" />
+            )}
+            &nbsp;{favorites}
+          </LikeButton>
         </Grid>
         <Grid item display="flex" alignItems="center">
-          <Typography color="primary" variant="subtitle1" mr={1}>
-            share via
-          </Typography>
           <div>
             <ShareLink
               href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.origin}/items/${nft.id}`}
               target="_blank"
             >
-              <FacebookIcon />
+              <ItemButton>
+                <FacebookIcon />
+              </ItemButton>
             </ShareLink>
             <ShareLink
               href={`https://twitter.com/intent/tweet?url=${window.location.origin}/items/${nft.id}`}
               target="_blank"
             >
-              <TwitterIcon />
+              <ItemButton>
+                <TwitterIcon />
+              </ItemButton>
             </ShareLink>
-            {/* <ShareLink target="_blank">
-              <TelegramIcon />
-            </ShareLink>
-            <ShareLink target="_blank">
-              <EmailIcon />
-            </ShareLink> */}
-          </div>
-        </Grid>
-      </Grid>
-      {price && (
-        <Typography mt={2} color="primary" fontWeight="bold">
-          {price}
-        </Typography>
-      )}
-      <Typography color="primary" mt={2} mb={1}>
-        {nft.description}
-      </Typography>
-      <Button
-        variant="contained"
-        color="secondary"
-        size="small"
-        style={{ borderRadius: 4 }}
-        endIcon={<ExpandMoreIcon />}
-        onClick={handleClick}
-      >
-        View proof of authenticity
-      </Button>
 
-      {isMine && (
-        <>
-          <Button
-            variant="contained"
-            color="secondary"
-            size="small"
-            style={{ borderRadius: 4, marginLeft: 12 }}
-            endIcon={<MoreVertIcon />}
-            onClick={handleActionClick}
-          >
-            More Options
-          </Button>
-          <LinkMenu
-            anchorEl={anchorActionEl}
-            open={openAction}
-            onClose={handleActionClose}
-          >
-            <MenuItem onClick={handleListingSale}>
-              {nft.onSale ? "Remove from Sale" : "Put on Sale"}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleActionClose();
-                setShowSale(true);
-              }}
+            <ItemButton sx={{ ml: 2 }} onClick={handleActionClick}>
+              <MoreVertIcon />
+            </ItemButton>
+            <LinkMenu
+              anchorEl={anchorActionEl}
+              open={openAction}
+              onClose={handleActionClose}
             >
-              Set Price
-            </MenuItem>
-            {nft.minted && (
               <MenuItem
                 onClick={() => {
                   handleActionClose();
-                  setShowTransfer(true);
+                  window.open(nft.image, "_blank");
                 }}
               >
-                Transfer Token
+                <ListItemIcon>
+                  <i className="fa fa-cube" />
+                </ListItemIcon>
+                <ListItemText style={{ marginRight: 8 }}>
+                  View on IPFS
+                </ListItemText>
+                <LaunchIcon fontSize="small" />
               </MenuItem>
-            )}
-            <Divider />
-            <MenuItem
-              onClick={() => {
-                handleActionClose();
-                onBurn();
-              }}
-            >
-              Burn Token
-            </MenuItem>
-          </LinkMenu>
-        </>
-      )}
-
-      <LinkMenu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            window.open(nft.image, "_blank");
-          }}
-        >
-          <ListItemIcon>
-            <i className="fa fa-cube" />
-          </ListItemIcon>
-          <ListItemText style={{ marginRight: 8 }}>View on IPFS</ListItemText>
-          <LaunchIcon fontSize="small" />
-        </MenuItem>
-        {nft.txHash && (
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              window.open(
-                `${config.networkScan.url}/tx/${nft.txHash}`,
-                "_blank"
-              );
-            }}
+              {nft.txHash && (
+                <MenuItem
+                  onClick={() => {
+                    handleActionClose();
+                    window.open(
+                      `${config.networkScan.url}/tx/${nft.txHash}`,
+                      "_blank"
+                    );
+                  }}
+                >
+                  <ListItemIcon>
+                    <img src={EthIcon} alt="" width="16px" />
+                  </ListItemIcon>
+                  <ListItemText style={{ marginRight: 8 }}>
+                    View on {config.networkScan.name}
+                  </ListItemText>
+                  <LaunchIcon fontSize="small" />
+                </MenuItem>
+              )}
+              {isMine && <Divider />}
+              {isMine && (
+                <MenuItem onClick={handleListingSale}>
+                  {nft.onSale ? "Remove from Sale" : "Put on Sale"}
+                </MenuItem>
+              )}
+              {isMine && (
+                <MenuItem
+                  onClick={() => {
+                    handleActionClose();
+                    setShowSale(true);
+                  }}
+                >
+                  Set Price
+                </MenuItem>
+              )}
+              {isMine && nft.minted && (
+                <MenuItem
+                  onClick={() => {
+                    handleActionClose();
+                    setShowTransfer(true);
+                  }}
+                >
+                  Transfer Token
+                </MenuItem>
+              )}
+              {isMine && <Divider />}
+              {isMine && (
+                <MenuItem
+                  onClick={() => {
+                    handleActionClose();
+                    onBurn();
+                  }}
+                >
+                  Burn Token
+                </MenuItem>
+              )}
+            </LinkMenu>
+          </div>
+        </Grid>
+      </Grid>
+      <Grid container spacing={3} my={1}>
+        <Grid item xs={12} sm={6} md={12} lg={6}>
+          <PanelBox
+            container
+            justifyContent="space-between"
+            alignItems="center"
           >
-            <ListItemIcon>
-              <img src={EthIcon} alt="" width="16px" />
-            </ListItemIcon>
-            <ListItemText style={{ marginRight: 8 }}>
-              View on {config.networkScan.name}
-            </ListItemText>
-            <LaunchIcon fontSize="small" />
-          </MenuItem>
-        )}
-      </LinkMenu>
-      <Divider style={{ marginTop: 20, marginBottom: 20 }} />
-      <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <Typography color="primary" variant="subtitle2" gutterBottom>
-            Creator
-          </Typography>
-          <UserLink user={nft.creator} />
+            <Grid item>
+              <Typography color="primary">Current Price: </Typography>
+            </Grid>
+            <Grid item display="flex">
+              <Typography color="primary" fontSize={18} fontWeight={600}>
+                {price.origin || 'No Price'}
+              </Typography>
+              <Typography ml={1} color="primary" fontSize={12}>
+                {price.usdPrice}
+              </Typography>
+            </Grid>
+          </PanelBox>
+        </Grid>
+        <Grid item xs={12} sm={6} md={12} lg={6}>
+          <PanelBox
+            container
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Grid item>
+              <Typography color="primary">Resale Royality: </Typography>
+            </Grid>
+            <Grid item>
+              <Typography color="primary" fontWeight={600} fontSize={18}>
+                {nft.royaltyFee / 1000}%
+              </Typography>
+            </Grid>
+          </PanelBox>
+        </Grid>
+      </Grid>
+      <Typography color="primary" my={2}>
+        {nft.description}
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6} md={12} lg={6}>
+          <UserLink
+            background
+            rounded={false}
+            extraText="Owned By"
+            user={nft.owner}
+          />
         </Grid>
         {nft.collection && (
-          <Grid item xs={6}>
-            <Typography color="primary" variant="subtitle2" gutterBottom>
-              Collection
-            </Typography>
-            <CollectionLink collection={nft.collection} />
+          <Grid item xs={12} sm={6} md={12} lg={6}>
+            <CollectionLink
+              extraText="Collection"
+              collection={nft.collection}
+              rounded={false}
+              background
+            />
           </Grid>
         )}
       </Grid>

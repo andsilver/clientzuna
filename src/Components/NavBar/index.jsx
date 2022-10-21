@@ -9,33 +9,33 @@ import {
   List,
   ListItem,
   SwipeableDrawer,
+  useScrollTrigger,
   useTheme,
 } from "@mui/material";
-import { useLocation } from "react-router-dom";
 import { useMemo } from "react";
 import { styled } from "@mui/system";
 import MenuIcon from "@mui/icons-material/Menu";
 
 import HeaderSearch from "./HeaderSearch";
 import Logo from "./logo.png";
+import LightLogo from "./light-logo.png";
 // import WhatIsWallet from "../Cards/WhatIsWalletCard/WhatIsWallet";
 import { useAuthContext } from "../../contexts/AuthContext";
 import Link from "../Link";
 import ThemeSwitcher from "./ThemeSwitcher";
 import UserDropdown from "./UserDropdown";
-import UserLink from "../UserLink";
 import Notifications from "./Notifications";
 
 const NavLink = styled(Link)({
   color: "white",
   fontWeight: 600,
-  fontSize: 16,
-  marginLeft: 24,
+  fontSize: 18,
+  marginLeft: 36,
 });
 
 const ResponsiveNavLink = styled(Link)((t) => ({
   fontWeight: 600,
-  fontSize: 16,
+  fontSize: 18,
   color: t.theme.palette.primary.main,
   marginTop: 6,
   marginBottom: 6,
@@ -53,21 +53,23 @@ const ConnectButton = styled(Button)({
 });
 
 const NavBar = () => {
-  const { connect, user, balance, disconnect } = useAuthContext();
+  const { connect, user, disconnect } = useAuthContext();
   const [open, setOpen] = useState(false);
-  const { pathname } = useLocation();
   const {
     palette: { mode },
   } = useTheme();
 
+  const trigger = useScrollTrigger({
+    threshold: 200,
+    disableHysteresis: true,
+  });
+
   const background = useMemo(() => {
     if (mode === "dark") {
-      return "transparent";
+      return "rgba(20,20,31,0.9)";
     }
-    return pathname === "/"
-      ? "transparent"
-      : "linear-gradient(227.3deg, #8A208C 0%, #181B81 100.84%)";
-  }, [pathname, mode]);
+    return "linear-gradient(227.3deg, rgb(138 32 140 / 90%) 0%, rgb(24 27 129 / 87%) 100.84%)";
+  }, [mode]);
 
   const toggleDrawer = (value) => {
     setOpen(value);
@@ -77,10 +79,14 @@ const NavBar = () => {
     <div
       style={{
         background,
-        position: pathname === "/" ? "absolute" : "relative",
+        position: trigger ? "fixed" : "absolute",
         width: "100%",
         zIndex: 99,
-        borderBottom: mode === "dark" ? "1px solid rgba(235,235,235,0.2)" : "",
+        borderBottom: "1px solid rgba(235,235,235,0.2)",
+        top: 0,
+        boxShadow: trigger
+          ? "rgb(0 0 0 / 20%) 0px 2px 4px -1px, rgb(0 0 0 / 14%) 0px 4px 5px 0px, rgb(0 0 0 / 12%) 0px 1px 10px 0px"
+          : "none",
       }}
     >
       <Container maxWidth="xl">
@@ -96,7 +102,7 @@ const NavBar = () => {
                 style={{
                   maxWidth: 210,
                 }}
-                src={Logo}
+                src={mode === "light" ? LightLogo : Logo}
                 alt=""
               />
             </Link>
@@ -117,6 +123,9 @@ const NavBar = () => {
                   <Grid item display={{ xs: "none", lg: "block" }}>
                     <NavLink to="/create">Create</NavLink>
                   </Grid>
+                  <Grid item>
+                    <UserDropdown />
+                  </Grid>
                   <Notifications user={user} />
                 </>
               ) : (
@@ -131,13 +140,10 @@ const NavBar = () => {
                   </ConnectButton>
                 </Grid>
               )}
-              <Grid item display={{ xs: "none", md: "block" }}>
-                <UserDropdown />
-              </Grid>
               <Grid item display={{ xs: "none", lg: "block" }}>
                 <ThemeSwitcher />
               </Grid>
-              <Grid item display={{ xs: "block", lg: "none" }} sx={{ ml: 3 }}>
+              <Grid item display={{ xs: "block", lg: "none" }} sx={{ ml: 1 }}>
                 <IconButton color="bright" onClick={() => toggleDrawer(!open)}>
                   <MenuIcon />
                 </IconButton>
@@ -153,6 +159,7 @@ const NavBar = () => {
           PaperProps={{
             style: {
               borderRadius: 0,
+              backgroundColor: mode === "dark" ? "#14141F" : "#fff",
             },
           }}
           disableBackdropTransition
@@ -160,9 +167,7 @@ const NavBar = () => {
           <Box sx={{ width: 280 }} pb={4}>
             <List>
               {user ? (
-                <ListItem>
-                  <UserLink user={user} extraText={`${balance} BNB`} />
-                </ListItem>
+                <></>
               ) : (
                 <ListItem>
                   <ConnectButton

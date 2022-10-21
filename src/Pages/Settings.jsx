@@ -25,6 +25,7 @@ const LabelField = styled(Typography)({
   fontWeight: "bold",
   marginTop: 24,
   marginBottom: 12,
+  fontSize: 18,
 });
 
 export default function Settings() {
@@ -91,7 +92,7 @@ export default function Settings() {
   }, [user]);
 
   return profile ? (
-    <div>
+    <div style={{ marginTop: -80 }}>
       {loading && <OverlayLoading show={loading} />}
       <UserBanner user={user} />
       <Container maxWidth="xl">
@@ -130,7 +131,7 @@ export default function Settings() {
                     />
                     <Typography
                       textAlign="center"
-                      variant="subtitle2"
+                      variant="subtitle1"
                       maxWidth={300}
                     >
                       Recommended Image size Min. 400x400 Compatible with Gifs./
@@ -166,7 +167,7 @@ export default function Settings() {
                     />
                     <Typography
                       textAlign="center"
-                      variant="subtitle2"
+                      variant="subtitle1"
                       maxWidth={300}
                     >
                       Recommended Image size Min. 840x400 Compatible with Gifs./
@@ -181,7 +182,6 @@ export default function Settings() {
                       name="name"
                       color="secondary"
                       variant="outlined"
-                      size="small"
                       fullWidth
                       placeholder="Account Name"
                       value={profile.name}
@@ -194,7 +194,6 @@ export default function Settings() {
                       name="twitter"
                       color="secondary"
                       variant="outlined"
-                      size="small"
                       fullWidth
                       value={profile.twitter}
                       onChange={onChangeProfile}
@@ -209,7 +208,6 @@ export default function Settings() {
                       name="instagram"
                       color="secondary"
                       variant="outlined"
-                      size="small"
                       fullWidth
                       value={profile.instagram}
                       onChange={onChangeProfile}
@@ -224,7 +222,6 @@ export default function Settings() {
                       name="bio"
                       color="secondary"
                       variant="outlined"
-                      size="small"
                       fullWidth
                       value={profile.bio}
                       onChange={onChangeProfile}

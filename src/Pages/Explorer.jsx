@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { filterNfts } from "../api/api";
 import NftList from "../Components/common/NftList";
+import TopBanner from "../Components/common/TopBanner";
 import ExplorerFilter from "../Components/Explorer/Filter";
 import { config } from "../config";
 import useQuery from "../hooks/useQuery";
@@ -41,19 +42,28 @@ export default function Explorer() {
   }, [query]);
 
   return (
-    <Container maxWidth="xl" sx={{ pb: 4 }}>
-      <Typography variant="h3" fontWeight="bold" color="primary" mb={3} mt={3}>
-        Explore Exclusive Digital Assets
-      </Typography>
-      <ExplorerFilter />
-      <NftList
-        nfts={nfts}
-        allLoaded={allLoaded}
-        loading={loading}
-        loadMore={() => fetchNFTs(false)}
-        maxCount={4}
-        count={count}
-      />
-    </Container>
+    <div style={{ marginTop: -80 }}>
+      <TopBanner>
+        <Typography
+          variant="h3"
+          fontWeight="bold"
+          textAlign="center"
+          color="white"
+        >
+          Explore Exclusive Digital Assets
+        </Typography>
+      </TopBanner>
+      <Container maxWidth="xl" sx={{ pb: 4, pt: 3 }}>
+        <ExplorerFilter />
+        <NftList
+          nfts={nfts}
+          allLoaded={allLoaded}
+          loading={loading}
+          loadMore={() => fetchNFTs(false)}
+          maxCount={4}
+          count={count}
+        />
+      </Container>
+    </div>
   );
 }

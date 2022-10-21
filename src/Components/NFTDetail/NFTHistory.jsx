@@ -22,12 +22,13 @@ const StyledTabs = styled(Tabs)((t) => ({
 const StyledTab = styled(Tab)(({ theme }) => ({
   textTransform: "none",
   fontWeight: 600,
-  marginRight: theme.spacing(3),
+  marginRight: theme.spacing(4),
   minWidth: 0,
   padding: 0,
   "&.Mui-focusVisible": {
     backgroundColor: "rgba(100, 95, 228, 0.32)",
   },
+  fontSize: 18,
 }));
 
 export default function NFTHistory({
@@ -72,34 +73,33 @@ export default function NFTHistory({
           />
         )}
         {currentTab === 2 && (
-          <div>
-            <div>
-              <Typography color="primary" variant="subtitle2" gutterBottom>
-                Owner
-              </Typography>
-              <UserLink user={nft.owner} />
-            </div>
-            <Box mt={1}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <UserLink extraText="Created By" user={nft.creator} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
               <Typography color="primary" fontWeight={600}>
                 Date created
               </Typography>
               <Typography color="primary" variant="subtitle2">
                 {createdDate}
               </Typography>
-            </Box>
-            <Typography mt={1} color="primary" fontWeight={600}>
-              Properties
-            </Typography>
-            <Grid container spacing={2}>
-              {nft.properties.map((p, index) => (
-                <Grid item key={index}>
-                  <Typography color="primary" variant="subtitle2">
-                    {p.name} - {p.value}
-                  </Typography>
-                </Grid>
-              ))}
             </Grid>
-          </div>
+            <Grid item xs={12}>
+              <Typography mt={1} color="primary" fontWeight={600}>
+                Properties
+              </Typography>
+              <Grid container spacing={2}>
+                {nft.properties.map((p, index) => (
+                  <Grid item key={index}>
+                    <Typography color="primary" variant="subtitle2">
+                      {p.name} - {p.value}
+                    </Typography>
+                  </Grid>
+                ))}
+              </Grid>
+            </Grid>
+          </Grid>
         )}
       </Box>
     </Box>

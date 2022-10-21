@@ -77,12 +77,12 @@ export default function Collection() {
   const isCollectionOwner = user?.id === collection?.owner.id;
 
   return (
-    <div>
-      <OverlayLoading show={loading} />
+    <div style={{ marginTop: -80 }}>
+      {loading && <OverlayLoading show />}
       {collection && (
         <>
           <PageBanner image={collection.banner} />
-          <Container maxWidth="lg">
+          <Container maxWidth="xl">
             <CollectionInfo
               collection={collection}
               isOwner={isCollectionOwner}
@@ -91,6 +91,7 @@ export default function Collection() {
             <StyledTabs
               textColor={mode === "light" ? "secondary" : "primary"}
               indicatorColor="secondary"
+              variant="scrollable"
               value={currentTab}
               onChange={(e, v) => onChangeTab(v)}
               sx={{

@@ -2,13 +2,16 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { useTheme } from "@mui/material";
 
+import "react-multi-carousel/lib/styles.css";
+import "swiper/swiper.min.css";
+import "swiper/modules/navigation/navigation.min.css";
+import "swiper/modules/autoplay/autoplay.min.css";
+import "swiper/modules/free-mode/free-mode.min.css";
+
 import "./App.scss";
 import NavBar from "./Components/NavBar";
 import HomePage from "./Pages/Home";
 import Footer from "./Components/Footer/Footer";
-// import NFTDetailComponent from "./Pages/NftDetail";
-// import NAVItemsList from "./Pages/NFTItemsList";
-// import CreateNFTCollection from "./Pages/CreateNFTCollection";
 import Loading from "./Components/Loading";
 import Meta from "./Components/common/Meta";
 
@@ -17,6 +20,7 @@ const NftDetail = lazy(() => import("./Pages/NftDetail"));
 const Settings = lazy(() => import("./Pages/Settings"));
 const Profile = lazy(() => import("./Pages/Profile"));
 const Explorer = lazy(() => import("./Pages/Explorer"));
+const Collections = lazy(() => import("./Pages/Collections"));
 const Collection = lazy(() => import("./Pages/Collection"));
 const Activity = lazy(() => import("./Pages/Activity"));
 const Rewards = lazy(() => import("./Pages/Rewards"));
@@ -37,7 +41,7 @@ function App() {
           image="https://res.cloudinary.com/zunaverse-media/image/upload/v1659707919/home/zunaverse_jzqaus.png"
           url={window.location.origin}
         />
-        <div style={{ background, minHeight: "calc(100vh)" }}>
+        <div style={{ background, minHeight: "calc(100vh)", paddingTop: 80 }}>
           <Suspense fallback={<Loading />}>
             <Switch>
               <Route path="/" exact>
@@ -61,14 +65,12 @@ function App() {
               <Route path="/activity">
                 <Activity />
               </Route>
-              <Route path="/collections/:id">
+              <Route path="/collections" exact>
+                <Collections />
+              </Route>
+              <Route path="/collections/:id" exact>
                 <Collection />
               </Route>
-              {/* <Route path="/collections/new" element={<NewCollection />} />
-              <Route
-                path="/collections/create"
-                element={<NewCollectionForm />}
-              /> */}
               <Route path="/items/:id" exact>
                 <NftDetail />
               </Route>

@@ -50,15 +50,15 @@ export default memo(({ collection, onEdit, isOwner }) => {
       </Grid>
       <Grid container spacing={3} justifyContent="space-between">
         <Grid item xs={12} md={6}>
-          <Typography mt={2} variant="h5" fontWeight="bold" color="primary">
+          <Typography mt={2} variant="h4" fontWeight="bold" color="primary" mb={2}>
             {collection.name}
           </Typography>
-          <Grid container alignItems="center" mt={2}>
-            <Typography color="gray" variant="subtitle2" mr={2}>
-              Created by
-            </Typography>
-            <UserLink user={collection.owner} size={30} />
-          </Grid>
+          <UserLink
+            user={collection.owner}
+            size={60}
+            extraText="Created By"
+            fontSize={18}
+          />
           <Typography color="primary" variant="subtitle1" mt={2}>
             {collection.description}
           </Typography>

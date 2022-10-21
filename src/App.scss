@@ -1,0 +1,7 @@
+.landing-swiper {
+//   transform: rotate(-330deg);
+
+  > .swiper-wrapper {
+    transition-timing-function: linear !important;
+  }
+}

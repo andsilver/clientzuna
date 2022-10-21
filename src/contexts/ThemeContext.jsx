@@ -38,7 +38,7 @@ const getDesignTokens = (mode) => ({
           secondary: {
             main: "#5142FC",
           },
-          divider: "#524d4d",
+          divider: "#3C3C56",
           text: {
             primary: "#fff",
           },
@@ -52,7 +52,7 @@ const getDesignTokens = (mode) => ({
             main: "#f1385a",
           },
           background: {
-            default: "#14141F",
+            default: "#14141f",
             paper: "#343444",
           },
         }),
@@ -77,13 +77,13 @@ const getDesignTokens = (mode) => ({
         },
       },
     },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          borderRadius: 16,
-        },
-      },
-    },
+    // MuiPaper: {
+    //   styleOverrides: {
+    //     root: {
+    //       borderRadius: 16,
+    //     },
+    //   },
+    // },
     MuiCard: {
       styleOverrides: {
         root: {
@@ -94,14 +94,14 @@ const getDesignTokens = (mode) => ({
     MuiSelect: {
       styleOverrides: {
         root: {
-          borderRadius: 10,
+          borderRadius: 6,
         },
       },
     },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          borderRadius: 10,
+          borderRadius: 6,
         },
       },
     },
@@ -165,7 +165,7 @@ const ColorModeContext = createContext({
 
 export function ColorModeProvider({ children }) {
   const [theme, setTheme] = useState(
-    localStorage.getItem("zunaverse:theme") || "light"
+    localStorage.getItem("zunaverse:theme") || "dark"
   );
 
   const colorMode = useMemo(

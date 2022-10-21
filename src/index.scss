@@ -19,16 +19,16 @@ body {
 }
 
 *::-webkit-scrollbar {
-  width: 6px;
+  width: 3px;
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #222;
-  outline: 1px solid #222227;
+  background-color: #666;
+  // outline: 1px solid #222227;
 }
 
 *::-webkit-scrollbar-track {
-  background: #bbb;
+  background: rgba($color: #000000, $alpha: 0.1);
 }
 
 ::selection {
@@ -64,6 +64,19 @@ body {
     -webkit-transform: rotate(360deg);
     -o-transform: rotate(360deg);
     transform: rotate(360deg);
+  }
+}
+
+@keyframes rainbow {
+  0% {
+    background-position: left;
+  }
+
+  50% {
+    background-position: right;
+  }
+  100% {
+    background-position: left;
   }
 }
 

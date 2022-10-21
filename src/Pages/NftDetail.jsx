@@ -1,9 +1,18 @@
 import { useEffect, useState, useMemo } from "react";
 import { useHistory, useParams } from "react-router-dom";
+import Web3 from "web3";
+import {
+  Box,
+  Button,
+  Container,
+  Grid,
+  Typography,
+} from "@mui/material";
 
 import { useSnackbar } from "../contexts/Snackbar";
 import {
   burnNFT,
+  favoriteNft,
   getNft,
   getNftActivities,
   getNftBids,
@@ -13,21 +22,11 @@ import {
   updateNFTSale,
 } from "../api/api";
 import OverlayLoading from "../Components/common/OverlayLoading";
-import {
-  Box,
-  Button,
-  Card,
-  Container,
-  Divider,
-  Grid,
-  Typography,
-} from "@mui/material";
 import NFTInfo from "../Components/NFTDetail/NFTInfo";
 import NFTHistory from "../Components/NFTDetail/NFTHistory";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useWeb3 } from "../contexts/Web3Context";
 import { getCurrencyDecimals, sameAddress, toWei } from "../helper/utils";
-import Web3 from "web3";
 import OfferDialog from "../Components/common/OfferDialog";
 import { config } from "../config";
 import { useConfirm } from "../contexts/Confirm";
@@ -73,7 +72,31 @@ const NFTDetailComponent = () => {
   const [offerType, setOfferType] = useState("");
   const confirm = useConfirm();
   const history = useHistory();
+  const [favorites, setFavorites] = useState(0);
+  const [favorited, setFavorited] = useState(false);
   const { approveMarket } = useWeb3();
+
+  const favorite = async () => {
+    if (!user) {
+      showSnackbar({
+        severity: "warning",
+        message: "You should loggin first.",
+      });
+      return;
+    }
+    await favoriteNft(nft.id);
+    setFavorited(!favorited);
+    setFavorites(favorited ? favorites - 1 : favorites + 1);
+  };
+
+  useEffect(() => {
+    if (!nft) {
+      return;
+    }
+    setFavorited(nft.favorited);
+    setFavorites(nft.favorites);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nft]);
 
   const isMine = useMemo(() => {
     if (!nft || !user) {
@@ -392,7 +415,7 @@ const NFTDetailComponent = () => {
   }, [id]);
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="xl">
       <OverlayLoading show={loading} />
       {nft && (
         <Meta
@@ -403,23 +426,15 @@ const NFTDetailComponent = () => {
         />
       )}
       {nft && (
-        <Grid py={4} container spacing={4}>
+        <Grid py={6} container spacing={5}>
           <Grid item xs={12} md={6}>
-            <Card
-              style={{
-                minHeight: 200,
-                maxWidth: 400,
-                filter: "drop-shadow(rgba(0,0,0,0.25) 0px 20px 20px)",
-              }}
-            >
-              <img
-                src={nft.thumbnail}
-                alt=""
-                width="100%"
-                height="auto"
-                style={{ borderRadius: 16 }}
-              />
-            </Card>
+            <img
+              src={nft.thumbnail}
+              alt=""
+              width="100%"
+              height="auto"
+              style={{ borderRadius: 16 }}
+            />
           </Grid>
           <Grid item xs={12} md={6}>
             <Typography color="primary" variant="h4" fontWeight="bold">
@@ -428,43 +443,41 @@ const NFTDetailComponent = () => {
             <NFTInfo
               nft={nft}
               isMine={isMine}
+              favorites={favorites}
+              favorited={favorited}
+              onFavorite={favorite}
               onUpdate={updateSale}
               onRemoveSale={removeSale}
               onTransfer={onTransfer}
               onBurn={onBurn}
             />
-            <NFTHistory
-              nft={nft}
-              activities={activities}
-              bids={bids}
-              currentUser={user}
-              cancelBid={onCancelBid}
-              acceptBid={onAcceptBid}
-            />
-            <Box mt={5}>
+            <Box mt={5} mb={6}>
               {!isMine && (
-                <>
+                <Grid container spacing={3} justifyContent="flex-end">
                   {nft.currentAsk && (
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      size="large"
-                      style={{ borderRadius: 6, marginRight: 12 }}
-                      onClick={() => setOfferType("buy")}
-                    >
-                      BUY NOW
-                    </Button>
+                    <Grid item xs={6}>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        size="large"
+                        fullWidth
+                        onClick={() => setOfferType("buy")}
+                      >
+                        BUY NOW
+                      </Button>
+                    </Grid>
                   )}
                   {(nft.onSale || nft.currentAsk) && (
-                    <Button
-                      color="secondary"
-                      variant="outlined"
-                      size="large"
-                      style={{ borderRadius: 6 }}
-                      onClick={() => setOfferType("bid")}
-                    >
-                      PLACE A BID
-                    </Button>
+                    <Grid item xs={6}>
+                      <Button
+                        variant="contained"
+                        size="large"
+                        onClick={() => setOfferType("bid")}
+                        fullWidth
+                      >
+                        PLACE A BID
+                      </Button>
+                    </Grid>
                   )}
                   {!!offerType && (
                     <OfferDialog
@@ -474,13 +487,21 @@ const NFTDetailComponent = () => {
                       onSubmit={handleOffer}
                     />
                   )}
-                </>
+                </Grid>
               )}
             </Box>
+
+            <NFTHistory
+              nft={nft}
+              activities={activities}
+              bids={bids}
+              currentUser={user}
+              cancelBid={onCancelBid}
+              acceptBid={onAcceptBid}
+            />
           </Grid>
         </Grid>
       )}
-      <Divider />
     </Container>
   );
 };

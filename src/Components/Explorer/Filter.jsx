@@ -14,11 +14,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Box, styled } from "@mui/system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import debounce from "lodash.debounce";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 import { config } from "../../config";
 import useQuery from "../../hooks/useQuery";
@@ -244,8 +244,28 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
             <Button
               variant="outlined"
               color="primary"
-              endIcon={<ExpandMoreIcon />}
+              fullWidth
+              endIcon={
+                <ArrowDropDownIcon
+                  sx={{
+                    color: "white",
+                  }}
+                />
+              }
               onClick={handleClick}
+              sx={{
+                color: "rgba(255, 255, 255, 0.7)",
+                borderRadius: "6px",
+                borderColor: "rgba(255, 255, 255, 0.23)",
+                borderWidth: 1,
+                justifyContent: 'space-between',
+                padding: '5px 13px',
+                fontWeight: 400,
+                fontSize: 15,
+                "&:hover": {
+                  borderWidth: 1,
+                },
+              }}
             >
               Properties
             </Button>

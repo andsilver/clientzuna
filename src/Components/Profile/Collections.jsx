@@ -48,6 +48,8 @@ export default function Collections({ userAddress, currentUser }) {
           <Button
             variant="contained"
             color="secondary"
+            size="large"
+            sx={{ borderRadius: 2 }}
             onClick={() => setShowCreateCollection(true)}
           >
             Create a collection
@@ -56,7 +58,7 @@ export default function Collections({ userAddress, currentUser }) {
       )}
       <Grid container spacing={2} mt={2}>
         {collections.map((c) => (
-          <Grid item xs={12} sm={6} md={4} key={c.id}>
+          <Grid item xs={12} sm={6} md={4} xl={3} key={c.id}>
             <CollectionCard collection={c} />
           </Grid>
         ))}

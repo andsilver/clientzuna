@@ -19,27 +19,37 @@ import UserLink from "../UserLink";
 
 const StyledNftCard = styled(Card)({
   width: "100%",
-  borderRadius: 10,
+  borderRadius: 14,
   transition: "transform 0.2s linear",
+
+  '.MuiCardMedia-img': {
+    transition: "transform 0.2s linear",
+  },
+
   "&:hover": {
-    transform: "translateY(-10px)",
+    transform: "translateY(-16px)",
+
+    '.MuiCardMedia-img': {
+      transform: "scale(1.1)",
+    },
   },
 });
 
-const LikeButton = styled(Box)((t) => ({
+export const LikeButton = styled(Box)((t) => ({
   position: "absolute",
-  borderRadius: 8,
+  borderRadius: 36,
   top: 26,
   right: 24,
-  color: "white",
+  color: t.theme.palette.mode === "dark" ? "white" : "black",
   padding: "6px 0",
-  backgroundColor: "#222",
+  backgroundColor:
+    t.theme.palette.mode === "dark" ? "#222" : t.theme.palette.grey[300],
   cursor: "pointer",
   fontWeight: "bold",
   lineHeight: 1,
   display: "flex",
   justifyContent: "center",
-  width: 64,
+  minWidth: 60,
   alignItems: "center",
 }));
 

@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   Card,
-  CardActions,
   CardContent,
   Container,
   Grid,
@@ -12,7 +11,6 @@ import {
   Select,
   TextField,
   Typography,
-  useTheme,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { useCallback, useEffect, useState } from "react";
@@ -28,8 +26,6 @@ import {
 } from "../api/api";
 import OverlayLoading from "../Components/common/OverlayLoading";
 import Switch from "../Components/common/Switch";
-import UserBanner from "../Components/Create/UserBanner";
-import UserProfile from "../Components/Create/UserProfile";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useWeb3 } from "../contexts/Web3Context";
 import { generateRandomTokenId } from "../helper/utils";
@@ -37,6 +33,7 @@ import { useHistory } from "react-router-dom";
 import { useConfirm } from "../contexts/Confirm";
 import { config } from "../config";
 import { useSnackbar } from "../contexts/Snackbar";
+import TopBanner from "../Components/common/TopBanner";
 
 const categories = [...config.categories];
 
@@ -53,15 +50,13 @@ const LabelField = styled(Typography)({
   fontWeight: "bold",
   marginTop: 24,
   marginBottom: 12,
+  fontSize: 16,
 });
 
 export default function Create() {
   const history = useHistory();
   const { user, connect } = useAuthContext();
   const { wrongNetwork, signEIP712, contracts } = useWeb3();
-  const {
-    palette: { mode },
-  } = useTheme();
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState();
   const [nftDetails, setNftDetails] = useState({
@@ -238,280 +233,229 @@ export default function Create() {
   }, [user]);
 
   return (
-    <>
+    <div style={{ marginTop: -80 }}>
       {loading && <OverlayLoading show={loading} />}
-      <UserBanner user={user} />
+      <TopBanner>
+        <Typography
+          variant="h3"
+          fontWeight="bold"
+          color="white"
+          textAlign="center"
+        >
+          Create Single Collectible Item
+        </Typography>
+      </TopBanner>
       <Container maxWidth="xl">
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={3}>
-            <UserProfile user={user} mode={mode} />
-          </Grid>
-          <Grid item xs={12} md={9}>
-            <Box py={3}>
-              <Typography variant="h5" fontWeight="bold" color="primary" mb={2}>
-                Create Single Collectible Item
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={7}>
-                  <Card>
-                    <CardContent>
-                      <LabelField>Upload File *</LabelField>
-                      <DropZone
-                        {...getRootProps()}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <input {...getInputProps()} />
-                        {isDragActive ? (
-                          <p>Drop the images here ...</p>
-                        ) : (
-                          <div>
-                            <Typography mb={3}>
-                              "PNG, GIF, WEBP, MP4 or MP3. Max 30mb."
-                            </Typography>
-                            <Button
-                              color="secondary"
-                              variant="contained"
-                              onClick={open}
-                            >
-                              Choose File
-                            </Button>
-                          </div>
-                        )}
-                      </DropZone>
-                      <LabelField>Category</LabelField>
-                      <Select
-                        value={nftDetails.category}
-                        size="small"
-                        fullWidth
-                        color="secondary"
-                        name="category"
-                        onChange={onChangeNftDetails}
-                      >
-                        {categories.map((c) => (
-                          <MenuItem key={c} value={c}>
-                            {c}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      <LabelField>Item Name</LabelField>
-                      <TextField
-                        name="name"
-                        color="secondary"
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                        placeholder="e.g. 'Music name or Art name'"
-                        value={nftDetails.name}
-                        onChange={onChangeNftDetails}
-                      />
-                      <LabelField>Description</LabelField>
-                      <TextField
-                        name="description"
-                        fullWidth
-                        multiline
-                        rows={4}
-                        placeholder="e.g. 'Music covert art for My Single'"
-                        color="secondary"
-                        variant="outlined"
-                        size="small"
-                        value={nftDetails.description}
-                        onChange={onChangeNftDetails}
-                      />
-                      <LabelField>Royalties</LabelField>
-                      <TextField
-                        name="royalties"
-                        color="secondary"
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                        type="number"
-                        placeholder="Suggested: 10%, 20%, 30%"
-                        value={nftDetails.royalties}
-                        onChange={onChangeNftDetails}
-                      />
-                      <LabelField>Collection</LabelField>
-                      <Select
-                        value={nftDetails.collectionId}
-                        size="small"
-                        fullWidth
-                        color="secondary"
-                        name="collectionId"
-                        onChange={onChangeNftDetails}
-                      >
-                        <MenuItem value={0}>No Collection</MenuItem>
-                        {collections.map((c) => (
-                          <MenuItem key={c.id} value={c.id}>
-                            <Grid container alignItems="center">
-                              <Avatar
-                                sx={{ width: 30, height: 30 }}
-                                src={c.image}
-                              />
-                              <Typography
-                                ml={1}
-                                fontSize={12}
-                                fontWeight="bold"
-                              >
-                                {c.name}
-                              </Typography>
-                            </Grid>
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      <LabelField>
-                        Properties
-                        <IconButton
-                          size="small"
-                          style={{ marginLeft: 12 }}
-                          onClick={() =>
-                            setNftDetails({
-                              ...nftDetails,
-                              properties: [
-                                ...nftDetails.properties,
-                                {
-                                  name: "",
-                                  value: "",
-                                },
-                              ],
-                            })
-                          }
-                        >
-                          <AddIcon />
-                        </IconButton>
-                      </LabelField>
-                      {nftDetails.properties.map((p, index) => (
-                        <Grid
-                          key={index}
-                          container
-                          spacing={2}
-                          justifyContent="space-between"
-                          mb={1}
-                        >
-                          <Grid item xs={5}>
-                            <TextField
-                              color="secondary"
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              placeholder="e.g. 'Size'"
-                              value={p.name}
-                              onChange={(e) =>
-                                updateProperty(index, "name", e.target.value)
-                              }
-                            />
-                          </Grid>
-                          <Grid item xs={5}>
-                            <TextField
-                              color="secondary"
-                              variant="outlined"
-                              size="small"
-                              fullWidth
-                              placeholder="e.g. 'M'"
-                              value={p.value}
-                              onChange={(e) =>
-                                updateProperty(index, "value", e.target.value)
-                              }
-                            />
-                          </Grid>
-                          <Grid item>
-                            <IconButton onClick={() => removeProperty(index)}>
-                              <CloseIcon />
-                            </IconButton>
-                          </Grid>
-                        </Grid>
-                      ))}
-                      <Grid
-                        container
-                        alignItems="center"
-                        justifyContent="space-between"
-                        mt={3}
-                      >
-                        <Grid item>
-                          <Typography fontWeight="bold">Put on sale</Typography>
-                          <Typography variant="subtitle2">
-                            You'll receive bids on this item
-                          </Typography>
-                        </Grid>
-                        <Grid item>
-                          <Switch
-                            value={onSale}
-                            onChange={(e, v) => setOnSale(v)}
-                          />
-                        </Grid>
-                      </Grid>
-
-                      {/* <Grid
-                    container
-                    alignItems="center"
-                    justifyContent="space-between"
-                    mt={3}
+        <Box py={3}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={5}>
+              <Card sx={{ minHeight: 300 }}>
+                <CardContent>
+                  <Typography
+                    color="primary"
+                    textAlign="center"
+                    fontSize={20}
+                    fontWeight={600}
                   >
-                    <Grid item>
-                      <Typography fontWeight="bold">
-                        Instant sale price
-                      </Typography>
-                      <Typography variant="subtitle2">
-                        Enter the price for which the item will be instantly
-                        sold
+                    Preview
+                  </Typography>
+                  {preview && (
+                    <img
+                      style={{ width: "100%", borderRadius: 8 }}
+                      src={preview}
+                      alt=""
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={7}>
+              <LabelField color="primary" marginTop={0}>
+                Upload File *
+              </LabelField>
+              <DropZone
+                {...getRootProps()}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <input {...getInputProps()} />
+                {isDragActive ? (
+                  <p>Drop the images here ...</p>
+                ) : (
+                  <div>
+                    <Typography color="primary" mb={3}>
+                      "PNG, GIF, WEBP, MP4 or MP3. Max 30mb."
+                    </Typography>
+                    <Button
+                      color="secondary"
+                      variant="contained"
+                      onClick={open}
+                    >
+                      Choose File
+                    </Button>
+                  </div>
+                )}
+              </DropZone>
+              <LabelField color="primary">Category</LabelField>
+              <Select
+                value={nftDetails.category}
+                fullWidth
+                color="secondary"
+                name="category"
+                onChange={onChangeNftDetails}
+              >
+                {categories.map((c) => (
+                  <MenuItem key={c} value={c}>
+                    {c}
+                  </MenuItem>
+                ))}
+              </Select>
+              <LabelField color="primary">Item Name</LabelField>
+              <TextField
+                name="name"
+                color="secondary"
+                variant="outlined"
+                fullWidth
+                placeholder="e.g. 'Music name or Art name'"
+                value={nftDetails.name}
+                onChange={onChangeNftDetails}
+              />
+              <LabelField color="primary">Description</LabelField>
+              <TextField
+                name="description"
+                fullWidth
+                multiline
+                rows={4}
+                placeholder="e.g. 'Music covert art for My Single'"
+                color="secondary"
+                variant="outlined"
+                value={nftDetails.description}
+                onChange={onChangeNftDetails}
+              />
+              <LabelField color="primary">Royalties</LabelField>
+              <TextField
+                name="royalties"
+                color="secondary"
+                variant="outlined"
+                fullWidth
+                type="number"
+                placeholder="Suggested: 10%, 20%, 30%"
+                value={nftDetails.royalties}
+                onChange={onChangeNftDetails}
+              />
+              <LabelField color="primary">Collection</LabelField>
+              <Select
+                value={nftDetails.collectionId}
+                fullWidth
+                color="secondary"
+                name="collectionId"
+                onChange={onChangeNftDetails}
+              >
+                <MenuItem value={0}>No Collection</MenuItem>
+                {collections.map((c) => (
+                  <MenuItem key={c.id} value={c.id}>
+                    <Grid container alignItems="center">
+                      <Avatar sx={{ width: 30, height: 30 }} src={c.image} />
+                      <Typography ml={1} fontSize={12} fontWeight="bold">
+                        {c.name}
                       </Typography>
                     </Grid>
-                    <Grid item>
-                      <Switch
-                        value={!!instantSale}
-                        onChange={(e, v) => instantSale(v ? {} : null)}
-                      />
-                    </Grid>
+                  </MenuItem>
+                ))}
+              </Select>
+              <LabelField color="primary">
+                Properties
+                <IconButton
+                  size="small"
+                  style={{ marginLeft: 12 }}
+                  onClick={() =>
+                    setNftDetails({
+                      ...nftDetails,
+                      properties: [
+                        ...nftDetails.properties,
+                        {
+                          name: "",
+                          value: "",
+                        },
+                      ],
+                    })
+                  }
+                >
+                  <AddIcon />
+                </IconButton>
+              </LabelField>
+              {nftDetails.properties.map((p, index) => (
+                <Grid
+                  key={index}
+                  container
+                  spacing={2}
+                  justifyContent="space-between"
+                  mb={1}
+                >
+                  <Grid item xs={5}>
+                    <TextField
+                      color="secondary"
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                      placeholder="e.g. 'Size'"
+                      value={p.name}
+                      onChange={(e) =>
+                        updateProperty(index, "name", e.target.value)
+                      }
+                    />
                   </Grid>
-
-                  {salePrice && (
-                    <Grid mt={1} container spacing={2}>
-                      <Grid item xs={6}>
-                        <TextField
-                          color="secondary"
-                          variant="outlined"
-                          size="small"
-                          fullWidth
-                          placeholder="Enter price"
-                        />
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Select size="small" fullWidth color="secondary">
-                          <MenuItem>WBNB</MenuItem>
-                        </Select>
-                      </Grid>
-                    </Grid>
-                  )} */}
-                    </CardContent>
-                    <CardActions>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        fullWidth
-                        onClick={create}
-                      >
-                        Create
-                      </Button>
-                    </CardActions>
-                  </Card>
+                  <Grid item xs={5}>
+                    <TextField
+                      color="secondary"
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                      placeholder="e.g. 'M'"
+                      value={p.value}
+                      onChange={(e) =>
+                        updateProperty(index, "value", e.target.value)
+                      }
+                    />
+                  </Grid>
+                  <Grid item>
+                    <IconButton onClick={() => removeProperty(index)}>
+                      <CloseIcon />
+                    </IconButton>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} md={5}>
-                  <Card>
-                    <CardContent>
-                      <LabelField textAlign="center">Preview</LabelField>
-                      {preview && (
-                        <img
-                          style={{ width: "100%", borderRadius: 8 }}
-                          src={preview}
-                          alt=""
-                        />
-                      )}
-                    </CardContent>
-                  </Card>
+              ))}
+              <Grid
+                container
+                alignItems="center"
+                justifyContent="space-between"
+                mt={3}
+                mb={4}
+              >
+                <Grid item>
+                  <Typography color="primary" fontWeight="bold">
+                    Put on sale
+                  </Typography>
+                  <Typography color="primary" variant="subtitle2">
+                    You'll receive bids on this item
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Switch value={onSale} onChange={(e, v) => setOnSale(v)} />
                 </Grid>
               </Grid>
-            </Box>
+              <Button
+                variant="contained"
+                color="secondary"
+                fullWidth
+                size="large"
+                onClick={create}
+              >
+                Create
+              </Button>
+            </Grid>
           </Grid>
-        </Grid>
+        </Box>
       </Container>
-    </>
+    </div>
   );
 }

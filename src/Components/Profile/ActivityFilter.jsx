@@ -6,7 +6,6 @@ import {
   FormControlLabel,
   FormGroup,
   Grid,
-  Link,
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -62,7 +61,7 @@ export default function ActivityFilter() {
   }, [query]);
 
   return (
-    <Card sx={{ width: "100%", position: "sticky", top: 36 }}>
+    <Card sx={{ width: "100%", position: "sticky", top: 100 }}>
       <CardContent>
         <Grid
           container
@@ -74,9 +73,7 @@ export default function ActivityFilter() {
             Filters
           </Typography>
           <Button size="small" onClick={clearFilter}>
-            <Link color="secondary" underline="none">
-              Clear all
-            </Link>
+            Clear all
           </Button>
         </Grid>
         <FormGroup>

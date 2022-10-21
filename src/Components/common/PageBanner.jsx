@@ -3,9 +3,9 @@ import { styled } from "@mui/system";
 import DummyImage from "../../assets/dummy-image.jpg";
 
 const BannerContainer = styled(Box)(({ theme }) => ({
-  height: 340,
+  height: 440,
   [theme.breakpoints.down("md")]: {
-    height: 200,
+    height: 300,
   },
 }));
 

@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Divider,
   Grid,
   Paper,
   Typography,
@@ -12,6 +11,7 @@ import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
 import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import TwitterIcon from "@mui/icons-material/Twitter";
+import FlagIcon from "@mui/icons-material/Flag";
 import { styled } from "@mui/system";
 
 import Link from "../Link";
@@ -25,16 +25,16 @@ import Tooltip from "../common/Tooltip";
 const ProfileImage = styled("div")((t) => ({
   border: `3px solid ${t.theme.palette.mode === "light" ? "#eee" : "#27273a"}`,
   borderRadius: 14,
-  width: 160,
-  height: 160,
-  marginTop: -120,
+  width: 200,
+  height: 200,
+  marginTop: -80,
   overflow: "hidden",
   backgroundSize: "cover",
   backgroundPosition: "center",
   backgroundRepeat: "no-repeat",
 }));
 
-export default function UserProfile({ user, mode }) {
+export default function UserProfile({ user, children }) {
   const { user: currentUser } = useAuthContext();
   const { showSnackbar } = useSnackbar();
   const [followers, setFollowers] = useState(0);
@@ -80,103 +80,142 @@ export default function UserProfile({ user, mode }) {
 
   return user ? (
     <Paper
-      style={{
+      sx={(t) => ({
+        borderRadius: 2,
         borderTopLeftRadius: 0,
         borderTopRightRadius: 0,
-      }}
+      })}
     >
-      <Box p={2}>
-        <Link to={isMe ? "/profile" : `/users/${user.pubKey}`}>
-          <ProfileImage
-            style={{
-              backgroundImage: `url(${user?.avatar || DefaultUser})`,
-            }}
-          />
-        </Link>
-        <Box mt={2} mb={2}>
-          {user.name && (
-            <Typography variant="h6" gutterBottom>
-              {user.name}
-            </Typography>
-          )}
-          <Typography mb={1}>
-            <Tooltip title={copied ? "Copied!" : "Copy"}>
-              <LinkE
-                style={{ cursor: "pointer" }}
-                fontWeight="bold"
-                onClick={copyAddress}
-              >
-                {minimizeAddress(user.pubKey, 7, -4)}
-              </LinkE>
-            </Tooltip>
-          </Typography>
-          {user.bio && (
-            <Typography mt={1} variant="subtitle2">
-              {user.bio}
-            </Typography>
-          )}
-          <Grid container spacing={1}>
-            {user.instagram && (
-              <Grid item mt={2}>
-                <a
-                  href={`https://instagram.com/${user.instagram}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <InstagramIcon color="primary" />
-                </a>
-              </Grid>
-            )}
-            {user.twitter && (
-              <Grid item mt={2}>
-                <a
-                  href={`https://twitter.com/${user.twitter}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <TwitterIcon color="primary" />
-                </a>
-              </Grid>
-            )}
+      <Box
+        py={3}
+        px={4}
+        sx={(t) => ({
+          [t.breakpoints.down("md")]: {
+            px: 2,
+            py: 2,
+          },
+        })}
+      >
+        <Grid container spacing={2} justifyContent="space-between">
+          <Grid item order={1}>
+            <Link to={isMe ? "/profile" : `/users/${user.pubKey}`}>
+              <ProfileImage
+                style={{
+                  backgroundImage: `url(${user?.avatar || DefaultUser})`,
+                }}
+              />
+            </Link>
           </Grid>
-        </Box>
-
-        <Divider />
-        <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item>
-            <Typography mt={2} variant="h6">
-              {followers}
-            </Typography>
-            <Typography>Followers</Typography>
+          <Grid
+            item
+            order={2}
+            flexGrow={1}
+            sx={(t) => ({
+              [t.breakpoints.down("md")]: {
+                order: 4,
+                width: "100%",
+              },
+            })}
+          >
+            <Box>
+              {user.name && (
+                <Typography variant="h4" gutterBottom fontWeight="bold">
+                  {user.name}
+                </Typography>
+              )}
+              {user.bio && (
+                <Typography maxWidth={500} mt={1} fontSize="16">
+                  {user.bio}
+                </Typography>
+              )}
+              <Typography mt={2}>
+                <Tooltip title={copied ? "Copied!" : "Copy"}>
+                  <LinkE
+                    style={{ cursor: "pointer" }}
+                    fontWeight="bold"
+                    onClick={copyAddress}
+                  >
+                    {minimizeAddress(user.pubKey, 7, -4)}
+                  </LinkE>
+                </Tooltip>
+              </Typography>
+            </Box>
           </Grid>
+          <Grid item justifySelf="self-end" order={3}>
+            <Grid container spacing={1} justifyContent="flex-end">
+              {user.instagram && (
+                <Grid item>
+                  <a
+                    href={`https://instagram.com/${user.instagram}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <InstagramIcon color="primary" />
+                  </a>
+                </Grid>
+              )}
+              {user.twitter && (
+                <Grid item>
+                  <a
+                    href={`https://twitter.com/${user.twitter}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <TwitterIcon color="primary" />
+                  </a>
+                </Grid>
+              )}
+            </Grid>
 
-          <Grid item>
-            {currentUser && !isMe && (
-              <Button
-                variant="contained"
-                color="secondary"
-                startIcon={
-                  following ? (
-                    <PersonRemoveRoundedIcon />
-                  ) : (
-                    <PersonAddAltRoundedIcon />
-                  )
-                }
-                onClick={follow}
-              >
-                {following ? "Unfollow" : "Follow"}
-              </Button>
+            <Grid
+              container
+              alignItems="center"
+              justifyContent="flex-end"
+              mt={3}
+            >
+              <Grid item>
+                {currentUser && !isMe && (
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    startIcon={
+                      following ? (
+                        <PersonRemoveRoundedIcon />
+                      ) : (
+                        <PersonAddAltRoundedIcon />
+                      )
+                    }
+                    sx={{
+                      width: 100,
+                      boxShadow: "none",
+                    }}
+                    onClick={follow}
+                  >
+                    {following ? "Unfollow" : "Follow"}
+                  </Button>
+                )}
+              </Grid>
+            </Grid>
+            {currentUser && !isMe && !user.reported && (
+              <Grid container mt={1} justifyContent="flex-end">
+                <Button
+                  sx={{
+                    width: 100,
+                    boxShadow: "none",
+                  }}
+                  startIcon={<FlagIcon />}
+                  variant="contained"
+                  color="error"
+                  onClick={report}
+                >
+                  Report
+                </Button>
+              </Grid>
             )}
           </Grid>
         </Grid>
-        {currentUser && !isMe && !user.reported && (
-          <Grid container justifyContent="center" mt={2}>
-            <Button variant="contained" color="error" onClick={report}>
-              REPORT USER
-            </Button>
-          </Grid>
-        )}
       </Box>
+      {children}
     </Paper>
   ) : (
     <></>

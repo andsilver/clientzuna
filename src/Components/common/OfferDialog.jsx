@@ -26,6 +26,7 @@ const OfferDialogContainer = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogActions-root": {
     padding: theme.spacing(1),
   },
+  [theme.breakpoints.up("sm")]: {},
 }));
 
 const OfferDialogTitle = (props) => {
@@ -66,7 +67,7 @@ export default function OfferDialog({
   );
   const [currencyBalance, setCurrencyBalance] = useState(0);
   const { getErc20Balance } = useWeb3();
-  const { user, balance } = useAuthContext();
+  const { user } = useAuthContext();
 
   const symbol = useMemo(
     () => currencyAddressToSymbol(buying ? nft.currentAsk.currency : currency),
@@ -86,35 +87,30 @@ export default function OfferDialog({
   return nft ? (
     <OfferDialogContainer onClose={onClose} open>
       <OfferDialogTitle onClose={onClose}>
-        <Typography color="primary" fontWeight="bold">
-          {buying ? "CHECKOUT" : "PLACE A BID"}
+        <Typography color="primary" fontWeight="bold" fontSize={22}>
+          {buying ? "Checkout" : "Place a Bid"}
         </Typography>
       </OfferDialogTitle>
-      <DialogContent>
-        <Typography color="primary" variant="subtitle2">
+      <DialogContent
+        sx={{
+          width: 400,
+        }}
+      >
+        <Typography color="GrayText" fontSize={18} textAlign="center">
           You are about to {buying ? "purchase" : "place a bid for"}
         </Typography>
-        <Typography color="primary" fontWeight="bold">
+        <Typography
+          color="primary"
+          fontWeight="bold"
+          textAlign="center"
+          fontSize={18}
+        >
           {nft.name}
         </Typography>
-        <Box
-          px={2}
-          py={3}
-          mt={1}
-          sx={{
-            border: (t) => `2px solid ${t.palette.secondary.main}`,
-            borderRadius: 2,
-            backgroundColor: (t) => t.palette.background.default,
-          }}
-        >
+        <Box py={3}>
           {buying ? (
             <>
-              <Typography
-                variant="subtitle2"
-                color="primary"
-                fontWeight="bold"
-                mb={1}
-              >
+              <Typography color="primary" fontWeight="bold" mb={1}>
                 Buy Price
               </Typography>
               <TextField
@@ -127,20 +123,14 @@ export default function OfferDialog({
             </>
           ) : (
             <>
-              <Typography
-                variant="subtitle2"
-                color="primary"
-                fontWeight="bold"
-                mb={1}
-              >
-                Your Bid
+              <Typography color="primary" fontSize={18} mb={1}>
+                Bid Amount:
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
+              <Grid container spacing={1}>
+                <Grid item xs={8}>
                   <TextField
                     color="secondary"
                     variant="outlined"
-                    size="small"
                     fullWidth
                     placeholder="Enter price"
                     type="number"
@@ -148,11 +138,10 @@ export default function OfferDialog({
                     onChange={(e) => setAmount(e.target.value)}
                   />
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={4}>
                   <Select
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value)}
-                    size="small"
                     fullWidth
                     color="secondary"
                   >
@@ -168,62 +157,42 @@ export default function OfferDialog({
           )}
 
           <Grid
-            mt={3}
             container
             justifyContent="space-between"
             alignItems="center"
             spacing={2}
+            mt={1}
           >
             <Grid item>
-              <Typography color="primary" variant="subtitle2">
-                Your balance
+              <Typography fontSize={18} style={{ color: "#7A798A" }}>
+                Your {buying ? "buying" : "bidding"} balance:
               </Typography>
             </Grid>
             <Grid item>
-              <Typography color="primary" variant="subtitle2" fontWeight={600}>
-                {balance} {config.nativeCurrency}
-              </Typography>
-            </Grid>
-          </Grid>
-
-          <Grid
-            container
-            justifyContent="space-between"
-            alignItems="center"
-            spacing={2}
-          >
-            <Grid item>
-              <Typography color="primary" variant="subtitle2">
-                Your {buying ? "buying" : "bidding"} balance
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Typography color="primary" variant="subtitle2" fontWeight={600}>
+              <Typography color="primary" fontSize={18} fontWeight={700}>
                 {currencyBalance} {symbol}
               </Typography>
             </Grid>
           </Grid>
         </Box>
+        <Grid container justifyContent="center">
+          <Button
+            fullWidth
+            autoFocus
+            onClick={() => onSubmit({ amount, currency })}
+            color="secondary"
+            variant="contained"
+            size="large"
+            disabled={
+              buying
+                ? +nft.currentAsk.amount > +currencyBalance
+                : !amount || amount > +currencyBalance
+            }
+          >
+            {buying ? "Pay" : "Place a bid"}
+          </Button>
+        </Grid>
       </DialogContent>
-      <Grid container justifyContent="center" py={2}>
-        <Button
-          style={{
-            boxShadow: "none",
-            minWidth: 120,
-          }}
-          autoFocus
-          onClick={() => onSubmit({ amount, currency })}
-          color="secondary"
-          variant="contained"
-          disabled={
-            buying
-              ? +nft.currentAsk.amount > +currencyBalance
-              : !amount || amount > +currencyBalance
-          }
-        >
-          {buying ? "Pay" : "Place a bid"}
-        </Button>
-      </Grid>
     </OfferDialogContainer>
   ) : (
     <></>
