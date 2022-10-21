@@ -27,7 +27,7 @@ const StyledNftCard = styled(Card)({
   },
 
   "&:hover": {
-    transform: "translateY(-16px)",
+    transform: "translateY(-12px)",
 
     '.MuiCardMedia-img': {
       transform: "scale(1.1)",
