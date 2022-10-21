@@ -75,7 +75,7 @@ export default function Rewards() {
         <Typography
           variant="h3"
           fontWeight="bold"
-          color="primary"
+          color="white"
           textAlign="center"
         >
           Rewards Status

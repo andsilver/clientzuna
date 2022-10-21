@@ -42,7 +42,7 @@ export default function Reward() {
         <Typography
           variant="h3"
           fontWeight="bold"
-          color="primary"
+          color="white"
           textAlign="center"
         >
           Rewards Details
