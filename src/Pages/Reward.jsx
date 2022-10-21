@@ -20,6 +20,7 @@ import SectionLoading from "../Components/SectionLoading";
 import { config } from "../config";
 import RewardsTable from "../Components/Rewards/RewardsTable";
 import Link from "../Components/Link";
+import TopBanner from "../Components/common/TopBanner";
 
 export default function Reward() {
   const { id } = useParams();
@@ -36,86 +37,95 @@ export default function Reward() {
   }, [id]);
 
   return reward ? (
-    <Container maxWidth="lg">
-      <Typography variant="h3" fontWeight="bold" color="primary" mb={3} mt={3}>
-        Rewards Details
-      </Typography>
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Grid container spacing={3}>
-            <Grid item xs={4}>
-              <Typography
-                variant="caption"
-                color="primary"
-                fontWeight={600}
-                mb={2}
-              >
-                Reward Type
-              </Typography>
-              <Typography color="primary" textTransform="capitalize" mt={1}>
-                {reward.reward.rewardType}
-              </Typography>
-            </Grid>
-            <Grid item xs={4}>
-              <Typography
-                variant="caption"
-                color="primary"
-                fontWeight={600}
-                mb={2}
-              >
-                Reward Date
-              </Typography>
-              <Typography color="primary" textTransform="capitalize" mt={1}>
-                {moment(reward.reward.createdAt).format("YYYY/MMM/DD")}
-              </Typography>
-            </Grid>
-            <Grid item xs={4}>
-              <Typography
-                variant="caption"
-                color="primary"
-                fontWeight={600}
-                mb={2}
-              >
-                Transaction
-              </Typography>
-              <Typography>
-                <a
-                  href={`${config.networkScan.url}/tx/${reward.reward.txHash}`}
-                  target="__blank"
+    <div style={{ marginTop: -80 }}>
+      <TopBanner>
+        <Typography
+          variant="h3"
+          fontWeight="bold"
+          color="primary"
+          textAlign="center"
+        >
+          Rewards Details
+        </Typography>
+      </TopBanner>
+      <Container maxWidth="xl">
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Grid container spacing={3}>
+              <Grid item xs={4}>
+                <Typography
+                  variant="caption"
+                  color="primary"
+                  fontWeight={600}
+                  mb={2}
                 >
-                  <IconButton color="primary">
-                    <LaunchIcon color="primary" />
-                  </IconButton>
-                </a>
-              </Typography>
+                  Reward Type
+                </Typography>
+                <Typography color="primary" textTransform="capitalize" mt={1}>
+                  {reward.reward.rewardType}
+                </Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography
+                  variant="caption"
+                  color="primary"
+                  fontWeight={600}
+                  mb={2}
+                >
+                  Reward Date
+                </Typography>
+                <Typography color="primary" textTransform="capitalize" mt={1}>
+                  {moment(reward.reward.createdAt).format("YYYY/MMM/DD")}
+                </Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography
+                  variant="caption"
+                  color="primary"
+                  fontWeight={600}
+                  mb={2}
+                >
+                  Transaction
+                </Typography>
+                <Typography>
+                  <a
+                    href={`${config.networkScan.url}/tx/${reward.reward.txHash}`}
+                    target="__blank"
+                  >
+                    <IconButton color="primary">
+                      <LaunchIcon color="primary" />
+                    </IconButton>
+                  </a>
+                </Typography>
+              </Grid>
             </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-      <Card>
-        {[1, 2, 3, 4, 5, 6].map((tier) => (
-          <Accordion key={tier}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="caption" color="primary" fontWeight={600}>
-                Tier {tier} Holders
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              {reward.reward[`tier${tier}Holders`].map((h) => (
-                <Link to={`/users/${h}`}>
-                  <Typography color="secondary" variant="body2">
-                    {h}
-                  </Typography>
-                </Link>
-              ))}
-            </AccordionDetails>
-          </Accordion>
-        ))}
-      </Card>
-      <Card sx={{ my: 3 }}>
-        <RewardsTable detail rewards={reward.details} />
-      </Card>
-    </Container>
+          </CardContent>
+        </Card>
+        <Card>
+          {[1, 2, 3, 4, 5, 6].map((tier) => (
+            <Accordion key={tier}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="caption" color="primary" fontWeight={600}>
+                  Tier {tier} Holders
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {reward.reward[`tier${tier}Holders`].map((h) => (
+                  <Link to={`/users/${h}`}>
+                    <Typography color="secondary" variant="body2">
+                      {h}
+                    </Typography>
+                  </Link>
+                ))}
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </Card>
+        <Card sx={{ my: 3 }}>
+          <RewardsTable detail rewards={reward.details} />
+        </Card>
+      </Container>
+    </div>
   ) : (
     <SectionLoading />
   );

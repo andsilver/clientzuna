@@ -57,7 +57,7 @@ export default function Collections() {
             <LoadMore
               loading={loading}
               allLoaded={allLoaded}
-              loadMore={fetchCollections}
+              loadMore={() => fetchCollections(false)}
             />
           </div>
         )}

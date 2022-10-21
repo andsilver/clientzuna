@@ -24,6 +24,7 @@ import Link from "../Components/Link";
 import SectionLoading from "../Components/SectionLoading";
 import NoData from "../Components/NoData";
 import RewardsFilter from "../Components/Rewards/RewardsFilter";
+import TopBanner from "../Components/common/TopBanner";
 
 export default function Rewards() {
   const { loading, sendRequest } = useLoading();
@@ -69,17 +70,18 @@ export default function Rewards() {
   }, [filter]);
 
   return (
-    <>
-      <Container maxWidth="xl">
+    <div style={{ marginTop: -80 }}>
+      <TopBanner>
         <Typography
           variant="h3"
           fontWeight="bold"
           color="primary"
-          mb={3}
-          mt={3}
+          textAlign="center"
         >
           Rewards Status
         </Typography>
+      </TopBanner>
+      <Container maxWidth="xl">
         <RewardsFilter filter={filter} onUpdate={updateFilter} />
         <Box py={2}>
           {!!rewards.length && (
@@ -133,6 +135,6 @@ export default function Rewards() {
           {loading ? <SectionLoading /> : !rewards.length && <NoData />}
         </Box>
       </Container>
-    </>
+    </div>
   );
 }
