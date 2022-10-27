@@ -10,7 +10,11 @@ import SendIcon from "@mui/icons-material/Send";
 import AutoGraphIcon from "@mui/icons-material/AutoGraph";
 import { Grid } from "@mui/material";
 
-import { currencyAddressToSymbol, timeSince } from "../../helper/utils";
+import {
+  currencyAddressToSymbol,
+  nFormatter,
+  timeSince,
+} from "../../helper/utils";
 import UserLink from "../UserLink";
 
 const IconsMapping = {
@@ -36,7 +40,7 @@ export default memo(({ activity }) => {
 
     if (activity.amount) {
       const symbol = currencyAddressToSymbol(activity.currency);
-      text += ` (${activity.amount} ${symbol})`;
+      text += ` (${nFormatter(activity.amount)} ${symbol})`;
     }
     return text;
   }, [activity]);

@@ -22,12 +22,12 @@ export default memo(({ nft, bids, currentUser, cancelBid, acceptBid }) => (
           justifyContent="space-between"
         >
           <Bid bid={bid} />
-          {sameAddress(bid.bidder.pubKey, currentUser.pubKey) && (
+          {sameAddress(bid.bidder.pubKey, currentUser?.pubKey || "") && (
             <Button variant="outlined" onClick={() => cancelBid(bid)}>
               Cancel
             </Button>
           )}
-          {sameAddress(nft.owner.pubKey, currentUser.pubKey) && (
+          {sameAddress(nft.owner.pubKey, currentUser?.pubKey || "") && (
             <Button variant="outlined" onClick={() => acceptBid(bid)}>
               Accept
             </Button>
