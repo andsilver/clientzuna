@@ -1,9 +1,9 @@
-import { Box, Container, Grid, Typography } from "@mui/material";
+import { Box, Chip, Container, Grid, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import { useEffect, useState } from "react";
 import Carousel from "react-multi-carousel";
 
-import { getHomeData } from "../../api/api";
+import { getHomeData, getTopBuyers, getTopSellers } from "../../api/api";
 import useLoading from "../../hooks/useLoading";
 import CollectionCard from "../Collections/CollectionCard";
 import RainbowLink from "../common/RainbowLink";
@@ -52,7 +52,29 @@ const SectionContainer = styled("div")(({ theme }) => ({
 
 export default function HomeItems() {
   const [data, setData] = useState();
+  const [topSellers, setTopSellers] = useState([]);
+  const [topBuyers, setTopBuyers] = useState([]);
+  const [topBuyerCurrency, setTopBuyerCurrency] = useState("WBNB");
+  const [topSellerCurrency, setTopSellerCurrency] = useState("WBNB");
   const { loading, sendRequest } = useLoading();
+
+  const fetchTopSellers = async () => {
+    try {
+      const sellers = await getTopSellers(topSellerCurrency);
+      setTopSellers(sellers);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchTopBuyers = async () => {
+    try {
+      const buyers = await getTopBuyers(topBuyerCurrency);
+      setTopBuyers(buyers);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchHomeData = async () => {
     const homeData = await sendRequest(() => getHomeData());
@@ -61,6 +83,16 @@ export default function HomeItems() {
       setData(homeData);
     }
   };
+
+  useEffect(() => {
+    fetchTopBuyers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topBuyerCurrency]);
+
+  useEffect(() => {
+    fetchTopSellers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topSellerCurrency]);
 
   useEffect(() => {
     fetchHomeData();
@@ -102,12 +134,38 @@ export default function HomeItems() {
         <Container maxWidth="xl">
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
-              <Title>Top Sellers</Title>
+              <Grid
+                container
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <Grid item>
+                  <Title>Top Sellers</Title>
+                </Grid>
+                <Grid item xs={5}>
+                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                    <Chip
+                      label="WBNB"
+                      color={
+                        topSellerCurrency === "WBNB" ? "secondary" : "default"
+                      }
+                      onClick={() => setTopSellerCurrency("WBNB")}
+                    />
+                    <Chip
+                      label="ZUNA"
+                      color={
+                        topSellerCurrency === "ZUNA" ? "secondary" : "default"
+                      }
+                      onClick={() => setTopSellerCurrency("ZUNA")}
+                    />
+                  </Stack>
+                </Grid>
+              </Grid>
               {loading ? (
                 <SectionLoading />
               ) : (
                 <Grid mb={7} container spacing={2}>
-                  {(data?.sellers || []).map((s) => (
+                  {(topSellers || []).map((s) => (
                     <Grid item xs={12} sm={6} md={12} lg={6} key={s.id}>
                       <UserLink
                         rounded
@@ -124,12 +182,38 @@ export default function HomeItems() {
               )}
             </Grid>
             <Grid item xs={12} md={6}>
-              <Title>Top Buyers</Title>
+              <Grid
+                container
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <Grid item>
+                  <Title>Top Buyers</Title>
+                </Grid>
+                <Grid item xs={5}>
+                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                    <Chip
+                      label="WBNB"
+                      color={
+                        topBuyerCurrency === "WBNB" ? "secondary" : "default"
+                      }
+                      onClick={() => setTopBuyerCurrency("WBNB")}
+                    />
+                    <Chip
+                      label="ZUNA"
+                      color={
+                        topBuyerCurrency === "ZUNA" ? "secondary" : "default"
+                      }
+                      onClick={() => setTopBuyerCurrency("ZUNA")}
+                    />
+                  </Stack>
+                </Grid>
+              </Grid>
               {loading ? (
                 <SectionLoading />
               ) : (
                 <Grid mb={8} container spacing={2}>
-                  {(data?.buyers || []).map((s) => (
+                  {(topBuyers || []).map((s) => (
                     <Grid item xs={12} sm={6} md={12} lg={6} key={s.id}>
                       <UserLink
                         background

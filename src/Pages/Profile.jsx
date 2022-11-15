@@ -18,6 +18,7 @@ import Rewards from "../Components/Profile/Rewards";
 import UserActivities from "../Components/Profile/UserActivities";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useSnackbar } from "../contexts/Snackbar";
+import { sameAddress } from "../helper/utils";
 import useQuery from "../hooks/useQuery";
 
 const FollowTag = styled("div")((t) => ({
@@ -30,7 +31,7 @@ const FollowTag = styled("div")((t) => ({
   lineHeight: "16px",
 }));
 
-const tabs = [
+const TABS = [
   {
     label: "Collections",
     value: "collections",
@@ -51,10 +52,10 @@ const tabs = [
   { label: "Activity", value: "activity" },
   { label: "Following", value: "following" },
   { label: "Followers", value: "followers" },
-  { label: "Rewards", value: "rewards" },
 ];
 
 export default function Profile() {
+  const [tabs, setTabs] = useState(TABS);
   const { user } = useAuthContext();
   const query = useQuery();
   const [profile, setProfile] = useState(null);
@@ -107,7 +108,17 @@ export default function Profile() {
   useEffect(() => {
     const v = query.get("tab") || tabs[0].value;
     setCurrentTab(v);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
+
+  useEffect(() => {
+    if (sameAddress(profileAddress, user?.pubKey)) {
+      setTabs([...TABS, { label: "Rewards", value: "rewards" }]);
+    } else {
+      setTabs([...TABS]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   return (
     <div style={{ marginTop: -80 }}>

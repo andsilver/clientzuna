@@ -1,7 +1,6 @@
 import {
   Autocomplete,
   Avatar,
-  Button,
   Checkbox,
   FormControl,
   Grid,
@@ -18,11 +17,11 @@ import { Box, styled } from "@mui/system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import debounce from "lodash.debounce";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 import { config } from "../../config";
 import useQuery from "../../hooks/useQuery";
 import { filterCollections } from "../../api/api";
+import FormPopupButton from "../common/FormPopupButton";
 
 const CATEGORIES = [...config.categories];
 const SALE_TYPES = ["Buy Now", "Open to bids", "Not for sale"];
@@ -241,34 +240,7 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
         )}
         {properties && (
           <Grid item xs={12} sm={6} md={3} lg={2}>
-            <Button
-              variant="outlined"
-              color="primary"
-              fullWidth
-              endIcon={
-                <ArrowDropDownIcon
-                  sx={{
-                    color: "white",
-                  }}
-                />
-              }
-              onClick={handleClick}
-              sx={{
-                color: "rgba(255, 255, 255, 0.7)",
-                borderRadius: "6px",
-                borderColor: "rgba(255, 255, 255, 0.23)",
-                borderWidth: 1,
-                justifyContent: 'space-between',
-                padding: '5px 13px',
-                fontWeight: 400,
-                fontSize: 15,
-                "&:hover": {
-                  borderWidth: 1,
-                },
-              }}
-            >
-              Properties
-            </Button>
+            <FormPopupButton label="Properties" handleClick={handleClick} />
             <Popover
               open={open}
               anchorEl={anchorEl}

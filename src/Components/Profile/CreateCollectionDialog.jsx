@@ -2,12 +2,15 @@ import {
   Button,
   DialogContent,
   Grid,
+  MenuItem,
+  Select,
   styled,
   TextField,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
 import { createCollection, updateCollection } from "../../api/api";
+import { config } from "../../config";
 import { useSnackbar } from "../../contexts/Snackbar";
 import { StyledDialog, StyledDialogTitle } from "../common/DialogElements";
 import OverlayLoading from "../common/OverlayLoading";
@@ -21,6 +24,8 @@ const LabelField = styled(Typography)({
 
 const DummyImage =
   "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iMTAwcHgiIGhlaWdodD0iMTAwcHgiIHZpZXdCb3g9IjAgMCA4MCA4MCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIiBpZD0iOTUyNTU5NzY1MzY2Ij4KICAgICAgPHN0b3Agc3RvcC1jb2xvcj0icmdiKDI1NSwgMCwgMTE1KSIgb2Zmc2V0PSIwJSI+PC9zdG9wPgogICAgICA8c3RvcCBzdG9wLWNvbG9yPSJyZ2IoMTE1LCAyNTUsIDApIiBvZmZzZXQ9IjEwMCUiPjwvc3RvcD4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxnIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgogICAgPHJlY3QgaWQ9IlJlY3RhbmdsZSIgZmlsbD0idXJsKCM5NTI1NTk3NjUzNjYpIiB4PSIwIiB5PSIwIiB3aWR0aD0iODAiIGhlaWdodD0iODAiPjwvcmVjdD4KICA8L2c+Cjwvc3ZnPg==";
+
+const CATEGORIES = [...config.categories].filter((c) => c !== "ZunaNauts");
 
 export default function CreateCollectionDialog({
   onClose,
@@ -37,6 +42,7 @@ export default function CreateCollectionDialog({
     image: collectionData?.image || "",
     twitter: collectionData?.twitter || "",
     instagram: collectionData?.instagram || "",
+    category: collectionData?.category || "",
   });
   const [loading, setLoading] = useState(false);
   const editing = !!collectionData;
@@ -181,6 +187,21 @@ export default function CreateCollectionDialog({
           value={collection.description}
           onChange={onChange}
         />
+        <LabelField>Category</LabelField>
+        <Select
+          value={collection.category}
+          fullWidth
+          color="secondary"
+          name="category"
+          onChange={onChange}
+          size="small"
+        >
+          {CATEGORIES.map((c) => (
+            <MenuItem key={c} value={c}>
+              {c}
+            </MenuItem>
+          ))}
+        </Select>
         <LabelField>Twitter</LabelField>
         <TextField
           name="twitter"

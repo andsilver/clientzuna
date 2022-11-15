@@ -30,6 +30,19 @@ export const getAuthToken = (pubKey, signature) =>
 export const getMe = () => api.get("/user/me").then(dataExtractor);
 
 export const getHomeData = () => api.get("/home").then(dataExtractor);
+export const getTopSellers = (currency) =>
+  api
+    .get("/top-sellers", {
+      params: { currency },
+    })
+    .then(dataExtractor);
+
+export const getTopBuyers = (currency) =>
+  api
+    .get("/top-buyers", {
+      params: { currency },
+    })
+    .then(dataExtractor);
 
 export const filterNfts = (params) =>
   api.get(`/nft/filter`, { params }).then(dataExtractor);

@@ -116,6 +116,9 @@ const NavBar = () => {
                 <NavLink to="/explorer">Explore</NavLink>
               </Grid>
               <Grid item display={{ xs: "none", lg: "block" }}>
+                <NavLink to="/collections">Collections</NavLink>
+              </Grid>
+              <Grid item display={{ xs: "none", lg: "block" }}>
                 <NavLink to="/rewards">Rewards</NavLink>
               </Grid>
               {user ? (

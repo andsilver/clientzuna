@@ -1,6 +1,7 @@
+import { Edit } from "@mui/icons-material";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import TwitterIcon from "@mui/icons-material/Twitter";
-import { Box, Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Chip, Grid, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import { memo } from "react";
 
@@ -40,8 +41,9 @@ export default memo(({ collection, onEdit, isOwner }) => {
         {isOwner && (
           <Button
             style={{ marginTop: 12 }}
-            variant="contained"
-            color="secondary"
+            variant="outlined"
+            color="primary"
+            startIcon={<Edit />}
             onClick={onEdit}
           >
             Edit
@@ -50,7 +52,13 @@ export default memo(({ collection, onEdit, isOwner }) => {
       </Grid>
       <Grid container spacing={3} justifyContent="space-between">
         <Grid item xs={12} md={6}>
-          <Typography mt={2} variant="h4" fontWeight="bold" color="primary" mb={2}>
+          <Typography
+            mt={2}
+            variant="h4"
+            fontWeight="bold"
+            color="primary"
+            mb={2}
+          >
             {collection.name}
           </Typography>
           <UserLink
@@ -112,6 +120,27 @@ export default memo(({ collection, onEdit, isOwner }) => {
                 </Typography>
               </Grid>
             </Grid>
+            {collection.category && (
+              <Grid
+                container
+                justifyContent="space-between"
+                alignItems="center"
+                mt={2}
+              >
+                <Grid item>
+                  <Typography color="gray" fontWeight="600">
+                    Category
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Chip
+                    size="small"
+                    label={collection.category}
+                    color="secondary"
+                  />
+                </Grid>
+              </Grid>
+            )}
           </CollectionInfoBox>
           <Grid container spacing={1} justifyContent="flex-end" pr={2}>
             {collection.instagram && (
