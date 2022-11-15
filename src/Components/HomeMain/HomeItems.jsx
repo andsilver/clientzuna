@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Carousel from "react-multi-carousel";
 
 import { getHomeData, getTopBuyers, getTopSellers } from "../../api/api";
+import { nFormatter } from "../../helper/utils";
 import useLoading from "../../hooks/useLoading";
 import CollectionCard from "../Collections/CollectionCard";
 import RainbowLink from "../common/RainbowLink";
@@ -173,7 +174,9 @@ export default function HomeItems() {
                         background
                         user={s}
                         size={64}
-                        extraText={`$${s.amount}`}
+                        extraText={`${nFormatter(
+                          s.amount
+                        )} ${topSellerCurrency} ($${nFormatter(s.usd)})`}
                         fontSize={20}
                       />
                     </Grid>
@@ -222,7 +225,9 @@ export default function HomeItems() {
                         fontSize={20}
                         swap
                         rounded
-                        extraText={`$${s.amount}`}
+                        extraText={`${nFormatter(
+                          s.amount
+                        )} ${topBuyerCurrency} ($${nFormatter(s.usd)})`}
                       />
                     </Grid>
                   ))}
