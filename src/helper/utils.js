@@ -58,7 +58,7 @@ export function nFormatter(num, digits = 2) {
     });
   return item
     ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol
-    : "0";
+    : parseFloat(item).toFixed(digits);
 }
 
 const currenciesMapping = Object.keys(config.currencies).reduce(

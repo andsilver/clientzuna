@@ -29,6 +29,18 @@ const UserMenu = styled(Menu)({
   },
 });
 
+const UserImage = styled("img")((t) => ({
+  borderRadius: 12,
+  cursor: "pointer",
+  border: "1px solid grey",
+  width: 40,
+  height: 40,
+  [t.theme.breakpoints.down("sm")]: {
+    width: 30,
+    height: 30,
+  },
+}));
+
 export default function UserDropdown() {
   const { user, disconnect, balance } = useAuthContext();
 
@@ -45,17 +57,7 @@ export default function UserDropdown() {
   return user ? (
     <div>
       <div onClick={handleClick} style={{ marginLeft: 36 }}>
-        <img
-          width={40}
-          height={40}
-          src={user.avatar || DefaultUserImg}
-          alt=""
-          style={{
-            borderRadius: 12,
-            cursor: "pointer",
-            border: "1px solid green",
-          }}
-        />
+        <UserImage src={user.avatar || DefaultUserImg} alt="" />
       </div>
 
       <UserMenu

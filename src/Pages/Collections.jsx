@@ -1,12 +1,9 @@
 import {
   Autocomplete,
   Divider,
-  FormControl,
   Grid,
-  InputLabel,
   Menu,
   MenuItem,
-  Select,
   styled,
   TextField,
   Typography,
@@ -232,10 +229,10 @@ export default function Collections() {
                 </MenuItem>
                 <Divider />
                 <MenuItem onClick={() => handleSort("ASC", "totalVolume")}>
-                  Volume High to Low
+                  Volume Low to Hight
                 </MenuItem>
                 <MenuItem onClick={() => handleSort("DESC", "totalVolume")}>
-                  Volume Low to High
+                  Volume High to Low
                 </MenuItem>
               </Menu>
             </Grid>

@@ -1,13 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import Web3 from "web3";
-import {
-  Box,
-  Button,
-  Container,
-  Grid,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Container, Grid, Typography } from "@mui/material";
 
 import { useSnackbar } from "../contexts/Snackbar";
 import {
@@ -380,6 +374,9 @@ const NFTDetailComponent = () => {
 
     try {
       if (nft.minted) {
+        await contracts.market.methods
+          .acceptOffer(user.pubKey, bid.typedData)
+          .estimateGas({ from: user.pubKey });
         await contracts.market.methods
           .acceptOffer(user.pubKey, bid.typedData)
           .send({ from: user.pubKey });

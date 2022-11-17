@@ -52,6 +52,13 @@ const ConnectButton = styled(Button)({
   },
 });
 
+const LogoImg = styled("img")((t) => ({
+  maxWidth: 164,
+  [t.theme.breakpoints.up("sm")]: {
+    maxWidth: 210,
+  },
+}));
+
 const NavBar = () => {
   const { connect, user, disconnect } = useAuthContext();
   const [open, setOpen] = useState(false);
@@ -98,13 +105,7 @@ const NavBar = () => {
         >
           <Grid item>
             <Link style={{ textDecoration: "none" }} to="/">
-              <img
-                style={{
-                  maxWidth: 210,
-                }}
-                src={mode === "light" ? LightLogo : Logo}
-                alt=""
-              />
+              <LogoImg src={mode === "light" ? LightLogo : Logo} alt="" />
             </Link>
           </Grid>
           <Grid item display={{ xs: "none", md: "block" }}>
