@@ -91,7 +91,7 @@ export default function NftCard({ nft }) {
               component="img"
               height={280}
             />
-            {nft.collectionId === 1 && <NftBanner />}
+            {nft.collectionId === 1 && nft.ownerId === 1 && <NftBanner />}
           </CardActionArea>
         </Link>
         <LikeButton onClick={favorite}>

@@ -267,7 +267,7 @@ export default function NFTInfo({
             </Grid>
           </PanelBox>
         </Grid>
-        {nft.collectionId === 1 && (
+        {nft.collectionId === 1 && nft.ownerId === 1 && (
           <Grid item xs={12} sm={6} md={12} lg={6}>
             <PanelBox
               container
