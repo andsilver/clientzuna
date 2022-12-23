@@ -16,20 +16,21 @@ import { favoriteNft } from "../../api/api";
 import { currencyAddressToSymbol, nFormatter } from "../../helper/utils";
 import Link from "../Link";
 import UserLink from "../UserLink";
+import NftBanner from "./NftBanner";
 
 const StyledNftCard = styled(Card)({
   width: "100%",
   borderRadius: 14,
   transition: "transform 0.2s linear",
 
-  '.MuiCardMedia-img': {
+  ".MuiCardMedia-img": {
     transition: "transform 0.2s linear",
   },
 
   "&:hover": {
     transform: "translateY(-12px)",
 
-    '.MuiCardMedia-img': {
+    ".MuiCardMedia-img": {
       transform: "scale(1.1)",
     },
   },
@@ -81,13 +82,16 @@ export default function NftCard({ nft }) {
     <StyledNftCard>
       <Box p={2} position="relative">
         <Link to={`/items/${nft.id}`}>
-          <CardActionArea sx={{ borderRadius: 2, overflow: "hidden" }}>
+          <CardActionArea
+            sx={{ borderRadius: 2, overflow: "hidden", position: "relative" }}
+          >
             <CardMedia
               image={nft.thumbnail}
               title={nft.name}
               component="img"
               height={280}
             />
+            {nft.collectionId === 1 && <NftBanner />}
           </CardActionArea>
         </Link>
         <LikeButton onClick={favorite}>

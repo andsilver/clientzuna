@@ -29,6 +29,7 @@ import { useConfirm } from "../../contexts/Confirm";
 import CollectionLink from "../CollectionLink";
 import NFTTransferDialog from "./NFTTransferDialog";
 import { LikeButton } from "../common/NftCard";
+import NftBanner from "../common/NftBanner";
 
 const ShareLink = styled("a")`
   margin-left: 12px;
@@ -242,7 +243,7 @@ export default function NFTInfo({
             </Grid>
             <Grid item display="flex">
               <Typography color="primary" fontSize={18} fontWeight={600}>
-                {price.origin || 'No Price'}
+                {price.origin || "No Price"}
               </Typography>
               <Typography ml={1} color="primary" fontSize={12}>
                 {price.usdPrice}
@@ -266,6 +267,24 @@ export default function NFTInfo({
             </Grid>
           </PanelBox>
         </Grid>
+        {nft.collectionId === 1 && (
+          <Grid item xs={12} sm={6} md={12} lg={6}>
+            <PanelBox
+              container
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Grid item>
+                <Typography color="primary">Closing in: </Typography>
+              </Grid>
+              <Grid item display="flex">
+                <Typography color="primary" fontWeight={600} fontSize={18}>
+                  <NftBanner detail />
+                </Typography>
+              </Grid>
+            </PanelBox>
+          </Grid>
+        )}
       </Grid>
       <Typography color="primary" my={2}>
         {nft.description}
