@@ -19,6 +19,7 @@ export default function CollectionItems({ collection }) {
       search: query.get("search") || "",
       saleType: query.get("saleType") || "",
       properties: query.get("properties") || "",
+      currency: query.get("currency") || "",
     };
     const { result, count } = await sendRequest(() =>
       filterNfts({
