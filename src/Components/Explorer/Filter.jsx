@@ -26,6 +26,11 @@ import FormPopupButton from "../common/FormPopupButton";
 const CATEGORIES = [...config.categories];
 const SALE_TYPES = ["Buy Now", "Open to bids", "Not for sale"];
 
+const CURRENCIES = Object.keys(config.currencies).map((key) => ({
+  value: config.currencies[key].address,
+  label: key,
+}));
+
 const FilterContainer = styled("div")((t) => ({
   padding: 12,
   border: `1px solid ${t.theme.palette.mode === "light" ? "#eee" : "#0d0d11"}`,
@@ -40,6 +45,7 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
     search: "",
     collectionId: null,
     properties: {},
+    currency: null,
   });
   const [searchText, setSearchText] = useState("");
   const [collections, setCollections] = useState([]);
@@ -60,7 +66,12 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
 
   const collectionValue = useMemo(
     () => collections.find((c) => c.id === +filter.collectionId) || null,
-    [filter, collections]
+    [filter.collectionId, collections]
+  );
+
+  const currency = useMemo(
+    () => CURRENCIES.find((c) => c.value === filter.currency) || null,
+    [filter.currency]
   );
 
   const propertyOptions = useMemo(
@@ -134,6 +145,10 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
     updateFilter("collectionId", collection?.id || "");
   };
 
+  const updateCurrencyFilter = (c) => {
+    updateFilter("currency", c?.value || "");
+  };
+
   useEffect(() => {
     const propertyQueryString = query.get("properties");
     const propertiesValue = propertyQueryString
@@ -150,6 +165,7 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
       search: query.get("search") || null,
       collectionId: query.get("collectionId") || null,
       properties: propertiesValue,
+      currency: query.get("currency") || null,
     });
     setSearchText(query.get("search") || null);
   }, [query]);
@@ -209,6 +225,30 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
               <TextField {...params} name="saleType" label="Sale Type" />
             )}
             onChange={(e, v) => updateFilter("saleType", v)}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3} lg={2}>
+          <Autocomplete
+            fullWidth
+            size="small"
+            disablePortal
+            options={CURRENCIES}
+            value={currency}
+            renderOption={(props, c) => (
+              <Grid container alignItems="center" p={1} {...props}>
+                <Typography fontSize={13} fontWeight="bold">
+                  {c.label}
+                </Typography>
+              </Grid>
+            )}
+            isOptionEqualToValue={(option, value) =>
+              !value || option.value === value.value
+            }
+            getOptionLabel={(option) => option.label || ""}
+            renderInput={(params) => (
+              <TextField {...params} name="currency" label="Currency" />
+            )}
+            onChange={(e, v) => updateCurrencyFilter(v)}
           />
         </Grid>
         {showCollection && (

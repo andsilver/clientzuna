@@ -24,6 +24,7 @@ export default function Explorer() {
         category: query.get("category") || "",
         saleType: query.get("saleType") || "",
         collectionId: query.get("collectionId") || "",
+        currency: query.get("currency") || "",
         offset: init ? 0 : nfts.length,
       });
       setAllLoaded(result.length < config.defaultPageSize);
