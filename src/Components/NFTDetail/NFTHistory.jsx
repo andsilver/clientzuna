@@ -72,7 +72,8 @@ export default function NFTHistory({
 
   useEffect(() => {
     fetchActivites(true);
-  });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nft]);
 
   return (
     <Box mt={3}>
