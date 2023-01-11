@@ -1,11 +1,13 @@
 import { Box, Grid, Tab, Tabs, Typography, useTheme } from "@mui/material";
 import { styled } from "@mui/system";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import moment from "moment";
 
 import Activities from "../Activities";
 import UserLink from "../UserLink";
 import Bids from "../Bids";
+import { getNftActivities } from "../../api/api";
+import { config } from "../../config";
 
 const StyledTabs = styled(Tabs)((t) => ({
   borderBottom: `1px solid ${t.theme.palette.divider}`,
@@ -33,12 +35,14 @@ const StyledTab = styled(Tab)(({ theme }) => ({
 
 export default function NFTHistory({
   nft,
-  activities,
   bids,
   currentUser,
   cancelBid,
   acceptBid,
 }) {
+  const [activities, setActivities] = useState([]);
+  const [loadingActivities, setLoadingActivities] = useState(true);
+  const [activitiesLoadedAll, setActivitiesLoadedAll] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
   const {
     palette: { mode },
@@ -48,6 +52,27 @@ export default function NFTHistory({
     () => (nft ? moment(nft.createdAt).format("YYYY-MMM-DD") : ""),
     [nft]
   );
+
+  const fetchActivites = async (init = false) => {
+    setLoadingActivities(true);
+
+    try {
+      const res = await getNftActivities(
+        nft.tokenAddress,
+        nft.tokenId,
+        init ? 0 : activities.length
+      );
+      setActivities(init ? res : [...activities, ...res]);
+      setActivitiesLoadedAll(res.length < config.defaultPageSize);
+    } catch (err) {
+      console.error(err);
+    }
+    setLoadingActivities(false);
+  };
+
+  useEffect(() => {
+    fetchActivites(true);
+  });
 
   return (
     <Box mt={3}>
@@ -62,7 +87,14 @@ export default function NFTHistory({
         <StyledTab disableRipple label="Details" />
       </StyledTabs>
       <Box mt={2}>
-        {currentTab === 0 && <Activities activities={activities} />}
+        {currentTab === 0 && (
+          <Activities
+            loading={loadingActivities}
+            allLoaded={activitiesLoadedAll}
+            activities={activities}
+            loadMore={fetchActivites}
+          />
+        )}
         {currentTab === 1 && (
           <Bids
             nft={nft}

@@ -8,7 +8,6 @@ import {
   burnNFT,
   favoriteNft,
   getNft,
-  getNftActivities,
   getNftBids,
   placeBid,
   removeBid,
@@ -80,7 +79,6 @@ const NFTDetailComponent = () => {
     showWrongNetworkWarning,
     signEIP712,
     contracts,
-    getErc20Contract,
     getErc20Balance,
     getErc721Contract,
     approveMarket,
@@ -89,7 +87,6 @@ const NFTDetailComponent = () => {
   const { tokenAddress, tokenId } = useParams();
   const [loading, setLoading] = useState(false);
   const { showSnackbar } = useSnackbar();
-  const [activities, setActivities] = useState([]);
   const [bids, setBids] = useState([]);
   const [offerType, setOfferType] = useState("");
   const confirm = useConfirm();
@@ -145,11 +142,9 @@ const NFTDetailComponent = () => {
     try {
       const res = await Promise.all([
         getNft(tokenAddress, tokenId),
-        getNftActivities(tokenAddress, tokenId),
         getNftBids(tokenAddress, tokenId),
       ]);
       setNft(res[0]);
-      setActivities(res[1]);
       setBids(res[2]);
     } catch (err) {
       console.error(err);
@@ -548,7 +543,6 @@ const NFTDetailComponent = () => {
 
             <NFTHistory
               nft={nft}
-              activities={activities}
               bids={bids}
               currentUser={user}
               cancelBid={onCancelBid}
