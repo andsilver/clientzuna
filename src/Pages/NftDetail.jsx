@@ -25,12 +25,38 @@ import OfferDialog from "../Components/common/OfferDialog";
 import { config } from "../config";
 import { useConfirm } from "../contexts/Confirm";
 import Meta from "../Components/common/Meta";
+import EmptyNft from "../assets/empty.png";
 
 const types = {
   Offer: [
     {
       name: "tokenId",
       type: "uint256",
+    },
+    {
+      name: "erc20Address",
+      type: "address",
+    },
+    {
+      name: "amount",
+      type: "uint256",
+    },
+    {
+      name: "createdAt",
+      type: "uint256",
+    },
+  ],
+};
+
+const typesMarket2 = {
+  Offer: [
+    {
+      name: "tokenId",
+      type: "uint256",
+    },
+    {
+      name: "tokenAddress",
+      type: "address",
     },
     {
       name: "erc20Address",
@@ -56,9 +82,11 @@ const NFTDetailComponent = () => {
     contracts,
     getErc20Contract,
     getErc20Balance,
+    getErc721Contract,
+    approveMarket,
   } = useWeb3();
   const [nft, setNft] = useState();
-  const { id } = useParams();
+  const { tokenAddress, tokenId } = useParams();
   const [loading, setLoading] = useState(false);
   const { showSnackbar } = useSnackbar();
   const [activities, setActivities] = useState([]);
@@ -68,7 +96,20 @@ const NFTDetailComponent = () => {
   const history = useHistory();
   const [favorites, setFavorites] = useState(0);
   const [favorited, setFavorited] = useState(false);
-  const { approveMarket } = useWeb3();
+
+  const isZunaNFT =
+    tokenAddress?.toLowerCase() === config.nftContractAddress.toLowerCase();
+
+  const selectedMarketAddress = isZunaNFT
+    ? config.marketContractAddress
+    : config.market2ContractAddress;
+
+  const erc721Contract = useMemo(() => {
+    if (!tokenAddress) {
+      return null;
+    }
+    return getErc721Contract(tokenAddress);
+  }, [tokenAddress, getErc721Contract]);
 
   const favorite = async () => {
     if (!user) {
@@ -78,7 +119,7 @@ const NFTDetailComponent = () => {
       });
       return;
     }
-    await favoriteNft(nft.id);
+    await favoriteNft(nft.tokenAddress, nft.tokenId);
     setFavorited(!favorited);
     setFavorites(favorited ? favorites - 1 : favorites + 1);
   };
@@ -103,9 +144,9 @@ const NFTDetailComponent = () => {
     setLoading(true);
     try {
       const res = await Promise.all([
-        getNft(id),
-        getNftActivities(id),
-        getNftBids(id),
+        getNft(tokenAddress, tokenId),
+        getNftActivities(tokenAddress, tokenId),
+        getNftBids(tokenAddress, tokenId),
       ]);
       setNft(res[0]);
       setActivities(res[1]);
@@ -121,7 +162,7 @@ const NFTDetailComponent = () => {
     setLoading(true);
 
     try {
-      await removeNFTSale(nft.id);
+      await removeNFTSale(nft.tokenAddress, nft.tokenId);
       await fetchNFT();
     } catch (err) {
       console.error(err);
@@ -137,8 +178,8 @@ const NFTDetailComponent = () => {
     }
 
     if (data.instantSale || data.onSale) {
-      const marketplaceApproved = await contracts.media.methods
-        .isApprovedForAll(user.pubKey, config.marketContractAddress)
+      const marketplaceApproved = await erc721Contract.methods
+        .isApprovedForAll(user.pubKey, selectedMarketAddress)
         .call();
 
       if (!marketplaceApproved) {
@@ -149,11 +190,11 @@ const NFTDetailComponent = () => {
           okText: "Approve",
         });
 
-        await contracts.media.methods
-          .setApprovalForAll(config.marketContractAddress, true)
+        await erc721Contract.methods
+          .setApprovalForAll(selectedMarketAddress, true)
           .send({ from: user.pubKey });
       }
-      approveMarket(data.price.currency);
+      await approveMarket(data.price.currency, selectedMarketAddress);
     }
 
     setLoading(true);
@@ -168,19 +209,27 @@ const NFTDetailComponent = () => {
           createdAt: `${Date.now()}`,
         };
 
-        const signature = await signEIP712(types, listing, "market");
+        if (!isZunaNFT) {
+          listing.tokenAddress = nft.tokenAddress;
+        }
+
+        const signature = await signEIP712(
+          isZunaNFT ? types : typesMarket2,
+          listing,
+          isZunaNFT ? "market" : "market2"
+        );
 
         if (!signature) {
           throw new Error("Signature Required");
         }
         listing.signature = signature;
 
-        await updateNFTSale(nft.id, {
+        await updateNFTSale(nft.tokenAddress, nft.tokenId, {
           ...data,
           typedData: listing,
         });
       } else {
-        await updateNFTSale(nft.id, data);
+        await updateNFTSale(nft.tokenAddress, nft.tokenAddress, data);
       }
       await fetchNFT();
     } catch (err) {
@@ -205,28 +254,19 @@ const NFTDetailComponent = () => {
       const amount = buying
         ? nft.currentAsk.typedData.amount
         : toWei(data.amount, decimals);
-      const erc20 = getErc20Contract(
-        buying ? nft.currentAsk.currency : data.currency
-      );
-      const allowance = await erc20.methods
-        .allowance(user.pubKey, config.marketContractAddress)
-        .call();
 
-      if (+allowance < +amount) {
-        await erc20.methods
-          .approve(
-            config.marketContractAddress,
-            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-          )
-          .send({ from: user.pubKey });
-      }
+      await approveMarket(data.currency, selectedMarketAddress);
 
       if (buying) {
         if (nft.minted) {
-          await contracts.market.methods
+          const marketContract = isZunaNFT
+            ? contracts.market
+            : contracts.market2;
+
+          await marketContract.methods
             .buy(user.pubKey, nft.currentAsk.typedData)
             .estimateGas({ from: user.pubKey });
-          await contracts.market.methods
+          await marketContract.methods
             .buy(user.pubKey, nft.currentAsk.typedData)
             .send({ from: user.pubKey });
         } else {
@@ -265,8 +305,24 @@ const NFTDetailComponent = () => {
           amount,
           createdAt: Date.now().toString(),
         };
-        offer.signature = await signEIP712(types, offer, "market");
-        await placeBid(nft.id, {
+
+        if (!isZunaNFT) {
+          offer.tokenAddress = nft.tokenAddress;
+        }
+
+        const signature = await signEIP712(
+          isZunaNFT ? types : typesMarket2,
+          offer,
+          isZunaNFT ? "market" : "market2"
+        );
+
+        if (!signature) {
+          throw new Error("Signature Required");
+        }
+
+        offer.signature = signature;
+
+        await placeBid(nft.tokenAddress, nft.tokenId, {
           amount: data.amount,
           currency: data.currency,
           typedData: offer,
@@ -303,11 +359,11 @@ const NFTDetailComponent = () => {
 
     try {
       if (nft.minted) {
-        await contracts.media.methods
+        await erc721Contract.methods
           .burn(nft.tokenId)
           .send({ from: user.pubKey });
       } else {
-        await burnNFT(nft.id);
+        await burnNFT(nft.tokenAddress, nft.tokenId);
       }
 
       history.push("/");
@@ -337,7 +393,7 @@ const NFTDetailComponent = () => {
     setLoading(true);
 
     try {
-      await contracts.media.methods
+      await erc721Contract.methods
         .transferFrom(user.pubKey, address, nft.tokenId)
         .send({ from: user.pubKey });
       fetchNFT();
@@ -374,10 +430,12 @@ const NFTDetailComponent = () => {
 
     try {
       if (nft.minted) {
-        await contracts.market.methods
+        const marketContract = isZunaNFT ? contracts.market : contracts.market2;
+
+        await marketContract.methods
           .acceptOffer(user.pubKey, bid.typedData)
           .estimateGas({ from: user.pubKey });
-        await contracts.market.methods
+        await marketContract.methods
           .acceptOffer(user.pubKey, bid.typedData)
           .send({ from: user.pubKey });
       } else {
@@ -409,7 +467,7 @@ const NFTDetailComponent = () => {
   useEffect(() => {
     fetchNFT();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [tokenAddress, tokenId]);
 
   return (
     <Container maxWidth="xl">
@@ -426,7 +484,7 @@ const NFTDetailComponent = () => {
         <Grid py={6} container spacing={5}>
           <Grid item xs={12} md={6}>
             <img
-              src={nft.thumbnail}
+              src={nft.thumbnail || EmptyNft}
               alt=""
               width="100%"
               height="auto"

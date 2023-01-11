@@ -71,7 +71,7 @@ function App() {
               <Route path="/collections/:id" exact>
                 <Collection />
               </Route>
-              <Route path="/items/:id" exact>
+              <Route path="/items/:tokenAddress/:tokenId" exact>
                 <NftDetail />
               </Route>
               <Route path="/rewards" exact>

@@ -16,6 +16,7 @@ import NftsFavorited from "../Components/Profile/NftsFavorited";
 import NftsOnSale from "../Components/Profile/NftsOnSale";
 import Rewards from "../Components/Profile/Rewards";
 import UserActivities from "../Components/Profile/UserActivities";
+import OtherNfts from "../Components/Profile/OtherNfts";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useSnackbar } from "../contexts/Snackbar";
 import { sameAddress } from "../helper/utils";
@@ -52,6 +53,7 @@ const TABS = [
   { label: "Activity", value: "activity" },
   { label: "Following", value: "following" },
   { label: "Followers", value: "followers" },
+  { label: "Others", value: "others" },
 ];
 
 export default function Profile() {
@@ -117,7 +119,7 @@ export default function Profile() {
     } else {
       setTabs([...TABS]);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   return (
@@ -197,6 +199,9 @@ export default function Profile() {
                   )}
                   {currentTab === "rewards" && (
                     <Rewards userAddress={profileAddress} />
+                  )}
+                  {currentTab === "others" && (
+                    <OtherNfts userAddress={profileAddress} />
                   )}
                 </Box>
               </Grid>

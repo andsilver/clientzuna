@@ -26,7 +26,14 @@ export default function NftList({
         <div>
           <Grid container spacing={2}>
             {nfts.map((nft) => (
-              <Grid item key={nft.id} xs={12} sm={6} md={4} lg={3}>
+              <Grid
+                item
+                key={nft.tokenAddress + nft.tokenId}
+                xs={12}
+                sm={6}
+                md={4}
+                lg={3}
+              >
                 <NftCard nft={nft} />
               </Grid>
             ))}

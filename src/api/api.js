@@ -47,20 +47,21 @@ export const getTopBuyers = (currency) =>
 export const filterNfts = (params) =>
   api.get(`/nft/filter`, { params }).then(dataExtractor);
 
-export const getNft = (id) => api.get(`/nft/${id}`).then(dataExtractor);
+export const getNft = (tokenAddress, tokenId) =>
+  api.get(`/nft/${tokenAddress}/${tokenId}`).then(dataExtractor);
 
-export const getNftBids = (id, offset = 0) =>
+export const getNftBids = (tokenAddress, tokenId, offset = 0) =>
   api
-    .get(`/nft/${id}/bids`, {
+    .get(`/nft/${tokenAddress}/${tokenId}/bids`, {
       params: {
         offset,
       },
     })
     .then(dataExtractor);
 
-export const getNftActivities = (id, offset = 0) =>
+export const getNftActivities = (tokenAddress, tokenId, offset = 0) =>
   api
-    .get(`/nft/${id}/activities`, {
+    .get(`/nft/${tokenAddress}/${tokenId}/activities`, {
       params: {
         offset,
       },
@@ -72,7 +73,8 @@ export const getProfile = (pubKey) =>
 
 export const updateUser = (pubKey, data) => api.patch(`/user/${pubKey}`, data);
 
-export const favoriteNft = (nftId) => api.post(`/nft/${nftId}/favorite`);
+export const favoriteNft = (tokenAddress, tokenId) =>
+  api.post(`/nft/${tokenAddress}/${tokenId}/favorite`);
 
 export const getLikedNfts = (pubKey, offset) =>
   api
@@ -109,16 +111,19 @@ export const pinJsonToIPFS = (data) =>
 
 export const createNFT = (data) => api.post("/nft", data).then(dataExtractor);
 
-export const updateNFTSale = (tokenId, data) =>
-  api.post(`/nft/${tokenId}/sale`, data);
+export const updateNFTSale = (tokenAddress, tokenId, data) =>
+  api.post(`/nft/${tokenAddress}/${tokenId}/sale`, data);
 
-export const removeNFTSale = (tokenId) => api.delete(`/nft/${tokenId}/sale`);
+export const removeNFTSale = (tokenAddress, tokenId) =>
+  api.delete(`/nft/${tokenAddress}/${tokenId}/sale`);
 
-export const placeBid = (id, bid) => api.post(`/nft/${id}/bids`, bid);
+export const placeBid = (tokenAddress, tokenId, bid) =>
+  api.post(`/nft/${tokenAddress}/${tokenId}/bids`, bid);
 
-export const burnNFT = (id) => api.delete(`/nft/${id}`);
+export const burnNFT = (tokenAddress, tokenId) =>
+  api.delete(`/nft/${tokenAddress}/${tokenId}`);
 
-export const removeBid = (id) => api.delete(`/bids/${id}`);
+export const removeBid = (bidId) => api.delete(`/bids/${bidId}`);
 
 export const reportUser = (data) => api.post(`/reports`, data);
 
@@ -143,3 +148,10 @@ export const getReward = (id) => api.get(`/rewards/${id}`).then(dataExtractor);
 
 export const getUserRewards = (address, params) =>
   api.get(`/user/${address}/rewards`, { params }).then(dataExtractor);
+
+export const getUserOtherNfts = (address, cursor) =>
+  api
+    .get(`/user/${address}/others`, {
+      params: { cursor },
+    })
+    .then(dataExtractor);

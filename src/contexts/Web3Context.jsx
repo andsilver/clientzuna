@@ -6,6 +6,8 @@ import { ethers } from "ethers";
 import mediaABI from "../contracts/abis/Zuna.json";
 import marketABI from "../contracts/abis/Market.json";
 import erc20ABI from "../contracts/abis/erc20.json";
+import market2ABI from "../contracts/abis/Market2.json";
+import erc721ABI from "../contracts/abis/erc721.json";
 
 import { config } from "../config";
 import { useAuthContext } from "./AuthContext";
@@ -14,8 +16,13 @@ import { fromWei, getCurrencyDecimals, getWeb3 } from "../helper/utils";
 
 export const Web3Context = createContext({
   wrongNetwork: false,
-  contracts: {},
+  contracts: {
+    media: null,
+    market: null,
+    market2: null,
+  },
   getErc20Contract: (address) => undefined,
+  getErc721Contract: (address) => undefined,
   signEIP712: async (types, data, contract) => undefined,
   getErc20Balance: (currency, address) => {},
   serviceFee: 0,
@@ -50,20 +57,24 @@ export const Web3Provider = ({ children }) => {
       config.marketContractAddress
     );
 
+    const market2 = new instance.eth.Contract(
+      market2ABI,
+      config.market2ContractAddress
+    );
+
     return {
       media,
       market,
+      market2,
     };
   }, [provider, wrongNetwork]);
 
-  const approveMarket = async (erc20Address) => {
+  const approveMarket = async (erc20Address, marketAddress) => {
     const erc20 = getErc20Contract(erc20Address);
     const allowance = await erc20.methods
-      .allowance(user.pubKey, config.marketContractAddress)
+      .allowance(user.pubKey, marketAddress || config.marketContractAddress)
       .call();
     const balance = await erc20.methods.balanceOf(user.pubKey).call();
-
-    console.log(allowance, balance);
 
     const decimals = getCurrencyDecimals(erc20Address);
     const amount = +fromWei(allowance, decimals);
@@ -74,7 +85,7 @@ export const Web3Provider = ({ children }) => {
     }
     await erc20.methods
       .approve(
-        config.marketContractAddress,
+        marketAddress || config.marketContractAddress,
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       )
       .send({
@@ -104,7 +115,11 @@ export const Web3Provider = ({ children }) => {
     const p = new ethers.providers.Web3Provider(provider);
     const signer = p.getSigner();
     const domain = {
-      ...(contract === "market" ? config.sign.market : config.sign.zuna),
+      ...(contract === "market"
+        ? config.sign.market
+        : contract === "market2"
+        ? config.sign.market2
+        : config.sign.zuna),
     };
     return await signer._signTypedData(domain, types, data);
   };
@@ -125,6 +140,12 @@ export const Web3Provider = ({ children }) => {
     );
   };
 
+  const getErc721Contract = (address) => {
+    const instance = wrongNetwork || !provider ? getWeb3() : new Web3(provider);
+
+    return new instance.eth.Contract(erc721ABI, address);
+  };
+
   useEffect(() => {
     getServiceFee();
   }, [contracts]);
@@ -139,6 +160,7 @@ export const Web3Provider = ({ children }) => {
         signEIP712,
         showWrongNetworkWarning,
         getErc20Balance,
+        getErc721Contract,
         serviceFee,
         approveMarket,
       }}

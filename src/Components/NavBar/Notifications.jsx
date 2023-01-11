@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import EmptyNft from "../../assets/empty.png";
 
 import { getNotifications, readNotifications } from "../../api/api";
 import Link from "../Link";
@@ -41,7 +42,8 @@ export default function Notifications({ user }) {
         ...n,
         nft: {
           ...n.nft,
-          image: n.nft.image.replace("ipfs://", config.pinataGateWay),
+          image:
+            n.nft.image?.replace("ipfs://", config.pinataGateWay) || EmptyNft,
         },
         timeSince: timeSince(n.createdAt),
       }))

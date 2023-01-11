@@ -17,6 +17,7 @@ import { currencyAddressToSymbol, nFormatter } from "../../helper/utils";
 import Link from "../Link";
 import UserLink from "../UserLink";
 import NftBanner from "./NftBanner";
+import EmptyNft from "../../assets/empty.png";
 
 const StyledNftCard = styled(Card)({
   width: "100%",
@@ -67,7 +68,7 @@ export default function NftCard({ nft }) {
   }, [nft]);
 
   const favorite = async () => {
-    await favoriteNft(nft.id);
+    await favoriteNft(nft.tokenAddress, nft.tokenId);
     setFavorited(!favorited);
     setFavorites(favorited ? favorites - 1 : favorites + 1);
   };
@@ -81,13 +82,13 @@ export default function NftCard({ nft }) {
   return (
     <StyledNftCard>
       <Box p={2} position="relative">
-        <Link to={`/items/${nft.id}`}>
+        <Link to={`/items/${nft.tokenAddress}/${nft.tokenId}`}>
           <CardActionArea
             sx={{ borderRadius: 2, overflow: "hidden", position: "relative" }}
           >
             <CardMedia
-              image={nft.thumbnail}
-              title={nft.name}
+              image={nft.thumbnail || EmptyNft}
+              title={nft.name || "Unnamed"}
               component="img"
               height={280}
             />

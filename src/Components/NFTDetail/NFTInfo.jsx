@@ -176,7 +176,7 @@ export default function NFTInfo({
                   onClick={() => {
                     handleActionClose();
                     window.open(
-                      `${config.networkScan.url}/tx/${nft.txHash}`,
+                      `${config.networkScan.url}/token/${nft.tokenAddress}?a=${nft.tokenId}#inventory`,
                       "_blank"
                     );
                   }}
