@@ -12,7 +12,7 @@ export default memo(({ nft, bids, currentUser, cancelBid, acceptBid }) => (
     maxHeight={400}
     overflow="auto"
   >
-    {bids.length ? (
+    {!!bids && bids.length ? (
       bids.map((bid) => (
         <Grid
           item

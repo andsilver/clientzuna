@@ -32,9 +32,11 @@ export default memo(({ activities, loadMore, loading, allLoaded }) => {
           <Activity activity={activity} />
         </Grid>
       ))}
-      <Grid item>
-        <SectionLoading spacing={1} />
-      </Grid>
+      {loading && (
+        <Grid item>
+          <SectionLoading spacing={1} />
+        </Grid>
+      )}
     </Grid>
   );
 });
