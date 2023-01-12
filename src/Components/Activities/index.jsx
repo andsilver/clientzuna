@@ -11,7 +11,7 @@ export default memo(({ activities, loadMore, loading, allLoaded }) => {
 
     if (
       e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight <
-      1
+      5
     ) {
       loadMore && loadMore();
     }
