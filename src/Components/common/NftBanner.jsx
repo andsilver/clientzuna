@@ -2,7 +2,7 @@ import { styled, Grid } from "@mui/material";
 import moment from "moment";
 import { useEffect, useState } from "react";
 
-const END_DATE = "2023/01/13";
+const END_DATE = "2023/01/14";
 
 const BannerContainer = styled("div")((t) => ({
   padding: "8px 16px",
