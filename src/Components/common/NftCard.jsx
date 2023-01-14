@@ -16,7 +16,6 @@ import { favoriteNft } from "../../api/api";
 import { currencyAddressToSymbol, nFormatter } from "../../helper/utils";
 import Link from "../Link";
 import UserLink from "../UserLink";
-import NftBanner from "./NftBanner";
 import EmptyNft from "../../assets/empty.png";
 
 const StyledNftCard = styled(Card)({
@@ -92,7 +91,6 @@ export default function NftCard({ nft }) {
               component="img"
               height={280}
             />
-            {nft.collectionId === 1 && nft.ownerId === 1 && <NftBanner />}
           </CardActionArea>
         </Link>
         <LikeButton onClick={favorite}>
