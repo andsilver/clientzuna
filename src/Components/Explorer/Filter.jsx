@@ -2,10 +2,12 @@ import {
   Autocomplete,
   Avatar,
   Checkbox,
+  Divider,
   FormControl,
   Grid,
   InputLabel,
   ListItemText,
+  Menu,
   MenuItem,
   OutlinedInput,
   Popover,
@@ -17,6 +19,7 @@ import { Box, styled } from "@mui/system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import debounce from "lodash.debounce";
+import FilterListIcon from "@mui/icons-material/FilterList";
 
 import { config } from "../../config";
 import useQuery from "../../hooks/useQuery";
@@ -46,6 +49,8 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
     collectionId: null,
     properties: {},
     currency: null,
+    orderBy: "price",
+    order: "ASC",
   });
   const [searchText, setSearchText] = useState("");
   const [collections, setCollections] = useState([]);
@@ -53,6 +58,7 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
   const history = useHistory();
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorSortEl, setAnchorSortEl] = useState(null);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -62,7 +68,16 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
     setAnchorEl(null);
   };
 
+  const handleSortClick = (event) => {
+    setAnchorSortEl(event.currentTarget);
+  };
+
+  const handleSortClose = () => {
+    setAnchorSortEl(null);
+  };
+
   const open = Boolean(anchorEl);
+  const openSort = Boolean(anchorSortEl);
 
   const collectionValue = useMemo(
     () => collections.find((c) => c.id === +filter.collectionId) || null,
@@ -73,6 +88,20 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
     () => CURRENCIES.find((c) => c.value === filter.currency) || null,
     [filter.currency]
   );
+
+  const handleSort = (order, orderBy) => {
+    const searchQuery = new URLSearchParams(query.toString());
+
+    searchQuery.set("order", order);
+    searchQuery.set("orderBy", orderBy);
+
+    history.push({
+      pathname: location.pathname,
+      search: `?${searchQuery.toString()}`,
+    });
+
+    handleSortClose();
+  };
 
   const propertyOptions = useMemo(
     () =>
@@ -149,6 +178,17 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
     updateFilter("currency", c?.value || "");
   };
 
+  const filterButtonText = useMemo(() => {
+    if (filter.orderBy === "price") {
+      return `Price ${filter.order === "DESC" ? "High to Low" : "Low to High"}`;
+    }
+
+    if (filter.orderBy === "createdAt") {
+      return "Recently Added";
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
+
   useEffect(() => {
     const propertyQueryString = query.get("properties");
     const propertiesValue = propertyQueryString
@@ -166,6 +206,8 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
       collectionId: query.get("collectionId") || null,
       properties: propertiesValue,
       currency: query.get("currency") || null,
+      orderBy: query.get("orderBy") || "createdAt",
+      order: query.get("order") || "DESC",
     });
     setSearchText(query.get("search") || null);
   }, [query]);
@@ -328,6 +370,45 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
             </Popover>
           </Grid>
         )}
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={3}
+          lg={2}
+          sx={{
+            marginLeft: "auto",
+          }}
+        >
+          <FormPopupButton
+            handleClick={handleSortClick}
+            label={filterButtonText}
+            icon={
+              <FilterListIcon
+                sx={(t) => ({
+                  color:
+                    t.palette.mode === "dark" ? "white" : "rgba(0, 0, 0, 0.54)",
+                })}
+              />
+            }
+          />
+          <Menu
+            anchorEl={anchorSortEl}
+            open={openSort}
+            onClose={handleSortClose}
+          >
+            <MenuItem onClick={() => handleSort("DESC", "createdAt")}>
+              Recently Added
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={() => handleSort("ASC", "price")}>
+              Price Low to Hight
+            </MenuItem>
+            <MenuItem onClick={() => handleSort("DESC", "price")}>
+              Price High to Low
+            </MenuItem>
+          </Menu>
+        </Grid>
       </Grid>
     </FilterContainer>
   );

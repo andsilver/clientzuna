@@ -26,6 +26,8 @@ export default function Explorer() {
         collectionId: query.get("collectionId") || "",
         currency: query.get("currency") || "",
         offset: init ? 0 : nfts.length,
+        order: query.get("order") || "",
+        orderBy: query.get("orderBy") || "",
       });
       setAllLoaded(result.length < config.defaultPageSize);
       setNfts(init ? result : [...nfts, ...result]);

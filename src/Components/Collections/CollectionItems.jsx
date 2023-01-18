@@ -20,6 +20,8 @@ export default function CollectionItems({ collection }) {
       saleType: query.get("saleType") || "",
       properties: query.get("properties") || "",
       currency: query.get("currency") || "",
+      order: query.get("order") || "",
+      orderBy: query.get("orderBy") || "",
     };
     const { result, count } = await sendRequest(() =>
       filterNfts({

@@ -33,7 +33,7 @@ export default memo(({ activity }) => {
     if (activity.nft) {
       return {
         image: activity.nft.thumbnail,
-        link: `/items/${activity.nft.id}`,
+        link: `/items/${activity.nft.tokenAddress}/${activity.nft.tokenId}`,
         name: activity.nft.name,
         timeStr,
         detail: activity.amount
