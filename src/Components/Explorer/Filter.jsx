@@ -180,11 +180,11 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
 
   const filterButtonText = useMemo(() => {
     if (filter.orderBy === "price") {
-      return `Price ${filter.order === "DESC" ? "High to Low" : "Low to High"}`;
+      return `Sort by Price ${filter.order === "DESC" ? "High to Low" : "Low to High"}`;
     }
 
     if (filter.orderBy === "createdAt") {
-      return "Recently Added";
+      return "Sort by Recently Added";
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
