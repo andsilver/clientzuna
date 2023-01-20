@@ -19,7 +19,7 @@ import NFTInfo from "../Components/NFTDetail/NFTInfo";
 import NFTHistory from "../Components/NFTDetail/NFTHistory";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useWeb3 } from "../contexts/Web3Context";
-import { getCurrencyDecimals, sameAddress, toWei } from "../helper/utils";
+import { getCurrencyDecimals, sameAddress, toWei, wait } from "../helper/utils";
 import OfferDialog from "../Components/common/OfferDialog";
 import { config } from "../config";
 import { useConfirm } from "../contexts/Confirm";
@@ -145,10 +145,10 @@ const NFTDetailComponent = () => {
         getNftBids(tokenAddress, tokenId),
       ]);
       setNft(res[0]);
-      setBids(res[2]);
+      setBids(res[1]);
     } catch (err) {
       console.error(err);
-      showSnackbar("Failed to load the nft");
+      showSnackbar({ severity: "error", message: "Failed to load the nft" });
     }
     setLoading(false);
   };
@@ -173,22 +173,7 @@ const NFTDetailComponent = () => {
     }
 
     if (data.instantSale || data.onSale) {
-      const marketplaceApproved = await erc721Contract.methods
-        .isApprovedForAll(user.pubKey, selectedMarketAddress)
-        .call();
-
-      if (!marketplaceApproved) {
-        await confirm({
-          title: "APPROVE MARKETPLACE",
-          text: "One-time Approval for further transactions",
-          cancelText: "",
-          okText: "Approve",
-        });
-
-        await erc721Contract.methods
-          .setApprovalForAll(selectedMarketAddress, true)
-          .send({ from: user.pubKey });
-      }
+      await approveNFT();
       await approveMarket(data.price.currency, selectedMarketAddress);
     }
 
@@ -227,8 +212,13 @@ const NFTDetailComponent = () => {
         await updateNFTSale(nft.tokenAddress, nft.tokenAddress, data);
       }
       await fetchNFT();
+      showSnackbar({
+        severity: "success",
+        message: "The nft sale has been updated.",
+      });
     } catch (err) {
       console.error(err);
+      showSnackbar({ severity: "error", message: "Failed to set nft sale" });
     }
     setLoading(false);
   };
@@ -253,46 +243,44 @@ const NFTDetailComponent = () => {
       await approveMarket(data.currency, selectedMarketAddress);
 
       if (buying) {
-        if (nft.minted) {
-          const marketContract = isZunaNFT
-            ? contracts.market
-            : contracts.market2;
+        try {
+          if (nft.minted) {
+            const marketContract = isZunaNFT
+              ? contracts.market
+              : contracts.market2;
 
-          await marketContract.methods
-            .buy(user.pubKey, nft.currentAsk.typedData)
-            .estimateGas({ from: user.pubKey });
-          await marketContract.methods
-            .buy(user.pubKey, nft.currentAsk.typedData)
-            .send({ from: user.pubKey });
-        } else {
-          await contracts.media.methods
-            .lazyBuyMint(
-              nft.tokenId,
-              {
-                tokenId: nft.tokenId,
-                royaltyFee: nft.royaltyFee,
-                collectionId: nft.collectionId || 0,
-                tokenUri: nft.tokenUri,
-                signature: nft.signature,
-              },
-              nft.currentAsk.typedData
-            )
-            .estimateGas({ from: user.pubKey });
-          await contracts.media.methods
-            .lazyBuyMint(
-              nft.tokenId,
-              {
-                tokenId: nft.tokenId,
-                royaltyFee: nft.royaltyFee,
-                collectionId: nft.collectionId || 0,
-                tokenUri: nft.tokenUri,
-                signature: nft.signature,
-              },
-              nft.currentAsk.typedData
-            )
-            .send({ from: user.pubKey });
+            await marketContract.methods
+              .buy(user.pubKey, nft.currentAsk.typedData)
+              .send({ from: user.pubKey });
+          } else {
+            await contracts.media.methods
+              .lazyBuyMint(
+                nft.tokenId,
+                {
+                  tokenId: nft.tokenId,
+                  royaltyFee: nft.royaltyFee,
+                  collectionId: nft.collectionId || 0,
+                  tokenUri: nft.tokenUri,
+                  signature: nft.signature,
+                },
+                nft.currentAsk.typedData
+              )
+              .send({ from: user.pubKey });
+          }
+        } catch (err) {
+          setLoading(false);
+          showSnackbar({
+            severity: "error",
+            message: "Buying transaction has been failed.",
+          });
+          throw err;
         }
-        setTimeout(() => fetchNFT(), 3000);
+        await wait(20);
+        await fetchNFT();
+        showSnackbar({
+          severity: "success",
+          message: "The nft has been bought successfully.",
+        });
       } else {
         const offer = {
           tokenId: nft.tokenId,
@@ -322,7 +310,11 @@ const NFTDetailComponent = () => {
           currency: data.currency,
           typedData: offer,
         });
-        fetchNFT();
+        await fetchNFT();
+        showSnackbar({
+          severity: "success",
+          message: "You bid has been placed.",
+        });
       }
       setOfferType("");
     } catch (err) {
@@ -333,23 +325,38 @@ const NFTDetailComponent = () => {
   };
 
   const onCancelBid = async (bid) => {
-    await confirm({
-      title: "Are you sure to remove your bid?",
-      text: "The action cannot be reverted",
-    });
-    await removeBid(bid.id);
-    await fetchNFT();
+    try {
+      await confirm({
+        title: "Are you sure to remove your bid?",
+        text: "The action cannot be reverted",
+      });
+      setLoading(true);
+      await removeBid(bid.id);
+      await fetchNFT();
+      showSnackbar({
+        severity: "success",
+        message: "The bid has been cancelled.",
+      });
+    } catch (err) {
+      console.error(err);
+      showSnackbar({
+        severity: "error",
+        message: "Failed to cancel the bid",
+      });
+    }
+    setLoading(false);
   };
 
   const onBurn = async () => {
-    await confirm({
-      title: "Are you sure to burn your NFT?",
-      text: "The action cannot be reverted",
-    });
     if (wrongNetwork) {
       showWrongNetworkWarning();
       return;
     }
+
+    await confirm({
+      title: "Are you sure to burn your NFT?",
+      text: "The action cannot be reverted",
+    });
     setLoading(true);
 
     try {
@@ -360,10 +367,13 @@ const NFTDetailComponent = () => {
       } else {
         await burnNFT(nft.tokenAddress, nft.tokenId);
       }
-
       history.push("/");
     } catch (err) {
       console.error(err);
+      showSnackbar({
+        severity: "error",
+        message: "Failed to burn the nft",
+      });
     }
     setLoading(false);
   };
@@ -391,11 +401,39 @@ const NFTDetailComponent = () => {
       await erc721Contract.methods
         .transferFrom(user.pubKey, address, nft.tokenId)
         .send({ from: user.pubKey });
-      fetchNFT();
+      await wait(20);
+      await fetchNFT();
+      showSnackbar({
+        severity: "success",
+        message: "The nft has been transfered.",
+      });
     } catch (err) {
       console.error(err);
+      showSnackbar({
+        severity: "error",
+        message: "Failed to transfer the nft.",
+      });
     }
     setLoading(false);
+  };
+
+  const approveNFT = async () => {
+    const marketplaceApproved = await erc721Contract.methods
+      .isApprovedForAll(user.pubKey, selectedMarketAddress)
+      .call();
+
+    if (!marketplaceApproved) {
+      await confirm({
+        title: "APPROVE MARKETPLACE",
+        text: "One-time Approval for further transactions",
+        cancelText: "",
+        okText: "Approve",
+      });
+
+      await erc721Contract.methods
+        .setApprovalForAll(selectedMarketAddress, true)
+        .send({ from: user.pubKey });
+    }
   };
 
   const onAcceptBid = async (bid) => {
@@ -403,6 +441,8 @@ const NFTDetailComponent = () => {
       showWrongNetworkWarning();
       return;
     }
+
+    await approveNFT();
 
     await confirm({
       title: "Are you sure to accept the bid?",
@@ -417,7 +457,7 @@ const NFTDetailComponent = () => {
     if (+bidderBalance < +bid.amount) {
       return showSnackbar({
         severity: "error",
-        message: "Sorry, the bidder doest not have enough balance at this time",
+        message: "Sorry, the bidder doest not have enough balance right now.",
       });
     }
 
@@ -426,7 +466,6 @@ const NFTDetailComponent = () => {
     try {
       if (nft.minted) {
         const marketContract = isZunaNFT ? contracts.market : contracts.market2;
-
         await marketContract.methods
           .acceptOffer(user.pubKey, bid.typedData)
           .estimateGas({ from: user.pubKey });
@@ -448,7 +487,11 @@ const NFTDetailComponent = () => {
           )
           .send({ from: user.pubKey });
       }
-      setTimeout(() => fetchNFT(), 3000);
+      await wait(20);
+      showSnackbar({
+        severity: "success",
+        message: "The nft has been sold successfully.",
+      });
     } catch (err) {
       console.error(err);
       showSnackbar({

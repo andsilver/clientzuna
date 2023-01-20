@@ -29,7 +29,7 @@ import { useConfirm } from "../../contexts/Confirm";
 import CollectionLink from "../CollectionLink";
 import NFTTransferDialog from "./NFTTransferDialog";
 import { LikeButton } from "../common/NftCard";
-import NftBanner from "../common/NftBanner";
+// import NftBanner from "../common/NftBanner";
 
 const ShareLink = styled("a")`
   margin-left: 12px;
@@ -267,7 +267,7 @@ export default function NFTInfo({
             </Grid>
           </PanelBox>
         </Grid>
-        {nft.collectionId === 1 && nft.ownerId === 1 && (
+        {/* {nft.collectionId === 1 && nft.ownerId === 1 && (
           <Grid item xs={12} sm={6} md={12} lg={6}>
             <PanelBox
               container
@@ -284,7 +284,7 @@ export default function NFTInfo({
               </Grid>
             </PanelBox>
           </Grid>
-        )}
+        )} */}
       </Grid>
       <Typography color="primary" my={2}>
         {nft.description}

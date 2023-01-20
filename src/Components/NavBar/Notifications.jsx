@@ -107,7 +107,7 @@ export default function Notifications({ user }) {
               minWidth={300}
             >
               <Grid item>
-                <Link to={`/items/${n.nft.id}`}>
+                <Link to={`/items/${n.nft.tokenAddress}/${n.nft.tokenId}`}>
                   <div
                     style={{
                       backgroundImage: `url(${n.nft.thumbnail})`,

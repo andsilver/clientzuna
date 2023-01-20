@@ -114,3 +114,6 @@ export const toWei = (value, decimals) => {
   const ten = Web3.utils.toBN(10);
   return bn.mul(ten.pow(Web3.utils.toBN(decimals))).toString();
 };
+
+export const wait = (seconds) =>
+  new Promise((resolve) => setTimeout(resolve, seconds * 1000));
