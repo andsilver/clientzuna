@@ -275,7 +275,7 @@ const NFTDetailComponent = () => {
           });
           throw err;
         }
-        await wait(20);
+        await wait(40);
         await fetchNFT();
         showSnackbar({
           severity: "success",
@@ -401,7 +401,7 @@ const NFTDetailComponent = () => {
       await erc721Contract.methods
         .transferFrom(user.pubKey, address, nft.tokenId)
         .send({ from: user.pubKey });
-      await wait(20);
+      await wait(40);
       await fetchNFT();
       showSnackbar({
         severity: "success",
@@ -487,7 +487,7 @@ const NFTDetailComponent = () => {
           )
           .send({ from: user.pubKey });
       }
-      await wait(20);
+      await wait(40);
       showSnackbar({
         severity: "success",
         message: "The nft has been sold successfully.",
