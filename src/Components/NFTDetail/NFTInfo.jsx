@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Divider,
   Grid,
@@ -29,6 +29,7 @@ import { useConfirm } from "../../contexts/Confirm";
 import CollectionLink from "../CollectionLink";
 import NFTTransferDialog from "./NFTTransferDialog";
 import { LikeButton } from "../common/NftCard";
+import { createNftShortLink } from "../../api/api";
 // import NftBanner from "../common/NftBanner";
 
 const ShareLink = styled("a")`
@@ -73,6 +74,7 @@ export default function NFTInfo({
   const [showSale, setShowSale] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
   const confirm = useConfirm();
+  const [shortLink, setShortLink] = useState("");
 
   const openAction = Boolean(anchorActionEl);
 
@@ -93,6 +95,22 @@ export default function NFTInfo({
       origin: `${nft.currentAsk.amount} ${symbol.toLowerCase()}`,
     };
   }, [nft, coins]);
+
+  useEffect(() => {
+    const createShortLink = async () => {
+      if (!nft) {
+        setShortLink("");
+        return;
+      }
+      try {
+        const res = await createNftShortLink(nft.tokenAddress, nft.tokenId);
+        setShortLink(`${config.apiUrl}/links/${res.id}`);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    createShortLink();
+  }, [nft]);
 
   const handleActionClick = (event) => {
     setAnchorActionEl(event.currentTarget);
@@ -117,8 +135,6 @@ export default function NFTInfo({
     }
   };
 
-  const shareUrl = `${config.apiUrl}/links/nft?tokenAddress=${nft.tokenAddress}&tokenId=${nft.tokenId}`;
-
   return nft ? (
     <>
       <Grid container justifyContent="space-between" alignItems="center" mt={1}>
@@ -135,7 +151,7 @@ export default function NFTInfo({
         <Grid item display="flex" alignItems="center">
           <div>
             <ShareLink
-              href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
+              href={`https://www.facebook.com/sharer/sharer.php?u=${shortLink}`}
               target="_blank"
             >
               <ItemButton>
@@ -143,7 +159,7 @@ export default function NFTInfo({
               </ItemButton>
             </ShareLink>
             <ShareLink
-              href={`https://twitter.com/intent/tweet?url=${shareUrl}`}
+              href={`https://twitter.com/intent/tweet?url=${shortLink}`}
               target="_blank"
             >
               <ItemButton>

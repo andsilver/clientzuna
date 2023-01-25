@@ -50,6 +50,9 @@ export const filterNfts = (params) =>
 export const getNft = (tokenAddress, tokenId) =>
   api.get(`/nft/${tokenAddress}/${tokenId}`).then(dataExtractor);
 
+export const createNftShortLink = (tokenAddress, tokenId) =>
+  api.post(`/nft/${tokenAddress}/${tokenId}/short-link`).then(dataExtractor);
+
 export const getNftBids = (tokenAddress, tokenId, offset = 0) =>
   api
     .get(`/nft/${tokenAddress}/${tokenId}/bids`, {
