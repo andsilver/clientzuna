@@ -514,7 +514,7 @@ const NFTDetailComponent = () => {
         <Meta
           title={nft.name}
           description={nft.description}
-          url={`${window.location.origin}/items/${nft.id}`}
+          url={`${window.location.origin}/items/${nft.tokenAddress}/${nft.tokenId}`}
           image={nft.thumbnail}
         />
       )}

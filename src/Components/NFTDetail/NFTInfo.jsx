@@ -117,6 +117,8 @@ export default function NFTInfo({
     }
   };
 
+  const shareUrl = `${config.apiUrl}/links/nft?tokenAddress=${nft.tokenAddress}&tokenId=${nft.tokenId}`;
+
   return nft ? (
     <>
       <Grid container justifyContent="space-between" alignItems="center" mt={1}>
@@ -133,7 +135,7 @@ export default function NFTInfo({
         <Grid item display="flex" alignItems="center">
           <div>
             <ShareLink
-              href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.origin}/items/${nft.id}`}
+              href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
               target="_blank"
             >
               <ItemButton>
@@ -141,7 +143,7 @@ export default function NFTInfo({
               </ItemButton>
             </ShareLink>
             <ShareLink
-              href={`https://twitter.com/intent/tweet?url=${window.location.origin}/items/${nft.id}`}
+              href={`https://twitter.com/intent/tweet?url=${shareUrl}`}
               target="_blank"
             >
               <ItemButton>
