@@ -1,11 +1,29 @@
 import { Edit } from "@mui/icons-material";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import TwitterIcon from "@mui/icons-material/Twitter";
-import { Box, Button, Chip, Grid, Typography } from "@mui/material";
+import ShareIcon from "@mui/icons-material/Share";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+
+import {
+  Box,
+  Button,
+  Chip,
+  Grid,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/system";
-import { memo } from "react";
+import { memo, useState } from "react";
+
+import { config } from "../../config.dev";
 
 import UserLink from "../UserLink";
+import { copyText } from "../../helper/utils";
+import { useSnackbar } from "../../contexts/Snackbar";
 
 const CollectionImage = styled("div")((t) => ({
   border: `3px solid ${t.theme.palette.mode === "light" ? "#eee" : "#27273a"}`,
@@ -30,25 +48,95 @@ const CollectionInfoBox = styled(Box)((t) => ({
 }));
 
 export default memo(({ collection, onEdit, isOwner }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const { showSnackbar } = useSnackbar();
+
+  const handleOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCopyLink = () => {
+    copyText(shortLink);
+    handleClose();
+    showSnackbar({
+      severity: "success",
+      message: "Copied Share Link!",
+    });
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const shortLink = `${config.apiUrl}/links/${collection.shortLink.id}`;
+
   return (
     <div>
       <Grid container justifyContent="space-between" alignItems="start">
-        <CollectionImage
-          style={{
-            backgroundImage: `url(${collection.image})`,
-          }}
-        />
-        {isOwner && (
+        <Grid item>
+          <CollectionImage
+            style={{
+              backgroundImage: `url(${collection.image})`,
+            }}
+          />
+        </Grid>
+        <Grid item>
+          {isOwner && (
+            <Button
+              style={{ marginTop: 12 }}
+              variant="outlined"
+              color="primary"
+              startIcon={<Edit />}
+              onClick={onEdit}
+            >
+              Edit
+            </Button>
+          )}
           <Button
-            style={{ marginTop: 12 }}
             variant="outlined"
             color="primary"
-            startIcon={<Edit />}
-            onClick={onEdit}
+            onClick={handleOpen}
+            style={{ marginTop: 12, marginLeft: 12 }}
+            startIcon={<ShareIcon />}
           >
-            Edit
+            Share
           </Button>
-        )}
+          <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+            <a
+              href={`https://twitter.com/intent/tweet?url=${shortLink}`}
+              target="_blank"
+              style={{ color: "unset", textDecoration: "none" }}
+              rel="noreferrer"
+            >
+              <MenuItem onClick={() => handleClose()}>
+                <ListItemIcon>
+                  <TwitterIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Twitter</ListItemText>
+              </MenuItem>
+            </a>
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${shortLink}`}
+              target="_blank"
+              style={{ color: "unset", textDecoration: "none" }}
+              rel="noreferrer"
+            >
+              <MenuItem onClick={() => handleClose()}>
+                <ListItemIcon>
+                  <FacebookIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Facebook</ListItemText>
+              </MenuItem>
+            </a>
+            <MenuItem onClick={() => handleCopyLink()}>
+              <ListItemIcon>
+                <ContentCopyIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Copy Link</ListItemText>
+            </MenuItem>
+          </Menu>
+        </Grid>
       </Grid>
       <Grid container spacing={3} justifyContent="space-between">
         <Grid item xs={12} md={6}>
@@ -142,7 +230,13 @@ export default memo(({ collection, onEdit, isOwner }) => {
               </Grid>
             )}
           </CollectionInfoBox>
-          <Grid container spacing={1} justifyContent="flex-end" pr={2}>
+          <Grid
+            container
+            spacing={1}
+            justifyContent="flex-end"
+            alignItems="center"
+            pr={2}
+          >
             {collection.instagram && (
               <Grid item mt={2}>
                 <a

@@ -18,18 +18,20 @@ import LaunchIcon from "@mui/icons-material/Launch";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import EthIcon from "../../assets/eth_ico.svg";
 import { useCoinGecko } from "../../contexts/CoinGeckoContext";
 import { config } from "../../config";
 import UserLink from "../UserLink";
 import NFTSale from "./NFTSale";
-import { currencyAddressToSymbol } from "../../helper/utils";
+import { copyText, currencyAddressToSymbol } from "../../helper/utils";
 import { useConfirm } from "../../contexts/Confirm";
 import CollectionLink from "../CollectionLink";
 import NFTTransferDialog from "./NFTTransferDialog";
 import { LikeButton } from "../common/NftCard";
 import { createNftShortLink } from "../../api/api";
+import { useSnackbar } from "../../contexts/Snackbar";
 // import NftBanner from "../common/NftBanner";
 
 const ShareLink = styled("a")`
@@ -75,6 +77,7 @@ export default function NFTInfo({
   const [showTransfer, setShowTransfer] = useState(false);
   const confirm = useConfirm();
   const [shortLink, setShortLink] = useState("");
+  const { showSnackbar } = useSnackbar();
 
   const openAction = Boolean(anchorActionEl);
 
@@ -135,6 +138,14 @@ export default function NFTInfo({
     }
   };
 
+  const handleCopyLink = () => {
+    copyText(shortLink);
+    showSnackbar({
+      severity: "success",
+      message: "Copied Share Link!",
+    });
+  };
+
   return nft ? (
     <>
       <Grid container justifyContent="space-between" alignItems="center" mt={1}>
@@ -150,6 +161,9 @@ export default function NFTInfo({
         </Grid>
         <Grid item display="flex" alignItems="center">
           <div>
+            <ItemButton onClick={handleCopyLink}>
+              <ContentCopyIcon />
+            </ItemButton>
             <ShareLink
               href={`https://www.facebook.com/sharer/sharer.php?u=${shortLink}`}
               target="_blank"
