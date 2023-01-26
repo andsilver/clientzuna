@@ -19,7 +19,7 @@ import {
 import { styled } from "@mui/system";
 import { memo, useState } from "react";
 
-import { config } from "../../config.dev";
+import { config } from "../../config";
 
 import UserLink from "../UserLink";
 import { copyText } from "../../helper/utils";
