@@ -9,7 +9,7 @@ export const minimizeAddress = (address, start = 14, end = -11) =>
   address ? `${address.substr(0, start)}...${address.substr(end)}` : "";
 
 export const generateRandomTokenId = () => {
-  return Web3.utils.randomHex(32);
+  return Web3.utils.hexToNumberString(Web3.utils.randomHex(32));
 };
 
 export function timeSince(date) {
@@ -73,7 +73,7 @@ export const currencyAddressToSymbol = (currencyAddress) =>
   currenciesMapping[currencyAddress.toLowerCase()];
 
 export const currencySymbolToAddress = (symbol) =>
-  config.currencies[symbol].address.toLowerCase();
+  config.currencies[symbol]?.address.toLowerCase() || "";
 
 export const currencyList = () =>
   Object.entries(config.currencies).map(([key, value]) => ({

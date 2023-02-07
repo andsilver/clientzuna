@@ -165,6 +165,83 @@
   {
     "inputs": [
       {
+        "internalType": "uint256[]",
+        "name": "tokenIds",
+        "type": "uint256[]"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "royaltyFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "collectionId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "tokenUri",
+            "type": "string"
+          },
+          {
+            "internalType": "bytes",
+            "name": "signature",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct Zuna.NFTVoucher[]",
+        "name": "vouchers",
+        "type": "tuple[]"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "erc20Address",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAt",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "signature",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct Shared.Offer[]",
+        "name": "offers",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "bulkMint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
@@ -419,62 +496,6 @@
     ],
     "name": "lazyBuyMint",
     "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "tokenOwner",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "royaltyFee",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "collectionId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "tokenUri",
-            "type": "string"
-          },
-          {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct Zuna.NFTVoucher",
-        "name": "voucher",
-        "type": "tuple"
-      }
-    ],
-    "name": "lazyMint",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },

@@ -109,8 +109,14 @@ export const getOneCollection = (id) =>
 export const pinImageToIPFS = (data) =>
   api.post("/pinata/file", data).then(dataExtractor);
 
+export const pinImagesToIPFS = (data) =>
+  api.post("/pinata/files", data).then(dataExtractor);
+
 export const pinJsonToIPFS = (data) =>
   api.post("/pinata/json", data).then(dataExtractor);
+
+export const pinJsonsToIPFS = (data) =>
+  api.post("/pinata/jsons", data).then(dataExtractor);
 
 export const createNFT = (data) => api.post("/nft", data).then(dataExtractor);
 
@@ -158,3 +164,10 @@ export const getUserOtherNfts = (address, cursor) =>
       params: { cursor },
     })
     .then(dataExtractor);
+
+export const downloadCsvFile = () =>
+  api({
+    url: `/collection/download-csv`,
+    method: "GET",
+    responseType: "blob",
+  });

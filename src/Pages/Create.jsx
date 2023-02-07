@@ -208,7 +208,7 @@ export default function Create() {
         signature,
         onSale,
       });
-      history.push(`/items/${data.id}`);
+      history.push(`/items/${data.tokenAddress}/${data.tokenId}`);
     } catch (err) {
       console.error(err);
     }

@@ -4,7 +4,7 @@ import TwitterIcon from "@mui/icons-material/Twitter";
 import ShareIcon from "@mui/icons-material/Share";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-
+import PublishIcon from "@mui/icons-material/Publish";
 import {
   Box,
   Button,
@@ -47,7 +47,7 @@ const CollectionInfoBox = styled(Box)((t) => ({
   borderRadius: 14,
 }));
 
-export default memo(({ collection, onEdit, isOwner }) => {
+export default memo(({ collection, onEdit, isOwner, onImport }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const { showSnackbar } = useSnackbar();
 
@@ -83,15 +83,26 @@ export default memo(({ collection, onEdit, isOwner }) => {
         </Grid>
         <Grid item>
           {isOwner && (
-            <Button
-              style={{ marginTop: 12 }}
-              variant="outlined"
-              color="primary"
-              startIcon={<Edit />}
-              onClick={onEdit}
-            >
-              Edit
-            </Button>
+            <>
+              <Button
+                style={{ marginTop: 12 }}
+                variant="outlined"
+                color="primary"
+                startIcon={<PublishIcon />}
+                onClick={onImport}
+              >
+                Bulk Mint
+              </Button>
+              <Button
+                style={{ marginTop: 12, marginLeft: 12 }}
+                variant="outlined"
+                color="primary"
+                startIcon={<Edit />}
+                onClick={onEdit}
+              >
+                Edit
+              </Button>
+            </>
           )}
           <Button
             variant="outlined"

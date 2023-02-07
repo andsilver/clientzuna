@@ -82,6 +82,7 @@ const NFTDetailComponent = () => {
     getErc20Balance,
     getErc721Contract,
     approveMarket,
+    approveNFT,
   } = useWeb3();
   const [nft, setNft] = useState();
   const { tokenAddress, tokenId } = useParams();
@@ -157,7 +158,18 @@ const NFTDetailComponent = () => {
     setLoading(true);
 
     try {
-      await removeNFTSale(nft.tokenAddress, nft.tokenId);
+      if (
+        isZunaNFT &&
+        nft.currentAsk &&
+        !Object.keys(nft.currentAsk.typedData).length
+      ) {
+        await contracts.market.methods.removePrice(nft.tokenId).send({
+          from: user.pubKey,
+        });
+        await wait(40);
+      } else {
+        await removeNFTSale(nft.tokenAddress, nft.tokenId);
+      }
       await fetchNFT();
     } catch (err) {
       console.error(err);
@@ -173,13 +185,23 @@ const NFTDetailComponent = () => {
     }
 
     if (data.instantSale || data.onSale) {
-      await approveNFT();
+      await approveNFT(tokenAddress, selectedMarketAddress);
       await approveMarket(data.price.currency, selectedMarketAddress);
     }
 
     setLoading(true);
 
     try {
+      if (
+        isZunaNFT &&
+        nft.currentAsk &&
+        !Object.keys(nft.currentAsk.typedData).length
+      ) {
+        await contracts.market.methods.removePrice(nft.tokenId).send({
+          from: user.pubKey,
+        });
+      }
+
       if (data.instantSale) {
         const decimals = getCurrencyDecimals(data.price.currency);
         const listing = {
@@ -249,9 +271,15 @@ const NFTDetailComponent = () => {
               ? contracts.market
               : contracts.market2;
 
-            await marketContract.methods
-              .buy(user.pubKey, nft.currentAsk.typedData)
-              .send({ from: user.pubKey });
+            if (nft.currentAsk.typedData.signature) {
+              await marketContract.methods
+                .buy(user.pubKey, nft.currentAsk.typedData)
+                .send({ from: user.pubKey });
+            } else {
+              await marketContract.methods
+                .buyOnChain(tokenId)
+                .send({ from: user.pubKey });
+            }
           } else {
             await contracts.media.methods
               .lazyBuyMint(
@@ -417,32 +445,13 @@ const NFTDetailComponent = () => {
     setLoading(false);
   };
 
-  const approveNFT = async () => {
-    const marketplaceApproved = await erc721Contract.methods
-      .isApprovedForAll(user.pubKey, selectedMarketAddress)
-      .call();
-
-    if (!marketplaceApproved) {
-      await confirm({
-        title: "APPROVE MARKETPLACE",
-        text: "One-time Approval for further transactions",
-        cancelText: "",
-        okText: "Approve",
-      });
-
-      await erc721Contract.methods
-        .setApprovalForAll(selectedMarketAddress, true)
-        .send({ from: user.pubKey });
-    }
-  };
-
   const onAcceptBid = async (bid) => {
     if (wrongNetwork) {
       showWrongNetworkWarning();
       return;
     }
 
-    await approveNFT();
+    await approveNFT(tokenAddress, selectedMarketAddress);
 
     await confirm({
       title: "Are you sure to accept the bid?",

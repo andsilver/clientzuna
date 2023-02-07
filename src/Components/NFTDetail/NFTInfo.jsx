@@ -12,8 +12,6 @@ import {
 import { styled } from "@mui/system";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
-// import TelegramIcon from "@mui/icons-material/Telegram";
-// import EmailIcon from "@mui/icons-material/Email";
 import LaunchIcon from "@mui/icons-material/Launch";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -25,7 +23,11 @@ import { useCoinGecko } from "../../contexts/CoinGeckoContext";
 import { config } from "../../config";
 import UserLink from "../UserLink";
 import NFTSale from "./NFTSale";
-import { copyText, currencyAddressToSymbol } from "../../helper/utils";
+import {
+  copyText,
+  currencyAddressToSymbol,
+  nFormatter,
+} from "../../helper/utils";
 import { useConfirm } from "../../contexts/Confirm";
 import CollectionLink from "../CollectionLink";
 import NFTTransferDialog from "./NFTTransferDialog";
@@ -95,7 +97,7 @@ export default function NFTInfo({
 
     return {
       usdPrice: `$${usdPrice}`,
-      origin: `${nft.currentAsk.amount} ${symbol.toLowerCase()}`,
+      origin: `${nFormatter(nft.currentAsk.amount)} ${symbol.toLowerCase()}`,
     };
   }, [nft, coins]);
 

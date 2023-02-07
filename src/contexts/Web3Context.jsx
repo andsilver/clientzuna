@@ -13,6 +13,7 @@ import { config } from "../config";
 import { useAuthContext } from "./AuthContext";
 import { useSnackbar } from "./Snackbar";
 import { fromWei, getCurrencyDecimals, getWeb3 } from "../helper/utils";
+import { useConfirm } from "./Confirm";
 
 export const Web3Context = createContext({
   wrongNetwork: false,
@@ -27,12 +28,14 @@ export const Web3Context = createContext({
   getErc20Balance: (currency, address) => {},
   serviceFee: 0,
   approveMarket: async () => {},
+  approveNFT: async () => {},
 });
 
 export const Web3Provider = ({ children }) => {
   const { chainId, provider, user } = useAuthContext();
   const [serviceFee, setServiceFee] = useState(0);
   const { showSnackbar } = useSnackbar();
+  const { confirm } = useConfirm();
 
   const wrongNetwork = useMemo(() => {
     if (!chainId) {
@@ -91,6 +94,30 @@ export const Web3Provider = ({ children }) => {
       .send({
         from: user.pubKey,
       });
+  };
+
+  const approveNFT = async (erc721Address, marketAddress) => {
+    const erc721Contract = getErc721Contract(erc721Address);
+
+    const marketplaceApproved = await erc721Contract.methods
+      .isApprovedForAll(
+        user.pubKey,
+        marketAddress || config.marketContractAddress
+      )
+      .call();
+
+    if (!marketplaceApproved) {
+      await confirm({
+        title: "APPROVE MARKETPLACE",
+        text: "One-time Approval for further transactions",
+        cancelText: "",
+        okText: "Approve",
+      });
+
+      await erc721Contract.methods
+        .setApprovalForAll(marketAddress || config.marketContractAddress, true)
+        .send({ from: user.pubKey });
+    }
   };
 
   const getErc20Balance = async (currency, userAddress) => {
@@ -163,6 +190,7 @@ export const Web3Provider = ({ children }) => {
         getErc721Contract,
         serviceFee,
         approveMarket,
+        approveNFT,
       }}
     >
       {children}
