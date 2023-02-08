@@ -19,8 +19,15 @@ export default function ImageUploader({
 
   const { getRootProps, getInputProps, open } = useDropzone({
     onDrop,
-    accept: "image/jpeg, image/png, image/jpg",
+    accept: {
+      "image/jpeg": [],
+      "image/png": [],
+      "image/gif": [],
+      "image/jpg": [],
+    },
+    useFsAccessApi: false,
     noClick: true,
+    multiple: false,
   });
 
   useEffect(() => {

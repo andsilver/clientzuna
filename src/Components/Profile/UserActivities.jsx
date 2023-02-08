@@ -46,9 +46,7 @@ export default function UserActivities({ userAddress, size = 12 }) {
         md={8}
         sx={(t) => ({ [t.breakpoints.down("md")]: { order: 2 } })}
       >
-        {loading ? (
-          <SectionLoading />
-        ) : activities.length ? (
+        {activities.length ? (
           <Grid container spacing={2}>
             {activities.map((activity) => (
               <Grid item xs={12} md={size} key={activity.id}>
@@ -71,6 +69,7 @@ export default function UserActivities({ userAddress, size = 12 }) {
             </Button>
           </Grid>
         )}
+        {loading && <SectionLoading />}
       </Grid>
       <Grid
         item

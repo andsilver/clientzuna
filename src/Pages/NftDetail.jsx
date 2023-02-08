@@ -531,7 +531,7 @@ const NFTDetailComponent = () => {
         <Grid py={6} container spacing={5}>
           <Grid item xs={12} md={6}>
             <img
-              src={nft.thumbnail || EmptyNft}
+              src={nft.image || EmptyNft}
               alt=""
               width="100%"
               height="auto"

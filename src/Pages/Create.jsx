@@ -86,7 +86,14 @@ export default function Create() {
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
-    accept: "image/jpeg, image/png, image/jpg, image/gif",
+    accept: {
+      "image/jpeg": [],
+      "image/png": [],
+      "image/gif": [],
+      "image/jpg": [],
+    },
+    useFsAccessApi: false,
+    multiple: false,
   });
 
   const onChangeNftDetails = (e) => {
