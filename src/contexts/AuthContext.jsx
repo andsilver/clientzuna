@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 
 import { config } from "../config";
 import { getAuthToken, getMe, getNonce } from "../api/api";
-import { getWeb3 } from "../helper/utils";
+import { getWeb3, sameAddress } from "../helper/utils";
 
 export const AuthContext = createContext({
   address: null,
@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }) => {
       setChainId(chain);
       setProvider(provider);
     } catch (err) {
-      web3Modal.clearCachedProvider();
+      logout();
       console.error(err);
     }
   };
@@ -102,7 +102,12 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const res = await getMe();
-      setUser(res);
+
+      if (sameAddress(res.pubKey, address)) {
+        setUser(res);
+      } else {
+        logout();
+      }
     } catch (err) {
       console.error(err);
       logout();
@@ -151,7 +156,7 @@ export const AuthProvider = ({ children }) => {
     }
     const accessToken = localStorage.getItem("token");
 
-    if ((!user || user.address === address) && accessToken) {
+    if ((!user || sameAddress(user.address, address)) && accessToken) {
       fetchUser();
       return;
     }
