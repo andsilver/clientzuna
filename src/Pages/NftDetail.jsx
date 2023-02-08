@@ -1,7 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import Web3 from "web3";
-import { Box, Button, Container, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  Grid,
+  Typography,
+  useTheme,
+} from "@mui/material";
 
 import { useSnackbar } from "../contexts/Snackbar";
 import {
@@ -516,6 +523,8 @@ const NFTDetailComponent = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenAddress, tokenId]);
 
+  const theme = useTheme();
+
   return (
     <Container maxWidth="xl">
       <OverlayLoading show={loading} />
@@ -531,7 +540,10 @@ const NFTDetailComponent = () => {
         <Grid py={6} container spacing={5}>
           <Grid item xs={12} md={6}>
             <img
-              src={nft.image || EmptyNft}
+              src={
+                (theme.breakpoints.up("lg") ? nft.image : nft.thumbnail) ||
+                EmptyNft
+              }
               alt=""
               width="100%"
               height="auto"
