@@ -98,16 +98,20 @@ export default memo(({ activity }) => {
               <Typography color="primary" fontSize={16}>
                 {activity.event}
               </Typography>
-              {activity.user && activity.receiver ? " from " : " by "}
+              <Typography color="primary" fontSize={16} mx={0.5}>
+                {activity.receiver ? "from" : "by"}
+              </Typography>
               <Link to={`/users/${activity.user.pubKey}`}>
                 <Typography color="primary" fontWeight="bold">
                   {activity.user.name ||
                     minimizeAddress(activity.user.pubKey, 4, -6)}
                 </Typography>
               </Link>
-              {activity.user && activity.receiver ? (
+              {activity.receiver ? (
                 <>
-                  {" to "}
+                  <Typography color="primary" fontSize={16} mx={0.5}>
+                    to
+                  </Typography>
                   <Link to={`/users/${activity.receiver.pubKey}`}>
                     <Typography color="primary" fontWeight="bold">
                       {activity.receiver.name ||
