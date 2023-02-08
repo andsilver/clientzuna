@@ -3,6 +3,7 @@ import { useMemo, memo } from "react";
 import {
   currencyAddressToSymbol,
   minimizeAddress,
+  nFormatter,
   timeSince,
 } from "../../helper/utils";
 import Link from "../Link";
@@ -37,7 +38,9 @@ export default memo(({ activity }) => {
         name: activity.nft.name,
         timeStr,
         detail: activity.amount
-          ? `${activity.amount} ${currencyAddressToSymbol(activity.currency)}`
+          ? `${nFormatter(activity.amount)} ${currencyAddressToSymbol(
+              activity.currency
+            )}`
           : "",
       };
     }
