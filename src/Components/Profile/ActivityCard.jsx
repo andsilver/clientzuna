@@ -95,10 +95,10 @@ export default memo(({ activity }) => {
               {name}
             </Typography>
             <Grid container alignItems="center">
-              <Typography color="primary" fontSize={16} mr={1}>
+              <Typography color="primary" fontSize={16}>
                 {activity.event}
               </Typography>
-              {activity.user && activity.receiver ? " from" : " by"}
+              {activity.user && activity.receiver ? " from " : " by "}
               <Link to={`/users/${activity.user.pubKey}`}>
                 <Typography color="primary" fontWeight="bold">
                   {activity.user.name ||
@@ -107,7 +107,7 @@ export default memo(({ activity }) => {
               </Link>
               {activity.user && activity.receiver ? (
                 <>
-                  " to "
+                  {" to "}
                   <Link to={`/users/${activity.receiver.pubKey}`}>
                     <Typography color="primary" fontWeight="bold">
                       {activity.receiver.name ||
