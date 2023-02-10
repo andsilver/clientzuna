@@ -25,14 +25,10 @@ import { config } from "../../config";
 import useQuery from "../../hooks/useQuery";
 import { filterCollections } from "../../api/api";
 import FormPopupButton from "../common/FormPopupButton";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 const CATEGORIES = [...config.categories];
 const SALE_TYPES = ["Buy Now", "Open to bids", "Not for sale"];
-
-const CURRENCIES = Object.keys(config.currencies).map((key) => ({
-  value: config.currencies[key].address,
-  label: key,
-}));
 
 const FilterContainer = styled("div")((t) => ({
   padding: 12,
@@ -59,6 +55,7 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorSortEl, setAnchorSortEl] = useState(null);
+  const { coins, getCoinByAddress } = useCurrency();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -85,8 +82,9 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
   );
 
   const currency = useMemo(
-    () => CURRENCIES.find((c) => c.value === filter.currency) || null,
-    [filter.currency]
+    () => getCoinByAddress(filter.currency),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filter.currency, coins]
   );
 
   const handleSort = (order, orderBy) => {
@@ -175,12 +173,14 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
   };
 
   const updateCurrencyFilter = (c) => {
-    updateFilter("currency", c?.value || "");
+    updateFilter("currency", c?.address || "");
   };
 
   const filterButtonText = useMemo(() => {
     if (filter.orderBy === "price") {
-      return `Sort by Price ${filter.order === "DESC" ? "High to Low" : "Low to High"}`;
+      return `Sort by Price ${
+        filter.order === "DESC" ? "High to Low" : "Low to High"
+      }`;
     }
 
     if (filter.orderBy === "createdAt") {
@@ -274,19 +274,19 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
             fullWidth
             size="small"
             disablePortal
-            options={CURRENCIES}
+            options={coins}
             value={currency}
             renderOption={(props, c) => (
               <Grid container alignItems="center" p={1} {...props}>
                 <Typography fontSize={13} fontWeight="bold">
-                  {c.label}
+                  {c.symbol}
                 </Typography>
               </Grid>
             )}
             isOptionEqualToValue={(option, value) =>
-              !value || option.value === value.value
+              !value || option.address === value.address
             }
-            getOptionLabel={(option) => option.label || ""}
+            getOptionLabel={(option) => option.symbol || ""}
             renderInput={(params) => (
               <TextField {...params} name="currency" label="Currency" />
             )}

@@ -9,8 +9,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { Grid, MenuItem, Select, TextField } from "@mui/material";
+
 import Switch from "../common/Switch";
-import { config } from "../../config";
+import { useCurrency } from "../../contexts/CurrencyContext";
+import { useSnackbar } from "../../contexts/Snackbar";
 
 const SaleDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -45,14 +47,24 @@ const SaleDialogTitle = (props) => {
 };
 
 export default function NFTSale({ nft, open, onClose, onUpdate }) {
+  const { coins } = useCurrency();
+
   const [onSale, setOnSale] = useState(nft.onSale);
   const [price, setPrice] = useState({
     amount: nft.currentAsk?.amount || "",
-    currency: nft.currentAsk?.currency || config.currencies.WBNB.address,
+    currency: nft.currentAsk?.currency || "",
   });
+  const { showSnackbar } = useSnackbar();
   const [instantSale, setInstantSale] = useState(!!nft.currentAsk);
 
   const update = () => {
+    if (price.amount && !price.currency) {
+      showSnackbar({
+        severity: "error",
+        message: "Currency is required",
+      });
+      return;
+    }
     onClose();
     onUpdate({ onSale, price, instantSale });
   };
@@ -138,8 +150,9 @@ export default function NFTSale({ nft, open, onClose, onUpdate }) {
                 color="secondary"
                 onChange={handleCurrencyChange}
               >
-                <MenuItem value={config.currencies.WBNB.address}>WBNB</MenuItem>
-                <MenuItem value={config.currencies.ZUNA.address}>ZUNA</MenuItem>
+                {coins.map((c) => (
+                  <MenuItem value={c.address}>{c.symbol}</MenuItem>
+                ))}
               </Select>
             </Grid>
           </Grid>

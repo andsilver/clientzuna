@@ -22,7 +22,7 @@ import { memo, useState } from "react";
 import { config } from "../../config";
 
 import UserLink from "../UserLink";
-import { copyText } from "../../helper/utils";
+import { copyText, nFormatter } from "../../helper/utils";
 import { useSnackbar } from "../../contexts/Snackbar";
 
 const CollectionImage = styled("div")((t) => ({
@@ -180,7 +180,7 @@ export default memo(({ collection, onEdit, isOwner, onImport }) => {
               </Grid>
               <Grid item>
                 <Typography color="primary" fontWeight="bold">
-                  {collection.floorPrice}{" "}
+                  {nFormatter(collection.floorPrice)}{" "}
                   {collection.floorPriceCurrency?.toUpperCase() || ""}
                 </Typography>
               </Grid>

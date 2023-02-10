@@ -58,36 +58,8 @@ export function nFormatter(num, digits = 2) {
     });
   return item
     ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol
-    : parseFloat(num).toFixed(digits);
+    : parseFloat((+num).toFixed(digits));
 }
-
-const currenciesMapping = Object.keys(config.currencies).reduce(
-  (mapping, currency) => {
-    mapping[config.currencies[currency].address.toLowerCase()] = currency;
-    return mapping;
-  },
-  {}
-);
-
-export const currencyAddressToSymbol = (currencyAddress) =>
-  currenciesMapping[currencyAddress.toLowerCase()];
-
-export const currencySymbolToAddress = (symbol) =>
-  config.currencies[symbol]?.address.toLowerCase() || "";
-
-export const currencyList = () =>
-  Object.entries(config.currencies).map(([key, value]) => ({
-    value: value.address,
-    label: key,
-  }));
-
-export const getCurrencyDecimals = (currencyAddressOrSymbol) => {
-  const symbol = Web3.utils.isAddress(currencyAddressOrSymbol)
-    ? currencyAddressToSymbol(currencyAddressOrSymbol)
-    : currencyAddressOrSymbol;
-  const currency = config.currencies[symbol.toUpperCase()];
-  return currency.decimals;
-};
 
 export const getWeb3 = (rpc) => new Web3(rpc || config.chainRPC);
 

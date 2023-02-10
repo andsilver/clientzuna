@@ -10,12 +10,9 @@ import SendIcon from "@mui/icons-material/Send";
 import AutoGraphIcon from "@mui/icons-material/AutoGraph";
 import { Grid } from "@mui/material";
 
-import {
-  currencyAddressToSymbol,
-  nFormatter,
-  timeSince,
-} from "../../helper/utils";
+import { nFormatter, timeSince } from "../../helper/utils";
 import UserLink from "../UserLink";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 const IconsMapping = {
   Following: <PeopleAltIcon color="primary" />,
@@ -33,17 +30,21 @@ const ACTIONS = {
 };
 
 export default memo(({ activity }) => {
+  const { coins, getCoinByAddress } = useCurrency();
+
   const actionStr = useMemo(() => {
     const timeStr = timeSince(+activity.createdAt);
     const action = ACTIONS[activity.event] || "";
     let text = `${action || activity.event} ${timeStr}`;
+    const coin = getCoinByAddress(activity.currency);
 
     if (activity.amount) {
-      const symbol = currencyAddressToSymbol(activity.currency);
+      const symbol = coin?.symbol || "";
       text += ` (${nFormatter(activity.amount)} ${symbol})`;
     }
     return text;
-  }, [activity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activity, coins]);
 
   return activity?.user ? (
     <Grid container alignItems="center" justifyContent="space-between" my={0.5}>

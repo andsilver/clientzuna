@@ -13,10 +13,11 @@ import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import Favorite from "@mui/icons-material/Favorite";
 
 import { favoriteNft } from "../../api/api";
-import { currencyAddressToSymbol, nFormatter } from "../../helper/utils";
+import { nFormatter } from "../../helper/utils";
 import Link from "../Link";
 import UserLink from "../UserLink";
 import EmptyNft from "../../assets/empty.png";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 const StyledNftCard = styled(Card)({
   width: "100%",
@@ -57,14 +58,21 @@ export const LikeButton = styled(Box)((t) => ({
 export default function NftCard({ nft }) {
   const [favorites, setFavorites] = useState(0);
   const [favorited, setFavorited] = useState(false);
+  const { coins, getCoinByAddress, calcUsd } = useCurrency();
 
-  const symbol = useMemo(() => {
+  const { symbol, usd } = useMemo(() => {
     if (!nft.currentAsk) {
       return "";
     }
-    return currencyAddressToSymbol(nft.currentAsk.currency);
+    const coin = getCoinByAddress(nft.currentAsk.currency);
+    return {
+      symbol: coin?.symbol || "",
+      usd: nft.currentAsk
+        ? calcUsd(nft.currentAsk.currency, nft.currentAsk.amount)
+        : 0,
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nft]);
+  }, [coins, nft]);
 
   const favorite = async () => {
     await favoriteNft(nft.tokenAddress, nft.tokenId);
@@ -114,7 +122,7 @@ export default function NftCard({ nft }) {
             <Typography color="GrayText">Reserve Price</Typography>
             <Typography fontWeight="bold" color="primary">
               {nft.currentAsk
-                ? `${nFormatter(nft.currentAsk.amount)} ${symbol}`
+                ? `${nFormatter(nft.currentAsk.amount)} ${symbol} ($${usd})`
                 : "No Price"}
             </Typography>
           </Grid>

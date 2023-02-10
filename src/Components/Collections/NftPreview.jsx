@@ -18,12 +18,12 @@ export default function NftPreview({ preview, nft, coins }) {
     if (!nft.amount) {
       return;
     }
-    const coin = coins[nft.currency];
+    const coin = coins.find((coin) => coin.symbol === nft.currency);
 
     if (!coin) {
       return;
     }
-    const usdPrice = (+nft.amount * coin.price).toFixed(3);
+    const usdPrice = parseFloat((+nft.amount * coin.usd).toFixed(3));
 
     return {
       usdPrice: `$${usdPrice}`,

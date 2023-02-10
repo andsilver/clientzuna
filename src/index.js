@@ -11,7 +11,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { Web3Provider } from "./contexts/Web3Context";
 import { ColorModeProvider } from "./contexts/ThemeContext";
 import { SnackbarProvider } from "./contexts/Snackbar";
-import { CoinGeckoProvider } from "./contexts/CoinGeckoContext";
+import { CurrencyProvider } from "./contexts/CurrencyContext";
 import { ConfirmProvider } from "./contexts/Confirm";
 
 ReactDOM.render(
@@ -21,13 +21,13 @@ ReactDOM.render(
         <ColorModeProvider>
           <SnackbarProvider>
             <ConfirmProvider>
-              <CoinGeckoProvider>
+              <CurrencyProvider>
                 <AuthProvider>
                   <Web3Provider>
                     <App />
                   </Web3Provider>
                 </AuthProvider>
-              </CoinGeckoProvider>
+              </CurrencyProvider>
             </ConfirmProvider>
           </SnackbarProvider>
         </ColorModeProvider>

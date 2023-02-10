@@ -1,6 +1,6 @@
 import SwipeableViews from "react-swipeable-views";
 
-import { useCoinGecko } from "../../contexts/CoinGeckoContext";
+import { useCurrency } from "../../contexts/CurrencyContext";
 import NftPreview from "./NftPreview";
 
 export default function NftPreviews({
@@ -9,7 +9,7 @@ export default function NftPreviews({
   currentIndex,
   handleStepChange,
 }) {
-  const { coins } = useCoinGecko();
+  const { coins } = useCurrency();
 
   return (
     <SwipeableViews

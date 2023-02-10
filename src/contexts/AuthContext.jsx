@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
     }
     const web3 = getWeb3();
     const value = await web3.eth.getBalance(user.pubKey);
-    setBalance(parseFloat(Web3.utils.fromWei(value)).toFixed(4));
+    setBalance(parseFloat((+Web3.utils.fromWei(value)).toFixed(4)));
   };
 
   const login = async () => {

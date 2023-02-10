@@ -26,12 +26,13 @@ import NFTInfo from "../Components/NFTDetail/NFTInfo";
 import NFTHistory from "../Components/NFTDetail/NFTHistory";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useWeb3 } from "../contexts/Web3Context";
-import { getCurrencyDecimals, sameAddress, toWei, wait } from "../helper/utils";
+import { sameAddress, toWei, wait } from "../helper/utils";
 import OfferDialog from "../Components/common/OfferDialog";
 import { config } from "../config";
 import { useConfirm } from "../contexts/Confirm";
 import Meta from "../Components/common/Meta";
 import EmptyNft from "../assets/empty.png";
+import { useCurrency } from "../contexts/CurrencyContext";
 
 const types = {
   Offer: [
@@ -101,6 +102,7 @@ const NFTDetailComponent = () => {
   const history = useHistory();
   const [favorites, setFavorites] = useState(0);
   const [favorited, setFavorited] = useState(false);
+  const { getCoinByAddress } = useCurrency();
 
   const isZunaNFT =
     tokenAddress?.toLowerCase() === config.nftContractAddress.toLowerCase();
@@ -210,11 +212,15 @@ const NFTDetailComponent = () => {
       }
 
       if (data.instantSale) {
-        const decimals = getCurrencyDecimals(data.price.currency);
+        const coin = getCoinByAddress(data.price.currency);
+
+        if (!coin) {
+          throw new Error("Unsupported coin");
+        }
         const listing = {
           tokenId: nft.tokenId,
           erc20Address: data.price.currency,
-          amount: toWei(data.price.amount, decimals),
+          amount: toWei(data.price.amount, coin.decimals),
           createdAt: `${Date.now()}`,
         };
 
@@ -262,12 +268,17 @@ const NFTDetailComponent = () => {
     const buying = offerType === "buy";
 
     try {
-      const decimals = getCurrencyDecimals(
+      const coin = getCoinByAddress(
         buying ? nft.currentAsk.currency : data.currency
       );
+
+      if (!coin) {
+        throw new Error("Unsupported coin");
+      }
+
       const amount = buying
         ? nft.currentAsk.typedData.amount
-        : toWei(data.amount, decimals);
+        : toWei(data.amount, coin.decimals);
 
       await approveMarket(data.currency, selectedMarketAddress);
 
@@ -581,7 +592,7 @@ const NFTDetailComponent = () => {
                       </Button>
                     </Grid>
                   )}
-                  {(nft.onSale || nft.currentAsk) && (
+                  {nft.onSale && (
                     <Grid item xs={6}>
                       <Button
                         variant="contained"

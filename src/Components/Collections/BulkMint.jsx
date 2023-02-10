@@ -18,14 +18,8 @@ import DownloadIcon from "@mui/icons-material/Download";
 import { StyledDialog, StyledDialogTitle } from "../common/DialogElements";
 import FileUploadButton from "../common/FileUploaderButton";
 import { useSnackbar } from "../../contexts/Snackbar";
-import { config } from "../../config";
 import NftPreviews from "./NftPreviews";
-import {
-  currencySymbolToAddress,
-  generateRandomTokenId,
-  getCurrencyDecimals,
-  toWei,
-} from "../../helper/utils";
+import { generateRandomTokenId, toWei } from "../../helper/utils";
 import OverlayLoading from "../common/OverlayLoading";
 import {
   downloadCsvFile,
@@ -34,6 +28,7 @@ import {
 } from "../../api/api";
 import { useWeb3 } from "../../contexts/Web3Context";
 import { useAuthContext } from "../../contexts/AuthContext";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 const STEP_LABLES = ["Upload Files", "Preview"];
 
@@ -49,6 +44,7 @@ export default function BulkMint({ onClose, collectionId }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { address } = useAuthContext();
   const { wrongNetwork, contracts } = useWeb3();
+  const { getCoinBySymbol } = useCurrency();
 
   const mint = async () => {
     if (wrongNetwork) {
@@ -111,8 +107,7 @@ export default function BulkMint({ onClose, collectionId }) {
         let amount = "0";
 
         if (+nft.amount) {
-          const decimals = getCurrencyDecimals(nft.erc20Address);
-          amount = toWei(`${nft.amount}`, decimals);
+          amount = toWei(`${nft.amount}`, nft.decimals);
         }
 
         return {
@@ -223,16 +218,18 @@ export default function BulkMint({ onClose, collectionId }) {
 
           if (nft.currency) {
             nft.currency = nft.currency.toUpperCase();
+            const coin = getCoinBySymbol(nft.currency);
 
-            if (!Object.keys(config.currencies).includes(nft.currency)) {
+            if (!coin) {
               showSnackbar({
                 severity: "error",
-                message: "ERC20 Name can be only WBNB or ZUNA",
+                message: "Unsupported currency",
               });
               setCsv(null);
               return;
             }
-            nft.erc20Address = currencySymbolToAddress(nft.currency);
+            nft.erc20Address = coin.address;
+            nft.decimals = coin.decimals;
           }
 
           if (nft.properties) {

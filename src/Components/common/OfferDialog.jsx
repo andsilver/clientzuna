@@ -14,10 +14,10 @@ import {
 import { styled } from "@mui/system";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState, useMemo, useEffect } from "react";
-import { config } from "../../config";
-import { currencyAddressToSymbol, currencyList } from "../../helper/utils";
+
 import { useWeb3 } from "../../contexts/Web3Context";
 import { useAuthContext } from "../../contexts/AuthContext";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 const OfferDialogContainer = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -53,8 +53,6 @@ const OfferDialogTitle = (props) => {
   );
 };
 
-const currencies = currencyList();
-
 export default function OfferDialog({
   nft,
   buying = false,
@@ -63,23 +61,31 @@ export default function OfferDialog({
 }) {
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState(
-    buying ? nft.currentAsk.currency : config.currencies.WBNB.address
+    buying ? nft.currentAsk.currency : ""
   );
   const [currencyBalance, setCurrencyBalance] = useState(0);
   const { getErc20Balance } = useWeb3();
   const { user } = useAuthContext();
+  const { coins, getCoinByAddress } = useCurrency();
 
   const symbol = useMemo(
-    () => currencyAddressToSymbol(buying ? nft.currentAsk.currency : currency),
-    [currency, nft, buying]
+    () => {
+      const coin = getCoinByAddress(
+        buying ? nft.currentAsk.currency : currency
+      );
+      return coin?.symbol || "";
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [coins, buying, currency, nft]
   );
 
   useEffect(() => {
     if (!user || !currency) {
       return;
     }
+
     getErc20Balance(currency, user.pubKey).then((v) =>
-      setCurrencyBalance(parseFloat(v).toFixed(4))
+      setCurrencyBalance(parseFloat(+v.toFixed(4)))
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currency, user]);
@@ -119,6 +125,7 @@ export default function OfferDialog({
                 disabled
                 value={`${nft.currentAsk.amount} ${symbol}`}
                 color="secondary"
+                error={!symbol}
               />
             </>
           ) : (
@@ -145,9 +152,9 @@ export default function OfferDialog({
                     fullWidth
                     color="secondary"
                   >
-                    {currencies.map((c) => (
-                      <MenuItem key={c.value} value={c.value}>
-                        {c.label}
+                    {(coins || []).map((c) => (
+                      <MenuItem key={c.address} value={c.address}>
+                        {c.symbol}
                       </MenuItem>
                     ))}
                   </Select>

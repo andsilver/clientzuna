@@ -12,8 +12,9 @@ import erc721ABI from "../contracts/abis/erc721.json";
 import { config } from "../config";
 import { useAuthContext } from "./AuthContext";
 import { useSnackbar } from "./Snackbar";
-import { fromWei, getCurrencyDecimals, getWeb3 } from "../helper/utils";
+import { fromWei, getWeb3 } from "../helper/utils";
 import { useConfirm } from "./Confirm";
+import { useCurrency } from "./CurrencyContext";
 
 export const Web3Context = createContext({
   wrongNetwork: false,
@@ -36,6 +37,7 @@ export const Web3Provider = ({ children }) => {
   const [serviceFee, setServiceFee] = useState(0);
   const { showSnackbar } = useSnackbar();
   const { confirm } = useConfirm();
+  const { getCoinByAddress } = useCurrency();
 
   const wrongNetwork = useMemo(() => {
     if (!chainId) {
@@ -79,7 +81,12 @@ export const Web3Provider = ({ children }) => {
       .call();
     const balance = await erc20.methods.balanceOf(user.pubKey).call();
 
-    const decimals = getCurrencyDecimals(erc20Address);
+    const coin = getCoinByAddress(erc20Address);
+
+    if (!coin) {
+      throw new Error("Unspported coin");
+    }
+    const decimals = coin.decimals;
     const amount = +fromWei(allowance, decimals);
     const bAmount = +fromWei(balance, decimals);
 
@@ -121,10 +128,14 @@ export const Web3Provider = ({ children }) => {
   };
 
   const getErc20Balance = async (currency, userAddress) => {
-    const decimals = getCurrencyDecimals(currency);
+    const coin = getCoinByAddress(currency);
+
+    if (!coin) {
+      return "";
+    }
     const erc20 = getErc20Contract(currency);
     const balance = await erc20.methods.balanceOf(userAddress).call();
-    return fromWei(balance, decimals);
+    return fromWei(balance, coin.decimals);
   };
 
   const getServiceFee = async () => {
@@ -161,10 +172,7 @@ export const Web3Provider = ({ children }) => {
   const getErc20Contract = (address) => {
     const instance = wrongNetwork || !provider ? getWeb3() : new Web3(provider);
 
-    return new instance.eth.Contract(
-      erc20ABI,
-      address || config.currencies.WBNB.address
-    );
+    return new instance.eth.Contract(erc20ABI, address);
   };
 
   const getErc721Contract = (address) => {

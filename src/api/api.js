@@ -171,3 +171,5 @@ export const downloadCsvFile = () =>
     method: "GET",
     responseType: "blob",
   });
+
+export const getCurrencies = () => api.get("/currencies").then(dataExtractor);

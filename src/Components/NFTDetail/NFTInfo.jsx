@@ -19,15 +19,11 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import EthIcon from "../../assets/eth_ico.svg";
-import { useCoinGecko } from "../../contexts/CoinGeckoContext";
+import { useCurrency } from "../../contexts/CurrencyContext";
 import { config } from "../../config";
 import UserLink from "../UserLink";
 import NFTSale from "./NFTSale";
-import {
-  copyText,
-  currencyAddressToSymbol,
-  nFormatter,
-} from "../../helper/utils";
+import { copyText, nFormatter } from "../../helper/utils";
 import { useConfirm } from "../../contexts/Confirm";
 import CollectionLink from "../CollectionLink";
 import NFTTransferDialog from "./NFTTransferDialog";
@@ -73,7 +69,7 @@ export default function NFTInfo({
   favorited,
   favorites,
 }) {
-  const { coins } = useCoinGecko();
+  const { coins, getCoinByAddress } = useCurrency();
   const [anchorActionEl, setAnchorActionEl] = useState(null);
   const [showSale, setShowSale] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
@@ -87,19 +83,21 @@ export default function NFTInfo({
     if (!nft || !nft.currentAsk) {
       return "";
     }
-    const symbol = currencyAddressToSymbol(nft.currentAsk.currency);
-    const coin = coins[symbol];
+    const coin = getCoinByAddress(nft.currentAsk.currency);
 
     if (!coin) {
       return "";
     }
-    const usdPrice = (+nft.currentAsk.amount * coin.price).toFixed(3);
+    const usdPrice = (+nft.currentAsk.amount * coin.usd).toFixed(3);
 
     return {
       usdPrice: `$${usdPrice}`,
-      origin: `${nFormatter(nft.currentAsk.amount)} ${symbol.toLowerCase()}`,
+      origin: `${nFormatter(
+        nft.currentAsk.amount
+      )} ${coin.symbol.toLowerCase()}`,
     };
-  }, [nft, coins]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nft, coins, getCoinByAddress]);
 
   useEffect(() => {
     const createShortLink = async () => {
