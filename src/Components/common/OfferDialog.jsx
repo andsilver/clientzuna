@@ -85,7 +85,7 @@ export default function OfferDialog({
     }
 
     getErc20Balance(currency, user.pubKey).then((v) =>
-      setCurrencyBalance(parseFloat(+v.toFixed(4)))
+      setCurrencyBalance(parseFloat((+v).toFixed(4)))
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currency, user]);
