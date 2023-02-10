@@ -78,11 +78,8 @@ export default function BulkMint({ onClose, collectionId }) {
           }))
         );
         const chunkVouchers = chunkCsv.map((nft, index) => ({
-          tokenId: nft.tokenId,
           royaltyFee: `${+nft.royaltyFee * 1000}`,
-          collectionId: `${collectionId}`,
           tokenUri: `ipfs://${jsonPins[index].IpfsHash}`,
-          signature: [],
         }));
         vouchers.push(...chunkVouchers);
       }
@@ -103,25 +100,45 @@ export default function BulkMint({ onClose, collectionId }) {
     try {
       const tokenIds = csv.map((nft) => nft.tokenId);
 
-      const offers = csv.map((nft) => {
+      const royalteFees = [],
+        tokenUris = [],
+        erc20Addresses = [],
+        amounts = [];
+
+      csv.forEach((nft, index) => {
         let amount = "0";
 
         if (+nft.amount) {
           amount = toWei(`${nft.amount}`, nft.decimals);
         }
-
-        return {
-          tokenId: nft.tokenId,
-          erc20Address:
-            nft.erc20Address || "0x0000000000000000000000000000000000000000",
-          amount,
-          createdAt: `${Date.now()}`,
-          signature: [],
-        };
+        const { royaltyFee, tokenUri } = vouchers[index];
+        royalteFees.push(royaltyFee);
+        tokenUris.push(tokenUri);
+        erc20Addresses.push(
+          nft.erc20Address || "0x0000000000000000000000000000000000000000"
+        );
+        amounts.push(amount);
       });
-      await media.methods.bulkMint(tokenIds, vouchers, offers).send({
-        from: address,
-      });
+      console.log(
+        tokenIds,
+        royalteFees,
+        tokenUris,
+        collectionId,
+        erc20Addresses,
+        amounts
+      );
+      await media.methods
+        .bulkMint(
+          tokenIds,
+          royalteFees,
+          tokenUris,
+          collectionId,
+          erc20Addresses,
+          amounts
+        )
+        .send({
+          from: address,
+        });
       showSnackbar({
         severity: "success",
         message:
