@@ -56,33 +56,40 @@ export default function BulkMint({ onClose, collectionId }) {
     }
     setLoading(true);
 
-    let vouchers;
+    const vouchers = [];
 
     const { media } = contracts;
 
     try {
-      const formData = new FormData();
+      const chunkSize = 10;
 
-      for (const file of imageFiles) {
-        formData.append("files", file);
+      for (let i = 0; i < imageFiles.length; i += chunkSize) {
+        const chunkImages = imageFiles.slice(i, i + chunkSize);
+        const chunkCsv = csv.slice(i, i + chunkSize);
+        const formData = new FormData();
+
+        for (const file of chunkImages) {
+          formData.append("files", file);
+        }
+        const imagePins = await pinImagesToIPFS(formData);
+        const jsonPins = await pinJsonsToIPFS(
+          chunkCsv.map((nft, index) => ({
+            name: nft.name,
+            description: nft.description,
+            category: nft.category,
+            image: `ipfs://${imagePins[index].IpfsHash}`,
+            properties: nft.properties,
+          }))
+        );
+        const chunkVouchers = chunkCsv.map((nft, index) => ({
+          tokenId: nft.tokenId,
+          royaltyFee: `${+nft.royaltyFee * 1000}`,
+          collectionId: `${collectionId}`,
+          tokenUri: `ipfs://${jsonPins[index].IpfsHash}`,
+          signature: [],
+        }));
+        vouchers.push(...chunkVouchers);
       }
-      const imagePins = await pinImagesToIPFS(formData);
-      const jsonPins = await pinJsonsToIPFS(
-        csv.map((nft, index) => ({
-          name: nft.name,
-          description: nft.description,
-          category: nft.category,
-          image: `ipfs://${imagePins[index].IpfsHash}`,
-          properties: nft.properties,
-        }))
-      );
-      vouchers = csv.map((nft, index) => ({
-        tokenId: nft.tokenId,
-        royaltyFee: `${+nft.royaltyFee * 1000}`,
-        collectionId: `${collectionId}`,
-        tokenUri: `ipfs://${jsonPins[index].IpfsHash}`,
-        signature: [],
-      }));
     } catch (err) {
       console.error(err);
       showSnackbar({
