@@ -23,7 +23,7 @@ export default function NftPreview({ preview, nft, coins }) {
     if (!coin) {
       return;
     }
-    const usdPrice = parseFloat((+nft.amount * coin.usd).toFixed(3));
+    const usdPrice = parseFloat((+nft.amount * coin.usd).toFixed(2));
 
     return {
       usdPrice: `$${usdPrice}`,

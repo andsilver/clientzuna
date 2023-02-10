@@ -15,7 +15,6 @@ export const CurrencyProvider = ({ children }) => {
   const fetchCurrencies = async () => {
     try {
       const currencies = await getCurrencies();
-      console.log(currencies);
       setCoins(currencies);
     } catch (err) {
       console.error("Failed to fetch currencies", err);
@@ -36,7 +35,7 @@ export const CurrencyProvider = ({ children }) => {
     if (!coin) {
       return "$0";
     }
-    return parseFloat((coin.usd * +amount).toFixed(3));
+    return parseFloat((coin.usd * +amount).toFixed(2));
   };
 
   useEffect(() => {

@@ -114,7 +114,7 @@ export default function NftCard({ nft }) {
         <Typography color="primary" variant="h6" mb={1} fontWeight="bold">
           {nft.name}
         </Typography>
-        <Grid container justifyContent="space-between" alignItems="center">
+        <Grid container justifyContent="space-between" alignItems="center" spacing={2}>
           <Grid item>
             <UserLink rounded={false} user={nft.owner} extraText="Owned By" />
           </Grid>

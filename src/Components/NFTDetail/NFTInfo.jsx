@@ -88,7 +88,7 @@ export default function NFTInfo({
     if (!coin) {
       return "";
     }
-    const usdPrice = (+nft.currentAsk.amount * coin.usd).toFixed(3);
+    const usdPrice = parseFloat((+nft.currentAsk.amount * coin.usd).toFixed(2));
 
     return {
       usdPrice: `$${usdPrice}`,
