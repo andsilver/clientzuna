@@ -136,6 +136,18 @@ export default function BulkMint({ onClose, collectionId }) {
           erc20Addresses,
           amounts
         )
+        .estimateGas({
+          from: address,
+        });
+      await media.methods
+        .bulkMint(
+          tokenIds,
+          royalteFees,
+          tokenUris,
+          collectionId,
+          erc20Addresses,
+          amounts
+        )
         .send({
           from: address,
         });
