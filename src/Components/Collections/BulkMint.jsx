@@ -29,6 +29,7 @@ import {
 import { useWeb3 } from "../../contexts/Web3Context";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { useCurrency } from "../../contexts/CurrencyContext";
+import { config } from "../../config";
 
 const STEP_LABLES = ["Upload Files", "Preview"];
 
@@ -43,7 +44,7 @@ export default function BulkMint({ onClose, collectionId }) {
   const { showSnackbar } = useSnackbar();
   const [currentIndex, setCurrentIndex] = useState(0);
   const { address } = useAuthContext();
-  const { wrongNetwork, contracts } = useWeb3();
+  const { wrongNetwork, contracts, approveNFT } = useWeb3();
   const { getCoinBySymbol } = useCurrency();
 
   const mint = async () => {
@@ -57,6 +58,8 @@ export default function BulkMint({ onClose, collectionId }) {
     const { media } = contracts;
 
     try {
+      await approveNFT(config.nftContractAddress, config.marketContractAddress);
+
       const chunkSize = 10;
 
       for (let i = 0; i < imageFiles.length; i += chunkSize) {
