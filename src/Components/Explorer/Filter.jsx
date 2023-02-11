@@ -56,6 +56,7 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorSortEl, setAnchorSortEl] = useState(null);
   const { coins, getCoinByAddress } = useCurrency();
+  const [loadingCollections, setLoadingCollections] = useState(false);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -82,7 +83,7 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
   );
 
   const currency = useMemo(
-    () => getCoinByAddress(filter.currency),
+    () => getCoinByAddress(filter.currency) || null,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [filter.currency, coins]
   );
@@ -202,27 +203,48 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
     setFilter({
       category: query.get("category") || null,
       saleType: query.get("saleType") || null,
-      search: query.get("search") || null,
+      search: query.get("search") || "",
       collectionId: query.get("collectionId") || null,
       properties: propertiesValue,
       currency: query.get("currency") || null,
       orderBy: query.get("orderBy") || "createdAt",
       order: query.get("order") || "DESC",
     });
-    setSearchText(query.get("search") || null);
+    setSearchText(query.get("search") || "");
   }, [query]);
 
-  useEffect(() => {
-    if (showCollection) {
-      filterCollections({}).then((res) => setCollections(res));
-    }
-  }, [showCollection]);
-
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       searchDebounceHandler.cancel();
-    };
-  }, [searchDebounceHandler]);
+    },
+    [searchDebounceHandler]
+  );
+
+  const searchCollection = async (e) => {
+    setLoadingCollections(true);
+
+    try {
+      const data = await filterCollections({
+        search: e.target.value,
+      });
+      setCollections(data);
+    } catch (err) {
+      console.error(err);
+      setCollections([]);
+    }
+    setLoadingCollections(false);
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const searchCollectionDebounceHandler = useCallback(
+    debounce(searchCollection, 800),
+    []
+  );
+
+  useEffect(
+    () => () => searchCollectionDebounceHandler.cancel(),
+    [searchCollectionDebounceHandler]
+  );
 
   const updateSearchText = (e) => {
     setSearchText(e.target.value);
@@ -278,6 +300,7 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
             value={currency}
             renderOption={(props, c) => (
               <Grid container alignItems="center" p={1} {...props}>
+                <Avatar src={c.image} sx={{ width: 24, height: 24, mr: 1 }} />
                 <Typography fontSize={13} fontWeight="bold">
                   {c.symbol}
                 </Typography>
@@ -316,6 +339,8 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
               renderInput={(params) => (
                 <TextField {...params} name="collection" label="Collection" />
               )}
+              loading={loadingCollections}
+              onInput={(e) => searchCollectionDebounceHandler(e)}
               onChange={(e, v) => updateCollectionFilter(v)}
             />
           </Grid>

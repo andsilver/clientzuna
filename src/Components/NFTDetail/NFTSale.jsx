@@ -151,7 +151,9 @@ export default function NFTSale({ nft, open, onClose, onUpdate }) {
                 onChange={handleCurrencyChange}
               >
                 {coins.map((c) => (
-                  <MenuItem value={c.address}>{c.symbol}</MenuItem>
+                  <MenuItem key={c.address} value={c.address}>
+                    {c.symbol}
+                  </MenuItem>
                 ))}
               </Select>
             </Grid>

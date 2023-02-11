@@ -43,6 +43,7 @@ export default function CreateCollectionDialog({
     twitter: collectionData?.twitter || "",
     instagram: collectionData?.instagram || "",
     category: collectionData?.category || "",
+    website: collectionData?.website || "",
   });
   const [loading, setLoading] = useState(false);
   const editing = !!collectionData;
@@ -227,6 +228,16 @@ export default function CreateCollectionDialog({
           InputProps={{
             startAdornment: "@",
           }}
+        />
+        <LabelField>Website</LabelField>
+        <TextField
+          name="website"
+          color="secondary"
+          variant="outlined"
+          size="small"
+          fullWidth
+          value={collection.website}
+          onChange={onChange}
         />
       </DialogContent>
       <Grid container pt={1} pb={2} justifyContent="center">

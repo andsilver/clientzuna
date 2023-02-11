@@ -32,6 +32,7 @@ export default memo(({ handleClick, label, icon }) => (
       "&:hover": {
         borderWidth: 1,
       },
+      textAlign: "left",
     })}
   >
     {label}

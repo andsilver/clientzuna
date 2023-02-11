@@ -1,18 +1,19 @@
 import { Container, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { useState } from "react";
+
 import { filterNfts } from "../api/api";
 import NftList from "../Components/common/NftList";
 import TopBanner from "../Components/common/TopBanner";
 import ExplorerFilter from "../Components/Explorer/Filter";
 import { config } from "../config";
-import useQuery from "../hooks/useQuery";
+import useNftFilterQuery from "../hooks/useNftFilterQuery";
 
 export default function Explorer() {
   const [nfts, setNfts] = useState([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const query = useQuery();
+  const query = useNftFilterQuery();
   const [allLoaded, setAllLoaded] = useState(false);
 
   const fetchNFTs = async (init = false) => {
@@ -20,14 +21,8 @@ export default function Explorer() {
 
     try {
       const { result, count } = await filterNfts({
-        search: query.get("search") || "",
-        category: query.get("category") || "",
-        saleType: query.get("saleType") || "",
-        collectionId: query.get("collectionId") || "",
-        currency: query.get("currency") || "",
+        ...query,
         offset: init ? 0 : nfts.length,
-        order: query.get("order") || "",
-        orderBy: query.get("orderBy") || "",
       });
       setAllLoaded(result.length < config.defaultPageSize);
       setNfts(init ? result : [...nfts, ...result]);

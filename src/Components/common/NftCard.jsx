@@ -18,6 +18,7 @@ import Link from "../Link";
 import UserLink from "../UserLink";
 import EmptyNft from "../../assets/empty.png";
 import { useCurrency } from "../../contexts/CurrencyContext";
+import CoinSymbol from "./CoinSymbol";
 
 const StyledNftCard = styled(Card)({
   width: "100%",
@@ -60,13 +61,13 @@ export default function NftCard({ nft }) {
   const [favorited, setFavorited] = useState(false);
   const { coins, getCoinByAddress, calcUsd } = useCurrency();
 
-  const { symbol, usd } = useMemo(() => {
+  const { coin, usd } = useMemo(() => {
     if (!nft.currentAsk) {
       return "";
     }
     const coin = getCoinByAddress(nft.currentAsk.currency);
     return {
-      symbol: coin?.symbol || "",
+      coin,
       usd: nft.currentAsk
         ? calcUsd(nft.currentAsk.currency, nft.currentAsk.amount)
         : 0,
@@ -114,18 +115,26 @@ export default function NftCard({ nft }) {
         <Typography color="primary" variant="h6" mb={1} fontWeight="bold">
           {nft.name}
         </Typography>
-        <Grid container justifyContent="space-between" alignItems="center" spacing={2}>
+        <Grid
+          container
+          justifyContent="space-between"
+          alignItems="center"
+          spacing={2}
+        >
           <Grid item>
             <UserLink rounded={false} user={nft.owner} extraText="Owned By" />
           </Grid>
-          <Grid item>
-            <Typography color="GrayText">Reserve Price</Typography>
-            <Typography fontWeight="bold" color="primary">
-              {nft.currentAsk
-                ? `${nFormatter(nft.currentAsk.amount)} ${symbol} ($${usd})`
-                : "No Price"}
-            </Typography>
-          </Grid>
+          {nft.currentAsk && (
+            <Grid item>
+              <Typography color="GrayText">Reserve Price</Typography>
+              <CoinSymbol
+                coin={coin}
+                price={nFormatter(nft.currentAsk.amount)}
+                usd={usd}
+                size={16}
+              />
+            </Grid>
+          )}
         </Grid>
       </CardContent>
     </StyledNftCard>

@@ -2,30 +2,21 @@ import { useEffect, useState } from "react";
 import { filterNfts } from "../../api/api";
 import { config } from "../../config";
 import useLoading from "../../hooks/useLoading";
-import useQuery from "../../hooks/useQuery";
+import useNftFilterQuery from "../../hooks/useNftFilterQuery";
 import NftList from "../common/NftList";
 
 export default function CollectionItems({ collection }) {
   const { loading, sendRequest } = useLoading();
   const [items, setItems] = useState([]);
   const [allLoaded, setAllLoaded] = useState(false);
-  const query = useQuery();
+  const query = useNftFilterQuery();
   const [count, setCount] = useState(0);
 
   const fetchItems = async (init) => {
-    const filter = {
-      collectionId: collection.id,
-      category: query.get("category") || "",
-      search: query.get("search") || "",
-      saleType: query.get("saleType") || "",
-      properties: query.get("properties") || "",
-      currency: query.get("currency") || "",
-      order: query.get("order") || "",
-      orderBy: query.get("orderBy") || "",
-    };
     const { result, count } = await sendRequest(() =>
       filterNfts({
-        ...filter,
+        ...query,
+        collectionId: collection.id,
         offset: init ? 0 : items.length,
       })
     );

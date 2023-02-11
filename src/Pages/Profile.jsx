@@ -13,7 +13,7 @@ import Followings from "../Components/Profile/Followings";
 import NftsCollected from "../Components/Profile/NftsCollected";
 import NftsCreated from "../Components/Profile/NftsCreated";
 import NftsFavorited from "../Components/Profile/NftsFavorited";
-import NftsOnSale from "../Components/Profile/NftsOnSale";
+// import NftsOnSale from "../Components/Profile/NftsOnSale";
 import Rewards from "../Components/Profile/Rewards";
 import UserActivities from "../Components/Profile/UserActivities";
 import OtherNfts from "../Components/Profile/OtherNfts";
@@ -37,15 +37,15 @@ const TABS = [
     label: "Collections",
     value: "collections",
   },
-  {
-    label: "On Sale",
-    value: "on-sale",
-  },
+  // {
+  //   label: "On Sale",
+  //   value: "on-sale",
+  // },
   {
     label: "Created",
     value: "created",
   },
-  { label: "Collected", value: "collectibles" },
+  { label: "Owned", value: "collectibles" },
   {
     label: "Liked",
     value: "liked",
@@ -53,7 +53,7 @@ const TABS = [
   { label: "Activity", value: "activity" },
   { label: "Following", value: "following" },
   { label: "Followers", value: "followers" },
-  { label: "Others", value: "others" },
+  { label: "Other NFTs", value: "others" },
 ];
 
 export default function Profile() {
@@ -175,9 +175,6 @@ export default function Profile() {
                       userAddress={profileAddress}
                       currentUser={user}
                     />
-                  )}
-                  {currentTab === "on-sale" && (
-                    <NftsOnSale userAddress={profileAddress} />
                   )}
                   {currentTab === "created" && (
                     <NftsCreated userAddress={profileAddress} />

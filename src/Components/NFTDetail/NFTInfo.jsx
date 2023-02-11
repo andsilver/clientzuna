@@ -30,6 +30,7 @@ import NFTTransferDialog from "./NFTTransferDialog";
 import { LikeButton } from "../common/NftCard";
 import { createNftShortLink } from "../../api/api";
 import { useSnackbar } from "../../contexts/Snackbar";
+import CoinSymbol from "../common/CoinSymbol";
 // import NftBanner from "../common/NftBanner";
 
 const ShareLink = styled("a")`
@@ -86,15 +87,14 @@ export default function NFTInfo({
     const coin = getCoinByAddress(nft.currentAsk.currency);
 
     if (!coin) {
-      return "";
+      return {};
     }
     const usdPrice = parseFloat((+nft.currentAsk.amount * coin.usd).toFixed(2));
 
     return {
-      usdPrice: `$${usdPrice}`,
-      origin: `${nFormatter(
-        nft.currentAsk.amount
-      )} ${coin.symbol.toLowerCase()}`,
+      coin,
+      usdPrice,
+      origin: `${nFormatter(nft.currentAsk.amount)} ${coin.symbol}`,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nft, coins, getCoinByAddress]);
@@ -203,7 +203,7 @@ export default function NFTInfo({
                 </ListItemText>
                 <LaunchIcon fontSize="small" />
               </MenuItem>
-              {nft.txHash && (
+              {nft.minted && (
                 <MenuItem
                   onClick={() => {
                     handleActionClose();
@@ -218,6 +218,22 @@ export default function NFTInfo({
                   </ListItemIcon>
                   <ListItemText style={{ marginRight: 8 }}>
                     View on {config.networkScan.name}
+                  </ListItemText>
+                  <LaunchIcon fontSize="small" />
+                </MenuItem>
+              )}
+              {nft.collection && !!nft.collection.website && (
+                <MenuItem
+                  onClick={() => {
+                    handleActionClose();
+                    window.open(nft.collection.website, "_blank");
+                  }}
+                >
+                  <ListItemIcon>
+                    <i className="fa fa-globe" />
+                  </ListItemIcon>
+                  <ListItemText style={{ marginRight: 8 }}>
+                    Visit Website
                   </ListItemText>
                   <LaunchIcon fontSize="small" />
                 </MenuItem>
@@ -274,12 +290,12 @@ export default function NFTInfo({
               <Typography color="primary">Current Price: </Typography>
             </Grid>
             <Grid item display="flex">
-              <Typography color="primary" fontSize={18} fontWeight={600}>
-                {price.origin || "No Price"}
-              </Typography>
-              <Typography ml={1} color="primary" fontSize={12}>
-                {price.usdPrice}
-              </Typography>
+              <CoinSymbol
+                coin={price?.coin}
+                price={price?.origin}
+                usd={price?.usdPrice}
+                align="top"
+              />
             </Grid>
           </PanelBox>
         </Grid>

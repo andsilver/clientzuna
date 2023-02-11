@@ -9,7 +9,6 @@ export default function NftList({
   nfts,
   allLoaded = true,
   loadMore = () => {},
-  maxCount = 3,
   loading,
   count,
 }) {

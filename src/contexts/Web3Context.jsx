@@ -26,7 +26,7 @@ export const Web3Context = createContext({
   getErc20Contract: (address) => undefined,
   getErc721Contract: (address) => undefined,
   signEIP712: async (types, data, contract) => undefined,
-  getErc20Balance: (currency, address) => {},
+  getErc20Balance: async (currency, address) => {},
   serviceFee: 0,
   approveMarket: async () => {},
   approveNFT: async () => {},

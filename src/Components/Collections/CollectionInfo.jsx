@@ -5,6 +5,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import PublishIcon from "@mui/icons-material/Publish";
+import LanguageIcon from "@mui/icons-material/Language";
 import {
   Box,
   Button,
@@ -267,6 +268,13 @@ export default memo(({ collection, onEdit, isOwner, onImport }) => {
                   rel="noreferrer"
                 >
                   <TwitterIcon color="primary" />
+                </a>
+              </Grid>
+            )}
+            {collection.website && (
+              <Grid item mt={2}>
+                <a href={collection.website} target="_blank" rel="noreferrer">
+                  <LanguageIcon color="primary" />
                 </a>
               </Grid>
             )}
