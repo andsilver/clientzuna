@@ -238,7 +238,7 @@ export default function BulkMint() {
               </Typography>
             </Grid>
             <Grid item>
-              {req.process === "failed" && (
+              {req.status === "failed" && (
                 <Button onClick={process} variant="contained" color="secondary">
                   Retry
                 </Button>
