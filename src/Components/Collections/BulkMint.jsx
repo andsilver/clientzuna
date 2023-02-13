@@ -71,7 +71,7 @@ export default function BulkMint({ onClose, collectionId }) {
     try {
       await approveNFT(config.nftContractAddress, config.marketContractAddress);
 
-      const chunkSize = 300;
+      const chunkSize = 30;
 
       for (let i = 0; i < imageFiles.length; i += chunkSize) {
         const chunkImages = imageFiles.slice(i, i + chunkSize);
