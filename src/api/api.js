@@ -173,3 +173,22 @@ export const downloadCsvFile = () =>
   });
 
 export const getCurrencies = () => api.get("/currencies").then(dataExtractor);
+
+export const createBulkMintRequest = (collectionId, totalNfts) =>
+  api
+    .post(`/collection/${collectionId}/bulk-mint/request`, {
+      totalNfts,
+    })
+    .then(dataExtractor);
+
+export const uploadNftForBulkMint = (reqId, data) =>
+  api.post(`/bulk-mint/${reqId}/upload-nft`, data).then(dataExtractor);
+
+export const getBulkMintRequest = (reqId) =>
+  api.get(`/bulk-mint/${reqId}`).then(dataExtractor);
+
+export const processRequest = (reqId) =>
+  api.post(`/bulk-mint/${reqId}/process`);
+
+export const completeRequest = (reqId, status) =>
+  api.post(`/bulk-mint/${reqId}/complete`, { status });

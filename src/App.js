@@ -25,6 +25,7 @@ const Collection = lazy(() => import("./Pages/Collection"));
 const Activity = lazy(() => import("./Pages/Activity"));
 const Rewards = lazy(() => import("./Pages/Rewards"));
 const Reward = lazy(() => import("./Pages/Reward"));
+const BulkMint = lazy(() => import("./Pages/BulkMint"));
 
 function App() {
   const {
@@ -79,6 +80,9 @@ function App() {
               </Route>
               <Route path="/rewards/:id" exact>
                 <Reward />
+              </Route>
+              <Route path="/bulk-mint/:id" exact>
+                <BulkMint />
               </Route>
             </Switch>
           </Suspense>

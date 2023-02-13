@@ -1,9 +1,11 @@
 import {
+  Box,
   Button,
   DialogContent,
   Divider,
   Grid,
   IconButton,
+  LinearProgress,
   MobileStepper,
   Typography,
   useMediaQuery,
@@ -14,6 +16,7 @@ import Papa from "papaparse";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import DownloadIcon from "@mui/icons-material/Download";
+import { useHistory } from "react-router-dom";
 
 import { StyledDialog, StyledDialogTitle } from "../common/DialogElements";
 import FileUploadButton from "../common/FileUploaderButton";
@@ -22,17 +25,30 @@ import NftPreviews from "./NftPreviews";
 import { generateRandomTokenId, toWei } from "../../helper/utils";
 import OverlayLoading from "../common/OverlayLoading";
 import {
+  createBulkMintRequest,
   downloadCsvFile,
-  pinImagesToIPFS,
-  pinJsonsToIPFS,
+  processRequest,
+  uploadNftForBulkMint,
 } from "../../api/api";
-import { useWeb3 } from "../../contexts/Web3Context";
-import { useAuthContext } from "../../contexts/AuthContext";
 import { useCurrency } from "../../contexts/CurrencyContext";
-import { config } from "../../config";
 import { useConfirm } from "../../contexts/Confirm";
 
-const STEP_LABLES = ["Upload Files", "Preview"];
+const STEP_LABLES = ["Upload Files", "Preview", "Uploading files..."];
+
+function LinearProgressWithLabel(props) {
+  return (
+    <Box sx={{ display: "flex", py: 3, alignItems: "center" }}>
+      <Box sx={{ width: "300px", mr: 1 }}>
+        <LinearProgress variant="determinate" color="secondary" {...props} />
+      </Box>
+      <Box sx={{ minWidth: 35 }}>
+        <Typography variant="body2" color="secondary">{`${Math.round(
+          props.value
+        )}%`}</Typography>
+      </Box>
+    </Box>
+  );
+}
 
 export default function BulkMint({ onClose, collectionId }) {
   const theme = useTheme();
@@ -44,10 +60,10 @@ export default function BulkMint({ onClose, collectionId }) {
   const [imagePreviews, setImagePreviews] = useState(null);
   const { showSnackbar } = useSnackbar();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { address } = useAuthContext();
-  const { wrongNetwork, contracts, approveNFT } = useWeb3();
   const { getCoinBySymbol } = useCurrency();
   const confirm = useConfirm();
+  const [uploadingProgress, setUploadingProgress] = useState(0);
+  const history = useHistory();
 
   const skipMint = async () => {
     await confirm({
@@ -59,130 +75,168 @@ export default function BulkMint({ onClose, collectionId }) {
   };
 
   const mint = async () => {
-    if (wrongNetwork) {
-      return;
-    }
-    setLoading(true);
-
-    const vouchers = [];
-
-    const { media } = contracts;
+    setUploadingProgress(0);
+    setStep(2);
 
     try {
-      await approveNFT(config.nftContractAddress, config.marketContractAddress);
+      const bulkReq = await createBulkMintRequest(
+        collectionId,
+        imageFiles.length
+      );
+      // const chunkSize = 5;
 
-      const chunkSize = 30;
+      // for (let i = 0; i < imageFiles.length; i+= chunkSize) {
+      //   const chunkImages = imageFiles.slice(i, i + chunkSize);
+      //   const chunkCsv = csv.slice(i, i + chunkSize);
+      //   const formData = new FormData();
 
-      for (let i = 0; i < imageFiles.length; i += chunkSize) {
-        const chunkImages = imageFiles.slice(i, i + chunkSize);
-        const chunkCsv = csv.slice(i, i + chunkSize);
+      //   for (const file of chunkImages) {
+      //     formData.append("files", file);
+      //   }
+      //   const imagePins = await pinImagesToIPFS(formData);
+      //   const jsonPins = await pinJsonsToIPFS(
+      //     chunkCsv.map((nft, index) => ({
+      //       name: nft.name,
+      //       description: nft.description,
+      //       category: nft.category,
+      //       image: `ipfs://${imagePins[index].IpfsHash}`,
+      //       properties: nft.properties,
+      //     }))
+      //   );
+      //   const chunkVouchers = chunkCsv.map((nft, index) => ({
+      //     royaltyFee: `${+nft.royaltyFee * 1000}`,
+      //     tokenUri: `ipfs://${jsonPins[index].IpfsHash}`,
+      //   }));
+      //   vouchers.push(...chunkVouchers);
+      //   setUploadingProgress(Math.ceil((i * 100) / imageFiles.length));
+      // }
+
+      // const chunkSize = 5;
+
+      for (let i = 0; i < imageFiles.length; i++) {
+        const image = imageFiles[i];
+        const json = csv[i];
         const formData = new FormData();
 
-        for (const file of chunkImages) {
-          formData.append("files", file);
-        }
-        const imagePins = await pinImagesToIPFS(formData);
-        const jsonPins = await pinJsonsToIPFS(
-          chunkCsv.map((nft, index) => ({
-            name: nft.name,
-            description: nft.description,
-            category: nft.category,
-            image: `ipfs://${imagePins[index].IpfsHash}`,
-            properties: nft.properties,
-          }))
-        );
-        const chunkVouchers = chunkCsv.map((nft, index) => ({
-          royaltyFee: `${+nft.royaltyFee * 1000}`,
-          tokenUri: `ipfs://${jsonPins[index].IpfsHash}`,
-        }));
-        vouchers.push(...chunkVouchers);
-      }
-    } catch (err) {
-      console.error(err);
-      showSnackbar({
-        severity: "error",
-        message: "Failed to upload files on IPFS",
-      });
-      setLoading(false);
-      return;
-    }
-    showSnackbar({
-      severity: "info",
-      message: "Uploaded files on IPFS.",
-    });
-
-    try {
-      const tokenIds = csv.map((nft) => nft.tokenId);
-
-      const royalteFees = [],
-        tokenUris = [],
-        erc20Addresses = [],
-        amounts = [];
-
-      csv.forEach((nft, index) => {
         let amount = "0";
 
-        if (+nft.amount) {
-          amount = toWei(`${nft.amount}`, nft.decimals);
+        if (+json.amount) {
+          amount = toWei(`${json.amount}`, json.decimals);
         }
-        const { royaltyFee, tokenUri } = vouchers[index];
-        royalteFees.push(royaltyFee);
-        tokenUris.push(tokenUri);
-        erc20Addresses.push(
-          nft.erc20Address || "0x0000000000000000000000000000000000000000"
+
+        formData.append("file", image);
+        formData.append("name", json.name);
+        formData.append("description", json.description);
+        formData.append("category", json.category);
+        formData.append("properties", JSON.stringify(json.properties));
+        formData.append(
+          "erc20Address",
+          json.erc20Address || "0x0000000000000000000000000000000000000000"
         );
-        amounts.push(amount);
-      });
-      console.log(
-        tokenIds,
-        royalteFees,
-        tokenUris,
-        collectionId,
-        erc20Addresses,
-        amounts
-      );
-      await media.methods
-        .bulkMint(
-          tokenIds,
-          royalteFees,
-          tokenUris,
-          collectionId,
-          erc20Addresses,
-          amounts
-        )
-        .estimateGas({
-          from: address,
-        });
-      await media.methods
-        .bulkMint(
-          tokenIds,
-          royalteFees,
-          tokenUris,
-          collectionId,
-          erc20Addresses,
-          amounts
-        )
-        .send({
-          from: address,
-        });
+        formData.append("royaltyFee", +json.royaltyFee * 1000);
+        formData.append("amount", amount);
+        formData.append("tokenId", json.tokenId);
+
+        await uploadNftForBulkMint(bulkReq.id, formData);
+
+        setUploadingProgress(Math.ceil((i * 100) / imageFiles.length));
+      }
+      setUploadingProgress(100);
+
       showSnackbar({
         severity: "success",
-        message:
-          "Successfully minted. Please wait for some time for the nfts appearing in the marketplace.",
+        message: "The files are uploaded successfully.",
       });
       onClose();
+      processRequest(bulkReq.id);
+
+      history.push(`/bulk-mint/${bulkReq.id}`);
     } catch (err) {
-      console.error(err);
+      console.log(err);
+      const data = err.response?.data;
       showSnackbar({
         severity: "error",
-        message: "Failed to mint",
+        message: data?.message?.[0] || "Failed to upload files",
       });
+      setStep(1);
+      return;
     }
+
+    // try {
+    //   setLoading(true);
+
+    //   const tokenIds = csv.map((nft) => nft.tokenId);
+
+    //   const royalteFees = [],
+    //     tokenUris = [],
+    //     erc20Addresses = [],
+    //     amounts = [];
+
+    //   csv.forEach((nft, index) => {
+    //     let amount = "0";
+
+    //     if (+nft.amount) {
+    //       amount = toWei(`${nft.amount}`, nft.decimals);
+    //     }
+    //     const { royaltyFee, tokenUri } = vouchers[index];
+    //     royalteFees.push(royaltyFee);
+    //     tokenUris.push(tokenUri);
+    //     erc20Addresses.push(
+    //       nft.erc20Address || "0x0000000000000000000000000000000000000000"
+    //     );
+    //     amounts.push(amount);
+    //   });
+    //   console.log(
+    //     tokenIds,
+    //     royalteFees,
+    //     tokenUris,
+    //     collectionId,
+    //     erc20Addresses,
+    //     amounts
+    //   );
+    //   await media.methods
+    //     .bulkMint(
+    //       tokenIds,
+    //       royalteFees,
+    //       tokenUris,
+    //       collectionId,
+    //       erc20Addresses,
+    //       amounts
+    //     )
+    //     .estimateGas({
+    //       from: address,
+    //     });
+    //   await media.methods
+    //     .bulkMint(
+    //       tokenIds,
+    //       royalteFees,
+    //       tokenUris,
+    //       collectionId,
+    //       erc20Addresses,
+    //       amounts
+    //     )
+    //     .send({
+    //       from: address,
+    //     });
+    //   showSnackbar({
+    //     severity: "success",
+    //     message:
+    //       "Successfully minted. Please wait for some time for the nfts appearing in the marketplace.",
+    //   });
+    //   onClose();
+    // } catch (err) {
+    //   console.error(err);
+    //   showSnackbar({
+    //     severity: "error",
+    //     message: "Failed to mint",
+    //   });
+    //   setStep(1);
+    // }
     setLoading(false);
   };
 
   const handleNext = () => {
-    if (step === STEP_LABLES.length - 1) {
+    if (step === 1) {
       mint();
       return;
     }
@@ -424,9 +478,14 @@ export default function BulkMint({ onClose, collectionId }) {
             previews={imagePreviews}
           />
         )}
+        {step === 2 && (
+          <div>
+            <LinearProgressWithLabel value={uploadingProgress} />
+          </div>
+        )}
       </DialogContent>
       <Divider />
-      {step === STEP_LABLES.length - 1 && (
+      {step === 1 && (
         <MobileStepper
           variant="progress"
           steps={csv.length}
@@ -457,35 +516,33 @@ export default function BulkMint({ onClose, collectionId }) {
         />
       )}
       <Grid container spacing={1} p={1} py={2} justifyContent="flex-end">
-        <Grid item>
-          <Button
-            variant="contained"
-            onClick={handleBack}
-            disabled={disablePrev}
-            startIcon={
-              step > 0 ? <KeyboardArrowLeft fontSize="small" /> : <></>
-            }
-          >
-            {step > 0 ? "Back" : "Cancel"}
-          </Button>
-        </Grid>
+        {step < 2 && (
+          <Grid item>
+            <Button
+              variant="contained"
+              onClick={handleBack}
+              disabled={disablePrev}
+              startIcon={
+                step > 0 ? <KeyboardArrowLeft fontSize="small" /> : <></>
+              }
+            >
+              {step > 0 ? "Back" : "Cancel"}
+            </Button>
+          </Grid>
+        )}
         <Grid item>
           <Button
             variant="contained"
             onClick={handleNext}
             disabled={disableNext}
             endIcon={
-              step === STEP_LABLES.length - 1 ? (
-                <></>
-              ) : (
-                <KeyboardArrowRight fontSize="small" />
-              )
+              step === 1 ? <></> : <KeyboardArrowRight fontSize="small" />
             }
           >
-            {step === STEP_LABLES.length - 1 ? "Mint" : "Next"}
+            {step === 1 ? "Mint" : "Next"}
           </Button>
         </Grid>
-        {step === STEP_LABLES.length - 1 && (
+        {step === 1 && (
           <Grid item>
             <Button variant="contained" onClick={skipMint} color="error">
               Skip Preview and Mint

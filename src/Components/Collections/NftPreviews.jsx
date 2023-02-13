@@ -19,7 +19,7 @@ export default function NftPreviews({
     >
       {nfts.map((nft, index) => (
         <NftPreview
-          show={currentIndex === index}
+          show={currentIndex >= index - 2 && currentIndex <= index + 2}
           key={nft.tokenId}
           coins={coins}
           preview={previews[index]}
