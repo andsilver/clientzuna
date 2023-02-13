@@ -172,6 +172,7 @@ export default function BulkMint() {
         message:
           "Successfully minted. Please wait for some time for the nfts appearing in the marketplace.",
       });
+      setPrice();
     } catch (err) {
       console.error(err);
       showSnackbar({
@@ -180,7 +181,6 @@ export default function BulkMint() {
       });
     }
     setLoading(false);
-    setPrice();
   };
 
   const process = async () => {
