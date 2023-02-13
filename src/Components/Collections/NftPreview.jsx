@@ -1,5 +1,5 @@
 import { Chip, Grid, styled, Typography } from "@mui/material";
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { nFormatter } from "../../helper/utils";
 
 const PanelBox = styled(Grid)(({ theme }) => ({
@@ -9,7 +9,7 @@ const PanelBox = styled(Grid)(({ theme }) => ({
     theme.palette.mode === "dark" ? theme.palette.background.paper : "#ececec",
 }));
 
-export default function NftPreview({ preview, nft, coins }) {
+export default memo(({ preview, nft, coins, show }) => {
   const price = useMemo(() => {
     if (!nft || !coins) {
       return;
@@ -34,13 +34,17 @@ export default function NftPreview({ preview, nft, coins }) {
   return (
     <div style={{ paddingLeft: 8, paddingRight: 8 }}>
       <div style={{ textAlign: "center" }}>
-        <img
-          src={preview}
-          alt=""
-          width="100%"
-          height="auto"
-          style={{ borderRadius: 10, maxWidth: 300 }}
-        />
+        {show ? (
+          <img
+            src={preview}
+            alt=""
+            width="100%"
+            height="auto"
+            style={{ borderRadius: 10, maxWidth: 300 }}
+          />
+        ) : (
+          <div style={{ height: 300, width: "100%" }}></div>
+        )}
       </div>
       <div>
         <Grid container justifyContent="space-between" mt={1} spacing={2}>
@@ -119,4 +123,4 @@ export default function NftPreview({ preview, nft, coins }) {
       </div>
     </div>
   );
-}
+});

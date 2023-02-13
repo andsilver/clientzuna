@@ -30,6 +30,7 @@ import { useWeb3 } from "../../contexts/Web3Context";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { useCurrency } from "../../contexts/CurrencyContext";
 import { config } from "../../config";
+import { useConfirm } from "../../contexts/Confirm";
 
 const STEP_LABLES = ["Upload Files", "Preview"];
 
@@ -46,6 +47,16 @@ export default function BulkMint({ onClose, collectionId }) {
   const { address } = useAuthContext();
   const { wrongNetwork, contracts, approveNFT } = useWeb3();
   const { getCoinBySymbol } = useCurrency();
+  const confirm = useConfirm();
+
+  const skipMint = async () => {
+    await confirm({
+      title: "Confirmation",
+      text: "Do you want to proceed without previewing all information?",
+      okText: "Yes",
+    });
+    await mint();
+  };
 
   const mint = async () => {
     if (wrongNetwork) {
@@ -60,7 +71,7 @@ export default function BulkMint({ onClose, collectionId }) {
     try {
       await approveNFT(config.nftContractAddress, config.marketContractAddress);
 
-      const chunkSize = 10;
+      const chunkSize = 300;
 
       for (let i = 0; i < imageFiles.length; i += chunkSize) {
         const chunkImages = imageFiles.slice(i, i + chunkSize);
@@ -474,6 +485,13 @@ export default function BulkMint({ onClose, collectionId }) {
             {step === STEP_LABLES.length - 1 ? "Mint" : "Next"}
           </Button>
         </Grid>
+        {step === STEP_LABLES.length - 1 && (
+          <Grid item>
+            <Button variant="contained" onClick={skipMint} color="error">
+              Skip Preview and Mint
+            </Button>
+          </Grid>
+        )}
       </Grid>
     </StyledDialog>
   );

@@ -36,7 +36,7 @@ export const Web3Provider = ({ children }) => {
   const { chainId, provider, user } = useAuthContext();
   const [serviceFee, setServiceFee] = useState(0);
   const { showSnackbar } = useSnackbar();
-  const { confirm } = useConfirm();
+  const confirm = useConfirm();
   const { getCoinByAddress } = useCurrency();
 
   const wrongNetwork = useMemo(() => {
