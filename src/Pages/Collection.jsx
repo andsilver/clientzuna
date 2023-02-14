@@ -1,8 +1,18 @@
-import { Box, useTheme } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  Grid,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import { Container } from "@mui/system";
+import moment from "moment";
 import { useEffect, useState } from "react";
 import { useHistory, useLocation, useParams } from "react-router-dom";
-import { getOneCollection } from "../api/api";
+
+import { getCollectionBulkImports, getOneCollection } from "../api/api";
 import BulkMint from "../Components/Collections/BulkMint";
 import CollectionActivities from "../Components/Collections/CollectionActivities";
 import CollectionInfo from "../Components/Collections/CollectionInfo";
@@ -11,6 +21,8 @@ import OverlayLoading from "../Components/common/OverlayLoading";
 import PageBanner from "../Components/common/PageBanner";
 import { StyledTab, StyledTabs } from "../Components/common/Tabs";
 import ExplorerFilter from "../Components/Explorer/Filter";
+import Link from "../Components/Link";
+import NoData from "../Components/NoData";
 import CreateCollectionDialog from "../Components/Profile/CreateCollectionDialog";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useSnackbar } from "../contexts/Snackbar";
@@ -27,7 +39,22 @@ const TABS = [
     label: "Activity",
     value: "activity",
   },
+  {
+    label: "Bulk Minting",
+    value: "bulk-mints",
+    auth: true,
+  },
 ];
+
+const statusColor = {
+  init: "info",
+  uploading: "info",
+  failed: "error",
+  success: "warning",
+  minted: "success",
+  completed: "success",
+  processing: "info",
+};
 
 export default function Collection() {
   const { id } = useParams();
@@ -45,6 +72,16 @@ export default function Collection() {
   const [showBulkMint, setShowBulkMint] = useState(false);
   const { wrongNetwork } = useWeb3();
   const { showSnackbar } = useSnackbar();
+  const [bulkMints, setBulkMints] = useState([]);
+
+  const fetchBulkMints = async () => {
+    try {
+      const reqs = await getCollectionBulkImports(id);
+      setBulkMints(reqs);
+    } catch (err) {
+      setBulkMints([]);
+    }
+  };
 
   const fetchCollection = async () => {
     const res = await sendRequest(
@@ -72,6 +109,16 @@ export default function Collection() {
     const v = query.get("tab") || TABS[0].value;
     setCurrentTab(v);
   }, [query]);
+
+  useEffect(() => {
+    if (!user || !collection || user.id !== collection.owner.id) {
+      setBulkMints([]);
+      return;
+    }
+    fetchBulkMints();
+  }, [collection, user]);
+
+  const showBulkMints = user && collection && user.id === collection.owner.id;
 
   const onChangeTab = (v) => {
     history.push({
@@ -117,14 +164,16 @@ export default function Collection() {
                 borderBottom: (t) => `1px solid ${t.palette.divider}`,
               }}
             >
-              {TABS.map((tab) => (
-                <StyledTab
-                  disableRipple
-                  label={tab.label}
-                  key={tab.value}
-                  value={tab.value}
-                />
-              ))}
+              {TABS.map((tab) =>
+                tab.auth && !showBulkMints ? null : (
+                  <StyledTab
+                    disableRipple
+                    label={tab.label}
+                    key={tab.value}
+                    value={tab.value}
+                  />
+                )
+              )}
             </StyledTabs>
             <Box my={4}>
               {currentTab === "items" && (
@@ -139,6 +188,43 @@ export default function Collection() {
               {currentTab === "activity" && (
                 <CollectionActivities collection={collection} />
               )}
+              {currentTab === "bulk-mints" &&
+                (bulkMints.length ? (
+                  bulkMints.map((req) => (
+                    <Card key={req.id} sx={{ mb: 2 }}>
+                      <Link to={`/bulk-mint/${req.id}`}>
+                        <CardContent>
+                          <Grid
+                            container
+                            spacing={2}
+                            justifyContent="space-between"
+                            alignItems="center"
+                          >
+                            <Grid item>
+                              <Typography fontWeight="bold">
+                                #{req.id}
+                              </Typography>
+                            </Grid>
+                            <Grid item>{req.totalNfts} nfts</Grid>
+                            <Grid item>
+                              {moment(req.created).format("YYYY-MM-DD HH:mm")}
+                            </Grid>
+                            <Grid item>
+                              <Chip
+                                variant="outlined"
+                                color={statusColor[req.status]}
+                                label={req.status.toUpperCase()}
+                                sx={{ fontWeight: 900 }}
+                              />
+                            </Grid>
+                          </Grid>
+                        </CardContent>
+                      </Link>
+                    </Card>
+                  ))
+                ) : (
+                  <NoData />
+                ))}
             </Box>
           </Container>
           {showEdit && !!collection && (

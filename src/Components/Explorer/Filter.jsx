@@ -23,7 +23,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 
 import { config } from "../../config";
 import useQuery from "../../hooks/useQuery";
-import { filterCollections } from "../../api/api";
+import { filterCollections, getOneCollection } from "../../api/api";
 import FormPopupButton from "../common/FormPopupButton";
 import { useCurrency } from "../../contexts/CurrencyContext";
 
@@ -250,6 +250,15 @@ export default function ExplorerFilter({ showCollection = true, properties }) {
     setSearchText(e.target.value);
     searchDebounceHandler("search", e.target.value);
   };
+
+  useEffect(() => {
+    const collectionId = query.get("collectionId");
+
+    if (!collectionId) {
+      return;
+    }
+    getOneCollection(collectionId).then((res) => setCollections([res]));
+  }, []);
 
   return (
     <FilterContainer>

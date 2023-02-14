@@ -3,10 +3,10 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { useTheme } from "@mui/material";
 
 import "react-multi-carousel/lib/styles.css";
-import "swiper/swiper.min.css";
-import "swiper/modules/navigation/navigation.min.css";
-import "swiper/modules/autoplay/autoplay.min.css";
-import "swiper/modules/free-mode/free-mode.min.css";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/autoplay";
+import "swiper/css/free-mode";
 
 import "./App.scss";
 import NavBar from "./Components/NavBar";

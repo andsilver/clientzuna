@@ -38,8 +38,8 @@ export default function BulkMint() {
   const [req, setReq] = useState();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { address, user } = useAuthContext();
-  const { wrongNetwork, contracts } = useWeb3();
+  const { user } = useAuthContext();
+  const { wrongNetwork, marketContract, mediaContract } = useWeb3();
   const { showSnackbar } = useSnackbar();
   const history = useHistory();
 
@@ -84,16 +84,8 @@ export default function BulkMint() {
         amounts.push(amount);
       });
 
-      await contracts.market.methods
-        .bulkPriceSet(tokenIds, erc20Addresses, amounts)
-        .estimateGas({
-          from: address,
-        });
-      await contracts.market.methods
-        .bulkPriceSet(tokenIds, erc20Addresses, amounts)
-        .send({
-          from: address,
-        });
+      await marketContract.bulkPriceSet(tokenIds, erc20Addresses, amounts);
+
       const request = await completeRequest(id, "completed");
       setReq(request);
 
@@ -101,7 +93,6 @@ export default function BulkMint() {
         severity: "success",
         message: "Price has been set. The nfts will be updated soon.",
       });
-      history.push(`/collections/${req.collectionId}`);
     } catch (err) {
       console.error(err);
       showSnackbar({
@@ -153,17 +144,13 @@ export default function BulkMint() {
         royalteFees.push(royaltyFee);
         tokenUris.push(tokenUri);
       });
-      console.log(tokenIds, royalteFees, tokenUris, req.collectionId);
-      await contracts.media.methods
-        .bulkMint(tokenIds, royalteFees, tokenUris, req.collectionId)
-        .estimateGas({
-          from: address,
-        });
-      await contracts.media.methods
-        .bulkMint(tokenIds, royalteFees, tokenUris, req.collectionId)
-        .send({
-          from: address,
-        });
+
+      await mediaContract.bulkMint(
+        tokenIds,
+        royalteFees,
+        tokenUris,
+        req.collectionId
+      );
       const request = await completeRequest(id, "minted");
       setReq(request);
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { config } from "../config";
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: config.apiUrl,
   headers: {
     "content-type": "application/json",
@@ -15,6 +15,14 @@ api.interceptors.request.use((config) => {
 });
 
 const dataExtractor = (res) => res.data;
+
+export const generateNonce = () =>
+  api.get("/auth/nonce").then(({ data }) => {
+    return data.nonce;
+  });
+
+export const verify = (nonce, message, signature) =>
+  api.post("/auth/verify", { nonce, message, signature }).then(dataExtractor);
 
 export const getNonce = (pubKey) =>
   api.post("/auth/nonce", { pubKey }).then(dataExtractor);
@@ -191,4 +199,7 @@ export const processRequest = (reqId) =>
   api.post(`/bulk-mint/${reqId}/process`);
 
 export const completeRequest = (reqId, status) =>
-  api.post(`/bulk-mint/${reqId}/complete`, { status });
+  api.post(`/bulk-mint/${reqId}/complete`, { status }).then(dataExtractor);
+
+export const getCollectionBulkImports = (collectionId) =>
+  api.get(`/collection/${collectionId}/bulk-mints`).then(dataExtractor);

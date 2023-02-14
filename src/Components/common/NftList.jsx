@@ -1,4 +1,4 @@
-import { Grid, Typography } from "@mui/material";
+import { Checkbox, Grid, Typography } from "@mui/material";
 
 import NoData from "../NoData";
 import SectionLoading from "../SectionLoading";
@@ -11,6 +11,9 @@ export default function NftList({
   loadMore = () => {},
   loading,
   count,
+  showCheckbox,
+  selected,
+  onCheckedChange,
 }) {
   return (
     <div>
@@ -33,6 +36,12 @@ export default function NftList({
                 md={4}
                 lg={3}
               >
+                {showCheckbox && (
+                  <Checkbox
+                    checked={selected.includes(nft.tokenAddress + nft.tokenId)}
+                    onChange={(e) => onCheckedChange(e, nft)}
+                  />
+                )}
                 <NftCard nft={nft} />
               </Grid>
             ))}

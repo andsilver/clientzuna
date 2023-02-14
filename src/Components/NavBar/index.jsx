@@ -15,11 +15,11 @@ import {
 import { useMemo } from "react";
 import { styled } from "@mui/system";
 import MenuIcon from "@mui/icons-material/Menu";
+import { useWeb3Modal } from "@web3modal/react";
 
 import HeaderSearch from "./HeaderSearch";
 import Logo from "./logo.png";
 import LightLogo from "./light-logo.png";
-// import WhatIsWallet from "../Cards/WhatIsWalletCard/WhatIsWallet";
 import { useAuthContext } from "../../contexts/AuthContext";
 import Link from "../Link";
 import ThemeSwitcher from "./ThemeSwitcher";
@@ -60,11 +60,12 @@ const LogoImg = styled("img")((t) => ({
 }));
 
 const NavBar = () => {
-  const { connect, user, disconnect } = useAuthContext();
+  const { user, disconnect, loading } = useAuthContext();
   const [open, setOpen] = useState(false);
   const {
     palette: { mode },
   } = useTheme();
+  const { open: openWeb3Modal } = useWeb3Modal();
 
   const trigger = useScrollTrigger({
     threshold: 200,
@@ -138,7 +139,8 @@ const NavBar = () => {
                     startIcon={<i className="fas fa-wallet" />}
                     variant="outlined"
                     color="bright"
-                    onClick={connect}
+                    disabled={loading}
+                    onClick={openWeb3Modal}
                   >
                     Wallet Connect
                   </ConnectButton>
@@ -182,7 +184,7 @@ const NavBar = () => {
                     color="secondary"
                     onClick={() => {
                       toggleDrawer(false);
-                      connect();
+                      openWeb3Modal();
                     }}
                   >
                     Wallet Connect
@@ -197,6 +199,11 @@ const NavBar = () => {
               </ListItem>
               <ListItem>
                 <ResponsiveNavLink to="/rewards">Rewards</ResponsiveNavLink>
+              </ListItem>
+              <ListItem>
+                <ResponsiveNavLink to="/collections">
+                  Collections
+                </ResponsiveNavLink>
               </ListItem>
               {user && (
                 <>

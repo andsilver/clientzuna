@@ -16,6 +16,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import ListIcon from "@mui/icons-material/List";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { useBalance } from "wagmi";
 
 import { useAuthContext } from "../../contexts/AuthContext";
 import { minimizeAddress } from "../../helper/utils";
@@ -42,8 +43,10 @@ const UserImage = styled("img")((t) => ({
 }));
 
 export default function UserDropdown() {
-  const { user, disconnect, balance } = useAuthContext();
-
+  const { user, disconnect } = useAuthContext();
+  const { data: balance } = useBalance({
+    address: user?.pubKey || "",
+  });
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -85,7 +88,7 @@ export default function UserDropdown() {
             Balance
           </Typography>
           <Typography variant="body1" color="secondary" fontWeight="bold">
-            {balance} BNB
+            {parseFloat((+balance?.formatted).toFixed(3)) || 0} BNB
           </Typography>
 
           <Typography color="primary" mt={1}>

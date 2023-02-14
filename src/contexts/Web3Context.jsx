@@ -1,28 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import Web3 from "web3";
-import { ethers } from "ethers";
+import { useChainId, useProvider, useSigner, useSignTypedData } from "wagmi";
+import { Contract } from "ethers";
 
 import mediaABI from "../contracts/abis/Zuna.json";
 import marketABI from "../contracts/abis/Market.json";
 import erc20ABI from "../contracts/abis/erc20.json";
 import market2ABI from "../contracts/abis/Market2.json";
 import erc721ABI from "../contracts/abis/erc721.json";
-
 import { config } from "../config";
 import { useAuthContext } from "./AuthContext";
 import { useSnackbar } from "./Snackbar";
-import { fromWei, getWeb3 } from "../helper/utils";
+import { fromWei } from "../helper/utils";
 import { useConfirm } from "./Confirm";
 import { useCurrency } from "./CurrencyContext";
 
 export const Web3Context = createContext({
   wrongNetwork: false,
-  contracts: {
-    media: null,
-    market: null,
-    market2: null,
-  },
   getErc20Contract: (address) => undefined,
   getErc721Contract: (address) => undefined,
   signEIP712: async (types, data, contract) => undefined,
@@ -30,14 +24,41 @@ export const Web3Context = createContext({
   serviceFee: 0,
   approveMarket: async () => {},
   approveNFT: async () => {},
+  marketContract: null,
+  mediaContract: null,
+  market2Contract: null,
 });
 
 export const Web3Provider = ({ children }) => {
-  const { chainId, provider, user } = useAuthContext();
+  const { user } = useAuthContext();
   const [serviceFee, setServiceFee] = useState(0);
   const { showSnackbar } = useSnackbar();
   const confirm = useConfirm();
   const { getCoinByAddress } = useCurrency();
+  const chainId = useChainId();
+  const { signTypedDataAsync } = useSignTypedData();
+  const { data: signer } = useSigner();
+  const provider = useProvider({
+    chainId: config.chainId,
+  });
+  const mediaContract = useMemo(
+    () => new Contract(config.nftContractAddress, mediaABI, signer || provider),
+    [signer, provider]
+  );
+  const marketContract = useMemo(
+    () =>
+      new Contract(config.marketContractAddress, marketABI, signer || provider),
+    [signer, provider]
+  );
+  const market2Contract = useMemo(
+    () =>
+      new Contract(
+        config.market2ContractAddress,
+        market2ABI,
+        signer || provider
+      ),
+    [signer, provider]
+  );
 
   const wrongNetwork = useMemo(() => {
     if (!chainId) {
@@ -49,37 +70,13 @@ export const Web3Provider = ({ children }) => {
     return false;
   }, [chainId]);
 
-  const contracts = useMemo(() => {
-    const instance = wrongNetwork || !provider ? getWeb3() : new Web3(provider);
-
-    const media = new instance.eth.Contract(
-      mediaABI,
-      config.nftContractAddress
-    );
-
-    const market = new instance.eth.Contract(
-      marketABI,
-      config.marketContractAddress
-    );
-
-    const market2 = new instance.eth.Contract(
-      market2ABI,
-      config.market2ContractAddress
-    );
-
-    return {
-      media,
-      market,
-      market2,
-    };
-  }, [provider, wrongNetwork]);
-
   const approveMarket = async (erc20Address, marketAddress) => {
     const erc20 = getErc20Contract(erc20Address);
-    const allowance = await erc20.methods
-      .allowance(user.pubKey, marketAddress || config.marketContractAddress)
-      .call();
-    const balance = await erc20.methods.balanceOf(user.pubKey).call();
+    const allowance = await erc20.allowance(
+      user.pubKey,
+      marketAddress || config.marketContractAddress
+    );
+    const balance = await erc20.balanceOf(user.pubKey);
 
     const coin = getCoinByAddress(erc20Address);
 
@@ -87,31 +84,25 @@ export const Web3Provider = ({ children }) => {
       throw new Error("Unspported coin");
     }
     const decimals = coin.decimals;
-    const amount = +fromWei(allowance, decimals);
-    const bAmount = +fromWei(balance, decimals);
+    const amount = +fromWei(allowance.toString(), decimals);
+    const bAmount = +fromWei(balance.toString(), decimals);
 
     if (amount > 100 || bAmount === 0) {
       return;
     }
-    await erc20.methods
-      .approve(
-        marketAddress || config.marketContractAddress,
-        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      )
-      .send({
-        from: user.pubKey,
-      });
+    await erc20.approve(
+      marketAddress || config.marketContractAddress,
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    );
   };
 
   const approveNFT = async (erc721Address, marketAddress) => {
     const erc721Contract = getErc721Contract(erc721Address);
 
-    const marketplaceApproved = await erc721Contract.methods
-      .isApprovedForAll(
-        user.pubKey,
-        marketAddress || config.marketContractAddress
-      )
-      .call();
+    const marketplaceApproved = await erc721Contract.isApprovedForAll(
+      user.pubKey,
+      marketAddress || config.marketContractAddress
+    );
 
     if (!marketplaceApproved) {
       await confirm({
@@ -121,9 +112,10 @@ export const Web3Provider = ({ children }) => {
         okText: "Approve",
       });
 
-      await erc721Contract.methods
-        .setApprovalForAll(marketAddress || config.marketContractAddress, true)
-        .send({ from: user.pubKey });
+      await erc721Contract.setApprovalForAll(
+        marketAddress || config.marketContractAddress,
+        true
+      );
     }
   };
 
@@ -134,24 +126,19 @@ export const Web3Provider = ({ children }) => {
       return "";
     }
     const erc20 = getErc20Contract(currency);
-    const balance = await erc20.methods.balanceOf(userAddress).call();
-    return fromWei(balance, coin.decimals);
+    const balance = await erc20.balanceOf(userAddress);
+    return fromWei(balance.toString(), coin.decimals);
   };
 
   const getServiceFee = async () => {
-    if (!contracts || !contracts.market) {
-      return 0;
-    }
-    const value = await contracts.market.methods.fee().call();
+    const value = await marketContract.fee();
     setServiceFee(value / 1000);
   };
 
   const signEIP712 = async (types, data, contract) => {
-    if (!provider || !chainId || !user || wrongNetwork) {
+    if (!user || wrongNetwork) {
       return;
     }
-    const p = new ethers.providers.Web3Provider(provider);
-    const signer = p.getSigner();
     const domain = {
       ...(contract === "market"
         ? config.sign.market
@@ -159,7 +146,13 @@ export const Web3Provider = ({ children }) => {
         ? config.sign.market2
         : config.sign.zuna),
     };
-    return await signer._signTypedData(domain, types, data);
+
+    return await signTypedDataAsync({
+      domain,
+      types,
+      value: data,
+    });
+    // return await signer._signTypedData(domain, types, data);
   };
 
   const showWrongNetworkWarning = () => {
@@ -170,26 +163,24 @@ export const Web3Provider = ({ children }) => {
   };
 
   const getErc20Contract = (address) => {
-    const instance = wrongNetwork || !provider ? getWeb3() : new Web3(provider);
-
-    return new instance.eth.Contract(erc20ABI, address);
+    return new Contract(address, erc20ABI, signer || provider);
   };
 
   const getErc721Contract = (address) => {
-    const instance = wrongNetwork || !provider ? getWeb3() : new Web3(provider);
-
-    return new instance.eth.Contract(erc721ABI, address);
+    return new Contract(address, erc721ABI, signer || provider);
   };
 
   useEffect(() => {
+    if (!marketContract) {
+      return;
+    }
     getServiceFee();
-  }, [contracts]);
+  }, [marketContract]);
 
   return (
     <Web3Context.Provider
       value={{
         provider,
-        contracts,
         wrongNetwork,
         getErc20Contract,
         signEIP712,
@@ -199,10 +190,12 @@ export const Web3Provider = ({ children }) => {
         serviceFee,
         approveMarket,
         approveNFT,
+        mediaContract,
+        marketContract,
+        market2Contract,
       }}
     >
       {children}
-      {/* <WrongNetwork show={chainId && wrongNetwork} /> */}
     </Web3Context.Provider>
   );
 };

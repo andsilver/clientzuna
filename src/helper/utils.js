@@ -1,5 +1,4 @@
-import Web3 from "web3";
-
+import { BigNumber, utils } from "ethers";
 import { config } from "../config";
 
 export const sameAddress = (addr1, addr2) =>
@@ -9,7 +8,7 @@ export const minimizeAddress = (address, start = 14, end = -11) =>
   address ? `${address.substr(0, start)}...${address.substr(end)}` : "";
 
 export const generateRandomTokenId = () => {
-  return Web3.utils.hexToNumberString(Web3.utils.randomHex(32));
+  return BigNumber.from(utils.randomBytes(16)).toString();
 };
 
 export function timeSince(date) {
@@ -61,30 +60,14 @@ export function nFormatter(num, digits = 2) {
     : parseFloat((+num).toFixed(digits));
 }
 
-export const getWeb3 = (rpc) => new Web3(rpc || config.chainRPC);
-
 export const copyText = (text) => navigator.clipboard.writeText(text);
 
 export const fromWei = (value, decimals) => {
-  if (decimals === 18) {
-    return Web3.utils.fromWei(value);
-  } else if (decimals === 9) {
-    return Web3.utils.fromWei(value, "gwei");
-  }
-  const bn = Web3.utils.toBN(value);
-  const ten = Web3.utils.toBN(10);
-  return bn.div(ten.pow(Web3.utils.toBN(decimals))).toString();
+  return utils.formatUnits(value, decimals);
 };
 
 export const toWei = (value, decimals) => {
-  if (decimals === 18) {
-    return Web3.utils.toWei(value);
-  } else if (decimals === 9) {
-    return Web3.utils.toWei(value, "gwei");
-  }
-  const bn = Web3.utils.toBN(value);
-  const ten = Web3.utils.toBN(10);
-  return bn.mul(ten.pow(Web3.utils.toBN(decimals))).toString();
+  return utils.parseUnits(value, decimals);
 };
 
 export const wait = (seconds) =>

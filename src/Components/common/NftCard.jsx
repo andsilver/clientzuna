@@ -89,16 +89,16 @@ export default function NftCard({ nft }) {
 
   return (
     <StyledNftCard>
-      <Box p={2} position="relative">
+      <Box p={1} position="relative">
         <Link to={`/items/${nft.tokenAddress}/${nft.tokenId}`}>
           <CardActionArea
-            sx={{ borderRadius: 2, overflow: "hidden", position: "relative" }}
+            sx={{ borderRadius: 3, overflow: "hidden", position: "relative" }}
           >
             <CardMedia
               image={nft.thumbnail || EmptyNft}
               title={nft.name || "Unnamed"}
               component="img"
-              height={280}
+              height={320}
             />
           </CardActionArea>
         </Link>
@@ -111,7 +111,7 @@ export default function NftCard({ nft }) {
           &nbsp;{favorites}
         </LikeButton>
       </Box>
-      <CardContent sx={{ position: "relative", pt: 0 }}>
+      <CardContent sx={{ position: "relative", pt: 0, pb: `12px !important` }}>
         <Typography color="primary" variant="h6" mb={1} fontWeight="bold">
           {nft.name}
         </Typography>

@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import Web3 from "web3";
+import { utils } from 'ethers';
 import { Box, Button, Container, Grid, Typography } from "@mui/material";
 
 import { useSnackbar } from "../contexts/Snackbar";
@@ -79,7 +79,9 @@ const NFTDetailComponent = () => {
     wrongNetwork,
     showWrongNetworkWarning,
     signEIP712,
-    contracts,
+    mediaContract,
+    marketContract,
+    market2Contract,
     getErc20Balance,
     getErc721Contract,
     approveMarket,
@@ -165,9 +167,7 @@ const NFTDetailComponent = () => {
         nft.currentAsk &&
         !Object.keys(nft.currentAsk.typedData).length
       ) {
-        await contracts.market.methods.removePrice(nft.tokenId).send({
-          from: user.pubKey,
-        });
+        await marketContract.removePrice(nft.tokenId);
         await wait(40);
       } else {
         await removeNFTSale(nft.tokenAddress, nft.tokenId);
@@ -199,9 +199,7 @@ const NFTDetailComponent = () => {
         nft.currentAsk &&
         !Object.keys(nft.currentAsk.typedData).length
       ) {
-        await contracts.market.methods.removePrice(nft.tokenId).send({
-          from: user.pubKey,
-        });
+        await marketContract.removePrice(nft.tokenId);
       }
 
       if (data.instantSale) {
@@ -278,33 +276,25 @@ const NFTDetailComponent = () => {
       if (buying) {
         try {
           if (nft.minted) {
-            const marketContract = isZunaNFT
-              ? contracts.market
-              : contracts.market2;
+            const contract = isZunaNFT ? marketContract : market2Contract;
 
             if (nft.currentAsk.typedData.signature) {
-              await marketContract.methods
-                .buy(user.pubKey, nft.currentAsk.typedData)
-                .send({ from: user.pubKey });
+              await contract.buy(user.pubKey, nft.currentAsk.typedData);
             } else {
-              await marketContract.methods
-                .buyOnChain(tokenId)
-                .send({ from: user.pubKey });
+              await contract.buyOnChain(tokenId);
             }
           } else {
-            await contracts.media.methods
-              .lazyBuyMint(
-                nft.tokenId,
-                {
-                  tokenId: nft.tokenId,
-                  royaltyFee: nft.royaltyFee,
-                  collectionId: nft.collectionId || 0,
-                  tokenUri: nft.tokenUri,
-                  signature: nft.signature,
-                },
-                nft.currentAsk.typedData
-              )
-              .send({ from: user.pubKey });
+            await mediaContract.lazyBuyMint(
+              nft.tokenId,
+              {
+                tokenId: nft.tokenId,
+                royaltyFee: nft.royaltyFee,
+                collectionId: nft.collectionId || 0,
+                tokenUri: nft.tokenUri,
+                signature: nft.signature,
+              },
+              nft.currentAsk.typedData
+            );
           }
         } catch (err) {
           setLoading(false);
@@ -400,9 +390,7 @@ const NFTDetailComponent = () => {
 
     try {
       if (nft.minted) {
-        await erc721Contract.methods
-          .burn(nft.tokenId)
-          .send({ from: user.pubKey });
+        await erc721Contract.burn(nft.tokenId);
       } else {
         await burnNFT(nft.tokenAddress, nft.tokenId);
       }
@@ -418,7 +406,7 @@ const NFTDetailComponent = () => {
   };
 
   const onTransfer = async (address) => {
-    if (!Web3.utils.isAddress(address)) {
+    if (!utils.isAddress(address)) {
       return showSnackbar({
         severity: "error",
         message: "Invalid wallet address",
@@ -437,9 +425,7 @@ const NFTDetailComponent = () => {
     setLoading(true);
 
     try {
-      await erc721Contract.methods
-        .transferFrom(user.pubKey, address, nft.tokenId)
-        .send({ from: user.pubKey });
+      await erc721Contract.transferFrom(user.pubKey, address, nft.tokenId);
       await wait(40);
       await fetchNFT();
       showSnackbar({
@@ -466,7 +452,7 @@ const NFTDetailComponent = () => {
 
     await confirm({
       title: "Are you sure to accept the bid?",
-      text: "The action cannot be reverted once your nft is transfered",
+      text: "The action cannot be reverted",
     });
 
     const bidderBalance = await getErc20Balance(
@@ -485,27 +471,20 @@ const NFTDetailComponent = () => {
 
     try {
       if (nft.minted) {
-        const marketContract = isZunaNFT ? contracts.market : contracts.market2;
-        await marketContract.methods
-          .acceptOffer(user.pubKey, bid.typedData)
-          .estimateGas({ from: user.pubKey });
-        await marketContract.methods
-          .acceptOffer(user.pubKey, bid.typedData)
-          .send({ from: user.pubKey });
+        const contract = isZunaNFT ? marketContract : market2Contract;
+        await contract.acceptOffer(user.pubKey, bid.typedData);
       } else {
-        await contracts.media.methods
-          .lazyAcceptOfferMint(
-            nft.tokenId,
-            {
-              tokenId: nft.tokenId,
-              royaltyFee: nft.royaltyFee,
-              collectionId: nft.collectionId || 0,
-              tokenUri: nft.tokenUri,
-              signature: nft.signature,
-            },
-            bid.typedData
-          )
-          .send({ from: user.pubKey });
+        await mediaContract.lazyAcceptOfferMint(
+          nft.tokenId,
+          {
+            tokenId: nft.tokenId,
+            royaltyFee: nft.royaltyFee,
+            collectionId: nft.collectionId || 0,
+            tokenUri: nft.tokenUri,
+            signature: nft.signature,
+          },
+          bid.typedData
+        );
       }
       await wait(40);
       showSnackbar({

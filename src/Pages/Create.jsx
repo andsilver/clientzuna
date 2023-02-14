@@ -17,6 +17,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
+import { useHistory } from "react-router-dom";
 
 import {
   createNFT,
@@ -29,8 +30,6 @@ import Switch from "../Components/common/Switch";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useWeb3 } from "../contexts/Web3Context";
 import { generateRandomTokenId } from "../helper/utils";
-import { useHistory } from "react-router-dom";
-import { useConfirm } from "../contexts/Confirm";
 import { config } from "../config";
 import { useSnackbar } from "../contexts/Snackbar";
 import TopBanner from "../Components/common/TopBanner";
@@ -55,8 +54,8 @@ const LabelField = styled(Typography)({
 
 export default function Create() {
   const history = useHistory();
-  const { user, connect } = useAuthContext();
-  const { wrongNetwork, signEIP712, contracts } = useWeb3();
+  const { user } = useAuthContext();
+  const { wrongNetwork, signEIP712, approveNFT } = useWeb3();
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState();
   const [nftDetails, setNftDetails] = useState({
@@ -76,7 +75,6 @@ export default function Create() {
   const [loading, setLoading] = useState(false);
   const [collections, setCollections] = useState([]);
 
-  const confirm = useConfirm();
   const { showSnackbar } = useSnackbar();
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -120,16 +118,18 @@ export default function Create() {
   };
 
   const create = async () => {
-    if (wrongNetwork) {
-      showSnackbar({
-        severity: "error",
-        message: `Wrong Network. Please switch to ${config.networkName}`,
+    if (!user) {
+      return showSnackbar({
+        severity: "warning",
+        message: `Please sign in to continue`,
       });
-      return;
     }
 
-    if (!user) {
-      connect();
+    if (wrongNetwork) {
+      showSnackbar({
+        severity: "warning",
+        message: `Wrong Network. Please switch to ${config.networkName}`,
+      });
       return;
     }
 
@@ -143,24 +143,10 @@ export default function Create() {
 
     try {
       if (onSale) {
-        const marketplaceApproved = await contracts.media.methods
-          .isApprovedForAll(user.pubKey, config.marketContractAddress)
-          .call();
-
-        if (!marketplaceApproved) {
-          await confirm({
-            title: "APPROVE MARKETPLACE",
-            text: "One-time Approval for further transactions",
-            cancelText: "",
-            okText: "Approve",
-          });
-
-          setLoading(true);
-
-          await contracts.media.methods
-            .setApprovalForAll(config.marketContractAddress, true)
-            .send({ from: user.pubKey });
-        }
+        await approveNFT(
+          config.nftContractAddress,
+          config.marketContractAddress
+        );
       }
 
       setLoading(true);

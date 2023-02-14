@@ -17,9 +17,9 @@ export default memo(({ coin, price, usd, size = 20, align = "center" }) => {
           {price || "-"}
         </Typography>
       </Grid>
-      {usd && (
+      {!!price && (
         <Typography ml={1} color="primary" fontSize={12}>
-          ${usd}
+          ${usd || 0}
         </Typography>
       )}
     </Grid>
