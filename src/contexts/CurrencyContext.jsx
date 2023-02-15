@@ -13,7 +13,6 @@ export const CurrencyProvider = ({ children }) => {
   const [coins, setCoins] = useState([]);
 
   const fetchCurrencies = async () => {
-    console.log("currencies");
     try {
       const currencies = await getCurrencies();
       setCoins(currencies);
