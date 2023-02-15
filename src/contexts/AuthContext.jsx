@@ -12,6 +12,7 @@ export const AuthContext = createContext({
   isAdmin: false,
   user: null,
   fetchUser: async () => null,
+  login: () => null,
 });
 
 export const AuthProvider = ({ children }) => {
@@ -97,6 +98,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       login();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
   return (
@@ -107,6 +109,7 @@ export const AuthProvider = ({ children }) => {
         disconnect: logout,
         fetchUser,
         user,
+        login,
       }}
     >
       {children}

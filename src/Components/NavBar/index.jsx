@@ -16,6 +16,7 @@ import { useMemo } from "react";
 import { styled } from "@mui/system";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useWeb3Modal } from "@web3modal/react";
+import { useAccount } from "wagmi";
 
 import HeaderSearch from "./HeaderSearch";
 import Logo from "./logo.png";
@@ -60,11 +61,12 @@ const LogoImg = styled("img")((t) => ({
 }));
 
 const NavBar = () => {
-  const { user, disconnect, loading } = useAuthContext();
+  const { user, disconnect, loading, login } = useAuthContext();
   const [open, setOpen] = useState(false);
   const {
     palette: { mode },
   } = useTheme();
+  const { address } = useAccount();
   const { open: openWeb3Modal } = useWeb3Modal();
 
   const trigger = useScrollTrigger({
@@ -81,6 +83,14 @@ const NavBar = () => {
 
   const toggleDrawer = (value) => {
     setOpen(value);
+  };
+
+  const connect = () => {
+    if (!address) {
+      openWeb3Modal();
+    } else {
+      login();
+    }
   };
 
   return (
@@ -140,7 +150,7 @@ const NavBar = () => {
                     variant="outlined"
                     color="bright"
                     disabled={loading}
-                    onClick={openWeb3Modal}
+                    onClick={connect}
                   >
                     Wallet Connect
                   </ConnectButton>
@@ -184,7 +194,7 @@ const NavBar = () => {
                     color="secondary"
                     onClick={() => {
                       toggleDrawer(false);
-                      openWeb3Modal();
+                      connect();
                     }}
                   >
                     Wallet Connect

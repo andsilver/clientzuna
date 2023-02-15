@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 
 import { filterNfts } from "../../api/api";
 import { config } from "../../config";
+import { useAuthContext } from "../../contexts/AuthContext";
 import { useSnackbar } from "../../contexts/Snackbar";
 import { useWeb3 } from "../../contexts/Web3Context";
+import { sameAddress } from "../../helper/utils";
 import useLoading from "../../hooks/useLoading";
 import useNftFilterQuery from "../../hooks/useNftFilterQuery";
 import NftList from "../common/NftList";
@@ -23,6 +25,9 @@ export default function NftsCollected({ userAddress }) {
   const { mediaContract } = useWeb3();
   const { showSnackbar } = useSnackbar();
   const [loadingBurn, setLoadingBurn] = useState(false);
+  const { user } = useAuthContext();
+
+  const isOwner = sameAddress(user?.pubKey, userAddress);
 
   const fetchNfts = async (init) => {
     const { count, result } = await sendRequest(() =>
@@ -42,7 +47,10 @@ export default function NftsCollected({ userAddress }) {
 
   useEffect(() => {
     fetchNfts(true);
-    setSelected([]);
+
+    if (isOwner) {
+      setSelected([]);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
@@ -99,49 +107,51 @@ export default function NftsCollected({ userAddress }) {
   return (
     <>
       {loadingBurn && <OverlayLoading show />}
-      <Grid
-        container
-        justifyContent="flex-end"
-        mb={2}
-        alignItems="center"
-        spacing={2}
-      >
-        {showCheckbox && selected.length > 0 && (
+      {isOwner && (
+        <Grid
+          container
+          justifyContent="flex-end"
+          mb={2}
+          alignItems="center"
+          spacing={2}
+        >
+          {showCheckbox && selected.length > 0 && (
+            <Grid item>
+              <Button variant="contained" color="error" onClick={burn}>
+                Burn
+              </Button>
+            </Grid>
+          )}
+          {showCheckbox && selected.length > 0 && (
+            <Grid item>
+              <Button variant="outlined" color="primary" onClick={unselectAll}>
+                Unselect All
+              </Button>
+            </Grid>
+          )}
+          {showCheckbox && (
+            <Grid item>
+              <Button variant="outlined" color="primary" onClick={selectAll}>
+                Select All
+              </Button>
+            </Grid>
+          )}
           <Grid item>
-            <Button variant="contained" color="error" onClick={burn}>
-              Burn
-            </Button>
+            <FormControlLabel
+              labelPlacement="start"
+              control={
+                <Switch
+                  sx={{ mx: 2 }}
+                  checked={showCheckbox}
+                  onChange={handleChange}
+                />
+              }
+              label={<Typography color="primary">Show Checkbox</Typography>}
+              color="primary"
+            />
           </Grid>
-        )}
-        {showCheckbox && selected.length > 0 && (
-          <Grid item>
-            <Button variant="outlined" color="primary" onClick={unselectAll}>
-              Unselect All
-            </Button>
-          </Grid>
-        )}
-        {showCheckbox && (
-          <Grid item>
-            <Button variant="outlined" color="primary" onClick={selectAll}>
-              Select All
-            </Button>
-          </Grid>
-        )}
-        <Grid item>
-          <FormControlLabel
-            labelPlacement="start"
-            control={
-              <Switch
-                sx={{ mx: 2 }}
-                checked={showCheckbox}
-                onChange={handleChange}
-              />
-            }
-            label={<Typography color="primary">Show Checkbox</Typography>}
-            color="primary"
-          />
         </Grid>
-      </Grid>
+      )}
       <ExplorerFilter />
       <NftList
         showCheckbox={showCheckbox}
