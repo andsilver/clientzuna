@@ -42,6 +42,7 @@ export default function NftsCollected({ userAddress }) {
 
   useEffect(() => {
     fetchNfts(true);
+    setSelected([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 

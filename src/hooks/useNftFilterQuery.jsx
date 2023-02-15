@@ -14,6 +14,7 @@ export default function useNftFilterQuery() {
       currency: query.get("currency") || "",
       order: query.get("order") || "",
       orderBy: query.get("orderBy") || "",
+      properties: query.get("properties") || "",
     };
   }, [query]);
 }
