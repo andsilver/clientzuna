@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { filterCollections } from "../../api/api";
 import { sameAddress } from "../../helper/utils";
 import CollectionCard from "../Collections/CollectionCard";
+import NoData from "../NoData";
 import SectionLoading from "../SectionLoading";
 import CreateCollectionDialog from "./CreateCollectionDialog";
 
@@ -56,13 +57,17 @@ export default function Collections({ userAddress, currentUser }) {
           </Button>
         </Grid>
       )}
-      <Grid container spacing={2} mt={2}>
-        {collections.map((c) => (
-          <Grid item xs={12} sm={6} md={4} xl={3} key={c.id}>
-            <CollectionCard collection={c} />
-          </Grid>
-        ))}
-      </Grid>
+      {collections.length ? (
+        <Grid container spacing={2} mt={2}>
+          {collections.map((c) => (
+            <Grid item xs={12} sm={6} md={4} xl={3} key={c.id}>
+              <CollectionCard collection={c} />
+            </Grid>
+          ))}
+        </Grid>
+      ) : (
+        !loading && <NoData />
+      )}
       {showCreateCollection && (
         <CreateCollectionDialog
           onClose={() => setShowCreateCollection(false)}

@@ -18,6 +18,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useWeb3 } from "../../contexts/Web3Context";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { useCurrency } from "../../contexts/CurrencyContext";
+import { nFormatter } from "../../helper/utils";
 
 const OfferDialogContainer = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -177,7 +178,7 @@ export default function OfferDialog({
             </Grid>
             <Grid item>
               <Typography color="primary" fontSize={18} fontWeight={700}>
-                {currencyBalance} {symbol}
+                {nFormatter(currencyBalance)} {symbol}
               </Typography>
             </Grid>
           </Grid>

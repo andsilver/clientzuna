@@ -15,6 +15,8 @@ export const AuthContext = createContext({
   login: () => null,
 });
 
+const bc = new BroadcastChannel("auth_channel");
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -22,6 +24,9 @@ export const AuthProvider = ({ children }) => {
   const { chain } = useNetwork();
   const { signMessageAsync } = useSignMessage();
   const { disconnectAsync } = useDisconnect();
+  const [focused, setFocused] = useState(
+    document.visibilityState === "visible"
+  );
 
   const login = async () => {
     const chainId = chain?.id;
@@ -41,6 +46,10 @@ export const AuthProvider = ({ children }) => {
           return;
         }
       } catch (err) {}
+    }
+
+    if (!focused) {
+      return;
     }
 
     try {
@@ -63,6 +72,7 @@ export const AuthProvider = ({ children }) => {
       const { accessToken, user } = await verify(nonce, message, signature);
       localStorage.setItem("token", accessToken);
       setUser(user);
+      bc.postMessage("refresh");
     } catch (err) {}
 
     setLoading(false);
@@ -72,6 +82,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
     disconnectAsync();
     setUser(null);
+    bc.postMessage("refresh");
   };
 
   const fetchUser = async () => {
@@ -100,6 +111,23 @@ export const AuthProvider = ({ children }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
+
+  const onVisibilityChange = () => {
+    setFocused(document.visibilityState === "visible");
+  };
+
+  useEffect(() => {
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    bc.onmessage = () => {
+      window.location.reload();
+    };
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AuthContext.Provider
