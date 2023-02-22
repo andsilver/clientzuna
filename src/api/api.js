@@ -128,6 +128,9 @@ export const pinJsonsToIPFS = (data) =>
 
 export const createNFT = (data) => api.post("/nft", data).then(dataExtractor);
 
+export const createTempNFT = (data) =>
+  api.post("/nft/temp", data).then(dataExtractor);
+
 export const updateNFTSale = (tokenAddress, tokenId, data) =>
   api.post(`/nft/${tokenAddress}/${tokenId}/sale`, data);
 
@@ -198,8 +201,15 @@ export const getBulkMintRequest = (reqId) =>
 export const processRequest = (reqId) =>
   api.post(`/bulk-mint/${reqId}/process`);
 
-export const completeRequest = (reqId, status) =>
-  api.post(`/bulk-mint/${reqId}/complete`, { status }).then(dataExtractor);
+export const bulkMintIndexMint = (reqId, block, logs) =>
+  api
+    .post(`/bulk-mint/${reqId}/index/mint`, { block, logs })
+    .then(dataExtractor);
+
+export const bulkMintIndexSetPrice = (reqId, block, logs) =>
+  api
+    .post(`/bulk-mint/${reqId}/index/set-price`, { block, logs })
+    .then(dataExtractor);
 
 export const getCollectionBulkImports = (collectionId) =>
   api.get(`/collection/${collectionId}/bulk-mints`).then(dataExtractor);

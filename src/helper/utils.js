@@ -1,5 +1,4 @@
 import { BigNumber, utils } from "ethers";
-import { config } from "../config";
 
 export const sameAddress = (addr1, addr2) =>
   addr1?.toLowerCase() === addr2?.toLowerCase();

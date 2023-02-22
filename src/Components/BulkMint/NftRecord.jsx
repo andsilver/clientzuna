@@ -48,7 +48,7 @@ export default memo(({ nft }) => {
               </Typography>
             </Grid>
             <Grid item>
-              {nft.processed ? (
+              {nft.tokenUri ? (
                 <CheckCircle color="success" />
               ) : (
                 <CircularProgress size={16} />

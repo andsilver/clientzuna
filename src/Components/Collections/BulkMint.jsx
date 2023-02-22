@@ -83,62 +83,39 @@ export default function BulkMint({ onClose, collectionId }) {
         collectionId,
         imageFiles.length
       );
-      // const chunkSize = 5;
+      const chunkSize = 10;
 
-      // for (let i = 0; i < imageFiles.length; i+= chunkSize) {
-      //   const chunkImages = imageFiles.slice(i, i + chunkSize);
-      //   const chunkCsv = csv.slice(i, i + chunkSize);
-      //   const formData = new FormData();
+      for (let i = 0; i < imageFiles.length; i += chunkSize) {
+        const chunkImages = imageFiles.slice(i, i + chunkSize);
+        const chunkCsv = csv.slice(i, i + chunkSize);
 
-      //   for (const file of chunkImages) {
-      //     formData.append("files", file);
-      //   }
-      //   const imagePins = await pinImagesToIPFS(formData);
-      //   const jsonPins = await pinJsonsToIPFS(
-      //     chunkCsv.map((nft, index) => ({
-      //       name: nft.name,
-      //       description: nft.description,
-      //       category: nft.category,
-      //       image: `ipfs://${imagePins[index].IpfsHash}`,
-      //       properties: nft.properties,
-      //     }))
-      //   );
-      //   const chunkVouchers = chunkCsv.map((nft, index) => ({
-      //     royaltyFee: `${+nft.royaltyFee * 1000}`,
-      //     tokenUri: `ipfs://${jsonPins[index].IpfsHash}`,
-      //   }));
-      //   vouchers.push(...chunkVouchers);
-      //   setUploadingProgress(Math.ceil((i * 100) / imageFiles.length));
-      // }
+        await Promise.all(
+          chunkImages.map(async (image, index) => {
+            const json = chunkCsv[index];
+            const formData = new FormData();
 
-      // const chunkSize = 5;
+            let amount = "0";
 
-      for (let i = 0; i < imageFiles.length; i++) {
-        const image = imageFiles[i];
-        const json = csv[i];
-        const formData = new FormData();
+            if (+json.amount) {
+              amount = toWei(`${json.amount}`, json.decimals);
+            }
 
-        let amount = "0";
+            formData.append("file", image);
+            formData.append("name", json.name);
+            formData.append("description", json.description);
+            formData.append("category", json.category);
+            formData.append("properties", JSON.stringify(json.properties));
+            formData.append(
+              "erc20Address",
+              json.erc20Address || "0x0000000000000000000000000000000000000000"
+            );
+            formData.append("royaltyFee", +json.royaltyFee * 1000);
+            formData.append("amount", amount);
+            formData.append("tokenId", json.tokenId);
 
-        if (+json.amount) {
-          amount = toWei(`${json.amount}`, json.decimals);
-        }
-
-        formData.append("file", image);
-        formData.append("name", json.name);
-        formData.append("description", json.description);
-        formData.append("category", json.category);
-        formData.append("properties", JSON.stringify(json.properties));
-        formData.append(
-          "erc20Address",
-          json.erc20Address || "0x0000000000000000000000000000000000000000"
+            await uploadNftForBulkMint(bulkReq.id, formData);
+          })
         );
-        formData.append("royaltyFee", +json.royaltyFee * 1000);
-        formData.append("amount", amount);
-        formData.append("tokenId", json.tokenId);
-
-        await uploadNftForBulkMint(bulkReq.id, formData);
-
         setUploadingProgress(Math.ceil((i * 100) / imageFiles.length));
       }
       setUploadingProgress(100);
@@ -161,77 +138,6 @@ export default function BulkMint({ onClose, collectionId }) {
       setStep(1);
       return;
     }
-
-    // try {
-    //   setLoading(true);
-
-    //   const tokenIds = csv.map((nft) => nft.tokenId);
-
-    //   const royalteFees = [],
-    //     tokenUris = [],
-    //     erc20Addresses = [],
-    //     amounts = [];
-
-    //   csv.forEach((nft, index) => {
-    //     let amount = "0";
-
-    //     if (+nft.amount) {
-    //       amount = toWei(`${nft.amount}`, nft.decimals);
-    //     }
-    //     const { royaltyFee, tokenUri } = vouchers[index];
-    //     royalteFees.push(royaltyFee);
-    //     tokenUris.push(tokenUri);
-    //     erc20Addresses.push(
-    //       nft.erc20Address || "0x0000000000000000000000000000000000000000"
-    //     );
-    //     amounts.push(amount);
-    //   });
-    //   console.log(
-    //     tokenIds,
-    //     royalteFees,
-    //     tokenUris,
-    //     collectionId,
-    //     erc20Addresses,
-    //     amounts
-    //   );
-    //   await media.methods
-    //     .bulkMint(
-    //       tokenIds,
-    //       royalteFees,
-    //       tokenUris,
-    //       collectionId,
-    //       erc20Addresses,
-    //       amounts
-    //     )
-    //     .estimateGas({
-    //       from: address,
-    //     });
-    //   await media.methods
-    //     .bulkMint(
-    //       tokenIds,
-    //       royalteFees,
-    //       tokenUris,
-    //       collectionId,
-    //       erc20Addresses,
-    //       amounts
-    //     )
-    //     .send({
-    //       from: address,
-    //     });
-    //   showSnackbar({
-    //     severity: "success",
-    //     message:
-    //       "Successfully minted. Please wait for some time for the nfts appearing in the marketplace.",
-    //   });
-    //   onClose();
-    // } catch (err) {
-    //   console.error(err);
-    //   showSnackbar({
-    //     severity: "error",
-    //     message: "Failed to mint",
-    //   });
-    //   setStep(1);
-    // }
     setLoading(false);
   };
 

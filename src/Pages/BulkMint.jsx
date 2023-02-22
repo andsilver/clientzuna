@@ -12,7 +12,8 @@ import { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
 import {
-  completeRequest,
+  bulkMintIndexMint,
+  bulkMintIndexSetPrice,
   getBulkMintRequest,
   processRequest,
 } from "../api/api";
@@ -32,6 +33,8 @@ const statusColor = {
   completed: "success",
   processing: "info",
 };
+
+let timeout = null;
 
 export default function BulkMint() {
   const { id } = useParams();
@@ -53,7 +56,7 @@ export default function BulkMint() {
       }
 
       if (request.status === "uploading" || request.status === "processing") {
-        setTimeout(() => fetchReq(), 10000);
+        timeout = setTimeout(() => fetchReq(), 10000);
       }
     } catch (err) {
       console.error(err);
@@ -84,9 +87,29 @@ export default function BulkMint() {
         amounts.push(amount);
       });
 
-      await marketContract.bulkPriceSet(tokenIds, erc20Addresses, amounts);
-
-      const request = await completeRequest(id, "completed");
+      const res = await marketContract.bulkPriceSet(
+        tokenIds,
+        erc20Addresses,
+        amounts
+      );
+      const receipt = await res.wait();
+      const { logs: rawLogs, blockHash, blockNumber } = receipt;
+      const block = {
+        number: blockNumber,
+        hash: blockHash,
+        timestamp: `${Math.round(Date.now() / 1000)}`,
+      };
+      const logs = rawLogs.map((l) => ({
+        logIndex: l.logIndex,
+        transactionHash: l.transactionHash,
+        address: l.address,
+        data: l.data,
+        topic0: l.topics[0],
+        topic1: l.topics[1],
+        topic2: l.topics[2],
+        topic3: l.topics[3],
+      }));
+      const request = await bulkMintIndexSetPrice(id, block, logs);
       setReq(request);
 
       showSnackbar({
@@ -115,7 +138,6 @@ export default function BulkMint() {
       await processRequest(id);
       return;
     } catch (err) {
-      console.error(err);
       const { req: request } = await getBulkMintRequest(id);
       setReq(request);
 
@@ -127,6 +149,11 @@ export default function BulkMint() {
           message: "It's already completed",
         });
       } else if (req.status !== "success") {
+        console.error(err);
+        showSnackbar({
+          severity: "info",
+          message: err?.response?.data?.message || "Please try again later",
+        });
         return;
       }
     }
@@ -145,13 +172,31 @@ export default function BulkMint() {
         tokenUris.push(tokenUri);
       });
 
-      await mediaContract.bulkMint(
+      const res = await mediaContract.bulkMint(
         tokenIds,
         royalteFees,
         tokenUris,
         req.collectionId
       );
-      const request = await completeRequest(id, "minted");
+      const receipt = await res.wait();
+      const { logs: rawLogs, blockHash, blockNumber } = receipt;
+      const block = {
+        number: blockNumber,
+        hash: blockHash,
+        timestamp: `${Math.round(Date.now() / 1000)}`,
+      };
+      const logs = rawLogs.map((l) => ({
+        logIndex: l.logIndex,
+        transactionHash: l.transactionHash,
+        address: l.address,
+        data: l.data,
+        topic0: l.topics[0],
+        topic1: l.topics[1],
+        topic2: l.topics[2],
+        topic3: l.topics[3],
+      }));
+
+      const request = await bulkMintIndexMint(id, block, logs);
       setReq(request);
 
       showSnackbar({
@@ -180,6 +225,7 @@ export default function BulkMint() {
 
   useEffect(() => {
     fetchReq();
+    clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -198,19 +244,29 @@ export default function BulkMint() {
       </TopBanner>
       {req && (
         <Container maxWidth="lg" sx={{ mb: 8, pt: 3 }}>
-          <Grid container alignItems="center" spacing={2}>
-            <Grid item>
-              <Typography variant="h6" color="primary">
+          <Grid
+            container
+            alignItems="center"
+            justifyContent="space-between"
+            spacing={2}
+          >
+            <Grid item display="flex" alignItems="center">
+              <Typography variant="h6" color="primary" mr={2}>
                 Status:
               </Typography>
-            </Grid>
-            <Grid item>
               <Chip
                 variant="outlined"
                 color={statusColor[req.status]}
                 label={req.status.toUpperCase()}
                 sx={{ fontWeight: 900 }}
               />
+            </Grid>
+            <Grid item>
+              {["processing", "failed", "uploading"].includes(req.status) && (
+                <Button onClick={process} variant="contained" color="secondary">
+                  Retry
+                </Button>
+              )}
             </Grid>
           </Grid>
           <Grid
@@ -225,11 +281,6 @@ export default function BulkMint() {
               </Typography>
             </Grid>
             <Grid item>
-              {req.status === "failed" && (
-                <Button onClick={process} variant="contained" color="secondary">
-                  Retry
-                </Button>
-              )}
               {user?.id === req.userId && req.status === "success" && (
                 <Button onClick={mint} variant="contained" color="secondary">
                   Mint

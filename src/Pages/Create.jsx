@@ -19,12 +19,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import { useHistory } from "react-router-dom";
 
-import {
-  createNFT,
-  filterCollections,
-  pinImageToIPFS,
-  pinJsonToIPFS,
-} from "../api/api";
+import { createNFT, createTempNFT, filterCollections } from "../api/api";
 import OverlayLoading from "../Components/common/OverlayLoading";
 import Switch from "../Components/common/Switch";
 import { useAuthContext } from "../contexts/AuthContext";
@@ -151,26 +146,31 @@ export default function Create() {
 
       setLoading(true);
 
+      const tokenId = generateRandomTokenId();
+      const royaltyFee = nftDetails.royalties * 1000;
+
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("tokenId", tokenId);
+      formData.append("name", nftDetails.name);
+      formData.append("description", nftDetails.description);
+      formData.append("category", nftDetails.category);
+      formData.append(
+        "properties",
+        JSON.stringify(nftDetails.properties.filter((p) => p.name && p.value))
+      );
+      formData.append("royaltyFee", royaltyFee);
+      nftDetails.collectionId &&
+        formData.append("collectionId", nftDetails.collectionId);
+      formData.append("onSale", onSale);
 
-      const { IpfsHash } = await pinImageToIPFS(formData);
-
-      const metadata = {
-        name: nftDetails.name,
-        description: nftDetails.description,
-        category: nftDetails.category,
-        image: `ipfs://${IpfsHash}`,
-        properties: nftDetails.properties.filter((p) => p.name && p.value),
-      };
-
-      const { IpfsHash: metadataHash } = await pinJsonToIPFS(metadata);
+      const { tokenUri, id: tempNftId } = await createTempNFT(formData);
 
       const voucher = {
-        tokenId: generateRandomTokenId(),
-        royaltyFee: nftDetails.royalties * 1000,
+        tokenId,
+        royaltyFee,
         collectionId: nftDetails.collectionId,
-        tokenUri: `ipfs://${metadataHash}`,
+        tokenUri,
       };
 
       const types = {
@@ -196,10 +196,9 @@ export default function Create() {
       const signature = await signEIP712(types, voucher);
 
       const data = await createNFT({
-        ...metadata,
-        ...voucher,
+        tokenId,
         signature,
-        onSale,
+        tempNftId,
       });
       history.push(`/items/${data.tokenAddress}/${data.tokenId}`);
     } catch (err) {
