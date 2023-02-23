@@ -116,6 +116,7 @@ export default function Collection() {
       return;
     }
     fetchBulkMints();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collection, user]);
 
   const showBulkMints = user && collection && user.id === collection.owner.id;

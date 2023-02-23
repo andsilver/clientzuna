@@ -43,9 +43,8 @@ export default function Collections({ userAddress, currentUser }) {
 
   return (
     <div>
-      {loading && <SectionLoading />}
       {isMe && (
-        <Grid container mt={3}>
+        <Grid container mt={3} mb={2}>
           <Button
             variant="contained"
             color="secondary"
@@ -58,7 +57,7 @@ export default function Collections({ userAddress, currentUser }) {
         </Grid>
       )}
       {collections.length ? (
-        <Grid container spacing={2} mt={2}>
+        <Grid container spacing={2}>
           {collections.map((c) => (
             <Grid item xs={12} sm={6} md={4} xl={3} key={c.id}>
               <CollectionCard collection={c} />
@@ -68,6 +67,7 @@ export default function Collections({ userAddress, currentUser }) {
       ) : (
         !loading && <NoData />
       )}
+      {loading && <SectionLoading />}
       {showCreateCollection && (
         <CreateCollectionDialog
           onClose={() => setShowCreateCollection(false)}

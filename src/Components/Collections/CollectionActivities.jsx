@@ -55,7 +55,7 @@ export default function CollectionActivities({ collection, size = 12 }) {
             ))}
           </Grid>
         ) : (
-          <NoData />
+          !loading && <NoData />
         )}
         {!allLoaded && !loading && (
           <Grid container justifyContent="center" mt={2}>
