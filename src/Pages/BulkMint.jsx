@@ -23,6 +23,7 @@ import { useAuthContext } from "../contexts/AuthContext";
 import { useWeb3 } from "../contexts/Web3Context";
 import { useSnackbar } from "../contexts/Snackbar";
 import OverlayLoading from "../Components/common/OverlayLoading";
+import { convertTxReceipt } from "../helper/utils";
 
 const statusColor = {
   init: "info",
@@ -93,22 +94,7 @@ export default function BulkMint() {
         amounts
       );
       const receipt = await res.wait();
-      const { logs: rawLogs, blockHash, blockNumber } = receipt;
-      const block = {
-        number: blockNumber,
-        hash: blockHash,
-        timestamp: `${Math.round(Date.now() / 1000)}`,
-      };
-      const logs = rawLogs.map((l) => ({
-        logIndex: l.logIndex,
-        transactionHash: l.transactionHash,
-        address: l.address,
-        data: l.data,
-        topic0: l.topics[0],
-        topic1: l.topics[1],
-        topic2: l.topics[2],
-        topic3: l.topics[3],
-      }));
+      const { block, logs } = convertTxReceipt(receipt);
       const request = await bulkMintIndexSetPrice(id, block, logs);
       setReq(request);
 
@@ -179,23 +165,7 @@ export default function BulkMint() {
         req.collectionId
       );
       const receipt = await res.wait();
-      const { logs: rawLogs, blockHash, blockNumber } = receipt;
-      const block = {
-        number: blockNumber,
-        hash: blockHash,
-        timestamp: `${Math.round(Date.now() / 1000)}`,
-      };
-      const logs = rawLogs.map((l) => ({
-        logIndex: l.logIndex,
-        transactionHash: l.transactionHash,
-        address: l.address,
-        data: l.data,
-        topic0: l.topics[0],
-        topic1: l.topics[1],
-        topic2: l.topics[2],
-        topic3: l.topics[3],
-      }));
-
+      const { block, logs } = convertTxReceipt(receipt);
       const request = await bulkMintIndexMint(id, block, logs);
       setReq(request);
 

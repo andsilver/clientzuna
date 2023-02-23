@@ -1,12 +1,12 @@
 import { Button, FormControlLabel, Grid, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { filterNfts } from "../../api/api";
+import { addStreamEvent, filterNfts } from "../../api/api";
 import { config } from "../../config";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { useSnackbar } from "../../contexts/Snackbar";
 import { useWeb3 } from "../../contexts/Web3Context";
-import { sameAddress } from "../../helper/utils";
+import { convertTxReceipt, sameAddress, wait } from "../../helper/utils";
 import useLoading from "../../hooks/useLoading";
 import useNftFilterQuery from "../../hooks/useNftFilterQuery";
 import NftList from "../common/NftList";
@@ -80,19 +80,23 @@ export default function NftsCollected({ userAddress }) {
     setLoadingBurn(true);
 
     try {
-      const ids = selected.map((id) =>
-        id.replace(config.nftContractAddress.toLowerCase(), "")
-      );
-      await mediaContract.bulkBurn(ids);
+      const ids = selected
+        .filter((id) =>
+          id.toLowerCase().includes(config.nftContractAddress.toLowerCase())
+        )
+        .map((id) => id.replace(config.nftContractAddress.toLowerCase(), ""));
+      const res = await mediaContract.bulkBurn(ids);
+      const receipt = await res.wait();
+      const { block, logs } = convertTxReceipt(receipt);
+      await addStreamEvent(block, logs);
+      await wait(10);
 
       showSnackbar({
         severity: "success",
         message:
           "Nfts are burned. They won't be shown in the marketplace after some time",
       });
-      setNfts((nfts) =>
-        nfts.filter((nft) => !selected.includes(nft.tokenAddress + nft.tokenId))
-      );
+      fetchNfts(true);
       setSelected([]);
     } catch (err) {
       console.error(err);

@@ -213,3 +213,10 @@ export const bulkMintIndexSetPrice = (reqId, block, logs) =>
 
 export const getCollectionBulkImports = (collectionId) =>
   api.get(`/collection/${collectionId}/bulk-mints`).then(dataExtractor);
+
+export const addStreamEvent = (block, logs, eventType) =>
+  api.post("/stream/add", {
+    block,
+    logs,
+    eventType,
+  });

@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import { utils } from 'ethers';
+import { utils } from "ethers";
 import { Box, Button, Container, Grid, Typography } from "@mui/material";
 
 import { useSnackbar } from "../contexts/Snackbar";
 import {
+  addStreamEvent,
   burnNFT,
   favoriteNft,
   getNft,
@@ -19,7 +20,7 @@ import NFTInfo from "../Components/NFTDetail/NFTInfo";
 import NFTHistory from "../Components/NFTDetail/NFTHistory";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useWeb3 } from "../contexts/Web3Context";
-import { sameAddress, toWei, wait } from "../helper/utils";
+import { convertTxReceipt, sameAddress, toWei, wait } from "../helper/utils";
 import OfferDialog from "../Components/common/OfferDialog";
 import { config } from "../config";
 import { useConfirm } from "../contexts/Confirm";
@@ -167,8 +168,9 @@ const NFTDetailComponent = () => {
         nft.currentAsk &&
         !Object.keys(nft.currentAsk.typedData).length
       ) {
-        await marketContract.removePrice(nft.tokenId);
-        await wait(40);
+        const res = await marketContract.removePrice(nft.tokenId);
+        const receipt = await res.wait();
+        await refreshWithTx(receipt);
       } else {
         await removeNFTSale(nft.tokenAddress, nft.tokenId);
       }
@@ -199,7 +201,9 @@ const NFTDetailComponent = () => {
         nft.currentAsk &&
         !Object.keys(nft.currentAsk.typedData).length
       ) {
-        await marketContract.removePrice(nft.tokenId);
+        const res = await marketContract.removePrice(nft.tokenId);
+        const receipt = await res.wait();
+        await refreshWithTx(receipt);
       }
 
       if (data.instantSale) {
@@ -235,7 +239,7 @@ const NFTDetailComponent = () => {
           typedData: listing,
         });
       } else {
-        await updateNFTSale(nft.tokenAddress, nft.tokenAddress, data);
+        await updateNFTSale(nft.tokenAddress, nft.tokenId, data);
       }
       await fetchNFT();
       showSnackbar({
@@ -275,16 +279,23 @@ const NFTDetailComponent = () => {
 
       if (buying) {
         try {
+          let receipt;
+
           if (nft.minted) {
             const contract = isZunaNFT ? marketContract : market2Contract;
 
             if (nft.currentAsk.typedData.signature) {
-              await contract.buy(user.pubKey, nft.currentAsk.typedData);
+              const res = await contract.buy(
+                user.pubKey,
+                nft.currentAsk.typedData
+              );
+              receipt = await res.wait();
             } else {
-              await contract.buyOnChain(tokenId);
+              const res = await contract.buyOnChain(tokenId);
+              receipt = await res.wait();
             }
           } else {
-            await mediaContract.lazyBuyMint(
+            const res = await mediaContract.lazyBuyMint(
               nft.tokenId,
               {
                 tokenId: nft.tokenId,
@@ -295,21 +306,20 @@ const NFTDetailComponent = () => {
               },
               nft.currentAsk.typedData
             );
+            receipt = await res.wait();
           }
+          await refreshWithTx(receipt);
+          showSnackbar({
+            severity: "success",
+            message: "The nft has been bought successfully.",
+          });
         } catch (err) {
-          setLoading(false);
           showSnackbar({
             severity: "error",
             message: "Buying transaction has been failed.",
           });
           throw err;
         }
-        await wait(40);
-        await fetchNFT();
-        showSnackbar({
-          severity: "success",
-          message: "The nft has been bought successfully.",
-        });
       } else {
         const offer = {
           tokenId: nft.tokenId,
@@ -390,7 +400,9 @@ const NFTDetailComponent = () => {
 
     try {
       if (nft.minted) {
-        await erc721Contract.burn(nft.tokenId);
+        const res = await erc721Contract.burn(nft.tokenId);
+        const receipt = await res.wait();
+        await refreshWithTx(receipt);
       } else {
         await burnNFT(nft.tokenAddress, nft.tokenId);
       }
@@ -425,9 +437,13 @@ const NFTDetailComponent = () => {
     setLoading(true);
 
     try {
-      await erc721Contract.transferFrom(user.pubKey, address, nft.tokenId);
-      await wait(40);
-      await fetchNFT();
+      const res = await erc721Contract.transferFrom(
+        user.pubKey,
+        address,
+        nft.tokenId
+      );
+      const receipt = await res.wait();
+      await refreshWithTx(receipt);
       showSnackbar({
         severity: "success",
         message: "The nft has been transfered.",
@@ -470,11 +486,13 @@ const NFTDetailComponent = () => {
     setLoading(true);
 
     try {
+      let res;
+
       if (nft.minted) {
         const contract = isZunaNFT ? marketContract : market2Contract;
-        await contract.acceptOffer(user.pubKey, bid.typedData);
+        res = await contract.acceptOffer(user.pubKey, bid.typedData);
       } else {
-        await mediaContract.lazyAcceptOfferMint(
+        res = await mediaContract.lazyAcceptOfferMint(
           nft.tokenId,
           {
             tokenId: nft.tokenId,
@@ -486,7 +504,8 @@ const NFTDetailComponent = () => {
           bid.typedData
         );
       }
-      await wait(40);
+      const receipt = await res.wait();
+      await refreshWithTx(receipt);
       showSnackbar({
         severity: "success",
         message: "The nft has been sold successfully.",
@@ -499,6 +518,13 @@ const NFTDetailComponent = () => {
       });
     }
     setLoading(false);
+  };
+
+  const refreshWithTx = async (receipt) => {
+    const { block, logs } = convertTxReceipt(receipt, tokenAddress);
+    await addStreamEvent(block, logs);
+    await wait(10);
+    await fetchNFT();
   };
 
   useEffect(() => {
