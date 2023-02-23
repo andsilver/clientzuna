@@ -68,6 +68,7 @@ const topics = [
   "0x70c2398672297895be58f2db6fb72c1f5395909f266db7bb25e557545cffdccb",
   "0x69e0c42f8f93a15104bf76fb82e77e46d0af18278924ca1d45f0d087727150b0",
   "0x2da2a946c794e9ad7ceda69deeb5e724c5463c3b98df56b021c26e4148457f63",
+  "0xfd65d36ef51c53fb4f44447dc4bb1054ba6815e91b646590ca9fab0375327991",
 ];
 
 export const convertTxReceipt = (receipt, tokenAddress) => {
