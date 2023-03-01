@@ -2,12 +2,12 @@ import { Tab, Tabs, useMediaQuery } from "@mui/material";
 import { styled } from "@mui/system";
 
 export const StyledTabs = styled((props) => {
-  const lg = useMediaQuery((t) => t.breakpoints.down("lg"));
+  // const xl = useMediaQuery((t) => t.breakpoints.down("xl"));
 
   return (
     <Tabs
       {...props}
-      variant={props.variant || (lg ? "scrollable" : "fullWidth")}
+      variant={props.variant || "scrollable"}
       scrollButtons="auto"
       allowScrollButtonsMobile
       TabIndicatorProps={{

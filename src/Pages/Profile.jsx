@@ -13,7 +13,6 @@ import Followings from "../Components/Profile/Followings";
 import NftsCollected from "../Components/Profile/NftsCollected";
 import NftsCreated from "../Components/Profile/NftsCreated";
 import NftsFavorited from "../Components/Profile/NftsFavorited";
-// import NftsOnSale from "../Components/Profile/NftsOnSale";
 import Rewards from "../Components/Profile/Rewards";
 import UserActivities from "../Components/Profile/UserActivities";
 import OtherNfts from "../Components/Profile/OtherNfts";
@@ -21,6 +20,8 @@ import { useAuthContext } from "../contexts/AuthContext";
 import { useSnackbar } from "../contexts/Snackbar";
 import { sameAddress } from "../helper/utils";
 import useQuery from "../hooks/useQuery";
+import IncomingBids from "../Components/Profile/IncomingBids";
+import OutgoingBids from "../Components/Profile/OutgoingBids";
 
 const FollowTag = styled("div")((t) => ({
   background: t.theme.palette.secondary.main,
@@ -37,10 +38,6 @@ const TABS = [
     label: "Collections",
     value: "collections",
   },
-  // {
-  //   label: "On Sale",
-  //   value: "on-sale",
-  // },
   {
     label: "Created",
     value: "created",
@@ -115,12 +112,17 @@ export default function Profile() {
 
   useEffect(() => {
     if (sameAddress(profileAddress, user?.pubKey)) {
-      setTabs([...TABS, { label: "Rewards", value: "rewards" }]);
+      setTabs([
+        ...TABS,
+        { label: "Incoming Bids", value: "incoming-bids" },
+        { label: "Outgoing Bids", value: "outgoing-bids" },
+        { label: "Rewards", value: "rewards" },
+      ]);
     } else {
       setTabs([...TABS]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, profileAddress]);
 
   return (
     <div style={{ marginTop: -80 }}>
@@ -199,6 +201,12 @@ export default function Profile() {
                   )}
                   {currentTab === "others" && (
                     <OtherNfts userAddress={profileAddress} />
+                  )}
+                  {currentTab === "incoming-bids" && (
+                    <IncomingBids incoming userAddress={profileAddress} />
+                  )}
+                  {currentTab === "outgoing-bids" && (
+                    <OutgoingBids userAddress={profileAddress} />
                   )}
                 </Box>
               </Grid>

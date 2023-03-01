@@ -99,6 +99,12 @@ export const getLikedNfts = (pubKey, offset) =>
 export const getUserActivities = (pubKey, params) =>
   api.get(`/user/${pubKey}/activities`, { params }).then(dataExtractor);
 
+export const getUserIncomingBids = (pubKey, params) =>
+  api.get(`/user/${pubKey}/bids/incoming`, { params }).then(dataExtractor);
+
+export const getUserOutgoingBids = (pubKey, params) =>
+  api.get(`/user/${pubKey}/bids/outgoing`, { params }).then(dataExtractor);
+
 export const filterActivities = (params) =>
   api.get(`/activities`, { params }).then(dataExtractor);
 
@@ -220,3 +226,6 @@ export const addStreamEvent = (block, logs, eventType) =>
     logs,
     eventType,
   });
+
+export const searchMarketplace = (text) =>
+  api.get("/search", { params: { text } }).then(dataExtractor);
