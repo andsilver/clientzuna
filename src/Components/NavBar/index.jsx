@@ -197,7 +197,7 @@ const NavBar = () => {
                       connect();
                     }}
                   >
-                    Wallet Connect
+                    {address ? "Sign Message" : "Wallet Connect"}
                   </ConnectButton>
                 </ListItem>
               )}
