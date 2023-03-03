@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Carousel from "react-multi-carousel";
 
 import { getHomeData, getTopBuyers, getTopSellers } from "../../api/api";
+import { useCurrency } from "../../contexts/CurrencyContext";
 import { nFormatter } from "../../helper/utils";
 import useLoading from "../../hooks/useLoading";
 import CollectionCard from "../Collections/CollectionCard";
@@ -58,6 +59,7 @@ export default function HomeItems() {
   const [topBuyerCurrency, setTopBuyerCurrency] = useState("WBNB");
   const [topSellerCurrency, setTopSellerCurrency] = useState("WBNB");
   const { loading, sendRequest } = useLoading();
+  const { coins } = useCurrency();
 
   const fetchTopSellers = async () => {
     try {
@@ -145,20 +147,18 @@ export default function HomeItems() {
                 </Grid>
                 <Grid item xs={5}>
                   <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                    <Chip
-                      label="WBNB"
-                      color={
-                        topSellerCurrency === "WBNB" ? "secondary" : "default"
-                      }
-                      onClick={() => setTopSellerCurrency("WBNB")}
-                    />
-                    <Chip
-                      label="ZUNA"
-                      color={
-                        topSellerCurrency === "ZUNA" ? "secondary" : "default"
-                      }
-                      onClick={() => setTopSellerCurrency("ZUNA")}
-                    />
+                    {coins.map((c) => (
+                      <Chip
+                        key={c.id}
+                        label={c.symbol}
+                        color={
+                          topSellerCurrency === c.symbol
+                            ? "secondary"
+                            : "default"
+                        }
+                        onClick={() => setTopSellerCurrency(c.symbol)}
+                      />
+                    ))}
                   </Stack>
                 </Grid>
               </Grid>
@@ -195,20 +195,18 @@ export default function HomeItems() {
                 </Grid>
                 <Grid item xs={5}>
                   <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                    <Chip
-                      label="WBNB"
-                      color={
-                        topBuyerCurrency === "WBNB" ? "secondary" : "default"
-                      }
-                      onClick={() => setTopBuyerCurrency("WBNB")}
-                    />
-                    <Chip
-                      label="ZUNA"
-                      color={
-                        topBuyerCurrency === "ZUNA" ? "secondary" : "default"
-                      }
-                      onClick={() => setTopBuyerCurrency("ZUNA")}
-                    />
+                    {coins.map((c) => (
+                      <Chip
+                        key={c.id}
+                        label={c.symbol}
+                        color={
+                          topBuyerCurrency === c.symbol
+                            ? "secondary"
+                            : "default"
+                        }
+                        onClick={() => setTopBuyerCurrency(c.symbol)}
+                      />
+                    ))}
                   </Stack>
                 </Grid>
               </Grid>

@@ -28,6 +28,21 @@ export const AuthProvider = ({ children }) => {
     document.visibilityState === "visible"
   );
 
+  const checkUser = async () => {
+    if (!localStorage.getItem("token")) {
+      return;
+    }
+
+    try {
+      const user = await getMe();
+
+      if (sameAddress(user.pubKey, address)) {
+        setUser(user);
+        setLoading(false);
+      }
+    } catch (err) {}
+  };
+
   const login = async () => {
     const chainId = chain?.id;
 
@@ -35,18 +50,6 @@ export const AuthProvider = ({ children }) => {
       return;
     }
     setLoading(true);
-
-    if (localStorage.getItem("token")) {
-      try {
-        const user = await getMe();
-
-        if (sameAddress(user.pubKey, address)) {
-          setUser(user);
-          setLoading(false);
-          return;
-        }
-      } catch (err) {}
-    }
 
     if (!focused) {
       return;
@@ -107,7 +110,7 @@ export const AuthProvider = ({ children }) => {
     if (!address) {
       setUser(null);
     } else {
-      login();
+      checkUser();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);

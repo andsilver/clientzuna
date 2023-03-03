@@ -71,34 +71,34 @@ export default memo(({ collection }) => {
             ))}
           </ImageList>
         </Box>
-        <Grid container alignItems="center" flexDirection="column">
-          <CollectionImageContainer
-            style={{ backgroundImage: `url(${collection.image})` }}
-          />
-          <Typography fontWeight="bold" fontSize={22} mt={0.5}>
-            {collection.name}
-          </Typography>
-          <Box display="flex" alignItems="center">
-            <Typography
-              fontSize={16}
-              sx={(t) => ({
-                color:
-                  t.palette.mode === "dark"
-                    ? t.palette.grey[400]
-                    : t.palette.grey[700],
-              })}
-            >
-              Created By
-            </Typography>
-            <Link to={`/users/${collection.owner.pubKey}`}>
-              <Typography fontSize={18} ml={1} fontWeight="bold">
-                {collection.owner.name ||
-                  minimizeAddress(collection.owner.pubKey, 4, -4)}
-              </Typography>
-            </Link>
-          </Box>
-        </Grid>
       </Link>
+      <Grid container alignItems="center" flexDirection="column">
+        <CollectionImageContainer
+          style={{ backgroundImage: `url(${collection.image})` }}
+        />
+        <Typography fontWeight="bold" fontSize={22} mt={0.5}>
+          {collection.name}
+        </Typography>
+        <Box display="flex" alignItems="center">
+          <Typography
+            fontSize={16}
+            sx={(t) => ({
+              color:
+                t.palette.mode === "dark"
+                  ? t.palette.grey[400]
+                  : t.palette.grey[700],
+            })}
+          >
+            Created By
+          </Typography>
+          <Link to={`/users/${collection.owner.pubKey}`}>
+            <Typography fontSize={18} ml={1} fontWeight="bold">
+              {collection.owner.name ||
+                minimizeAddress(collection.owner.pubKey, 4, -4)}
+            </Typography>
+          </Link>
+        </Box>
+      </Grid>
     </Card>
   );
 });

@@ -152,7 +152,7 @@ const NavBar = () => {
                     disabled={loading}
                     onClick={connect}
                   >
-                    Wallet Connect
+                    {address ? "Sign Message" : "Wallet Connect"}
                   </ConnectButton>
                 </Grid>
               )}
