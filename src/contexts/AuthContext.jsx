@@ -4,6 +4,11 @@ import { SiweMessage } from "siwe";
 
 import { getMe, getNonce, verify } from "../api/api";
 import { sameAddress } from "../helper/utils";
+import {
+  StyledDialog,
+  StyledDialogTitle,
+} from "../Components/common/DialogElements";
+import { Button, DialogContent, Grid, Typography } from "@mui/material";
 
 export const AuthContext = createContext({
   connect: () => null,
@@ -27,9 +32,11 @@ export const AuthProvider = ({ children }) => {
   const [focused, setFocused] = useState(
     document.visibilityState === "visible"
   );
+  const [showSignMessage, setShowSignMessage] = useState(false);
 
   const checkUser = async () => {
     if (!localStorage.getItem("token")) {
+      setShowSignMessage(true);
       return;
     }
 
@@ -39,8 +46,12 @@ export const AuthProvider = ({ children }) => {
       if (sameAddress(user.pubKey, address)) {
         setUser(user);
         setLoading(false);
+      } else {
+        setShowSignMessage(true);
       }
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const login = async () => {
@@ -79,6 +90,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {}
 
     setLoading(false);
+    setShowSignMessage(false);
   };
 
   const logout = () => {
@@ -132,6 +144,10 @@ export const AuthProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onCloseSignMessage = () => {
+    setShowSignMessage(false);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -144,6 +160,53 @@ export const AuthProvider = ({ children }) => {
       }}
     >
       {children}
+      <StyledDialog onClose={onCloseSignMessage} open={showSignMessage}>
+        <StyledDialogTitle onClose={onCloseSignMessage}>
+          <Typography color="primary" fontWeight="bold">
+            Sign Message
+          </Typography>
+        </StyledDialogTitle>
+        <DialogContent>
+          <Grid
+            sx={{
+              width: 350,
+              maxWidth: "100%",
+            }}
+            container
+            alignItems="center"
+            justifyContent="center"
+            spacing={2}
+            direction="column"
+          >
+            <Grid item>
+              <Typography variant="subtitle1" textAlign="center">
+                Please sign the message to sign-in
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                color="secondary"
+                sx={{ width: 180 }}
+                onClick={login}
+                disabled={loading}
+              >
+                Continue with wallet
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                color="primary"
+                disabled={loading}
+                sx={{ width: 180 }}
+                onClick={onCloseSignMessage}
+              >
+                Cancel
+              </Button>
+            </Grid>
+          </Grid>
+        </DialogContent>
+      </StyledDialog>
     </AuthContext.Provider>
   );
 };
